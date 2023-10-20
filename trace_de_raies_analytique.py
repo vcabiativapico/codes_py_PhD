@@ -16,7 +16,7 @@ import geophy_tools as gt
 
 ### ONDELETTE 
 from scipy.signal import ricker
-import numpy as np
+
 
 def ricker_creation(freq_principale,si=0.001):
     
@@ -140,7 +140,7 @@ fig  = plt.figure(figsize=(10,8), facecolor = "white")
 av   = plt.subplot(1,1,1)
 hfig = av.imshow(inp_w, extent=[ao[0],ao[-1],at[-1],at[0]], aspect='auto',\
                   vmin=hmin,vmax=hmax,cmap='seismic')
-flout  = './png/12_wf_simple/trace_de_raies.png'
+flout  = '../png/12_wf_simple/trace_de_raies.png'
 print("Export to file:",flout)
 fig.tight_layout()
 fig.savefig(flout, bbox_inches='tight')
@@ -171,7 +171,7 @@ fig.savefig(flout, bbox_inches='tight')
 hmin,hmax = -0.01,0.01
 
 
-fl1  = './output/05_simple/born/t1_obs_000301.dat'
+fl1  = '../output/05_simple/born/t1_obs_000301.dat'
 # fl1  = './output//t1_obs_000301.dat'
 # no   = 403
 
@@ -182,7 +182,7 @@ hmin = -hmax
 
 ## For plotting the shots after modelling
 
-flout  = './png/12_wf_simple/obs_0301_born_2060.png'
+flout  = '../png/12_wf_simple/obs_0301_born_2060.png'
 
 fig  = plt.figure(figsize=(10,8), facecolor = "white")
 av   = plt.subplot(1,1,1)
@@ -200,7 +200,7 @@ fig.tight_layout()
 hmin,hmax = -0.01,0.01
 
 
-fl2  = './output/05_simple/fwi/t1_obs_000301.dat'
+fl2  = '../output/05_simple/fwi/t1_obs_000301.dat'
 
 inp2 = gt.readbin(fl2,no,nt).transpose()
 # hmax = np.max(np.abs(inp1))/2
@@ -209,7 +209,7 @@ inp2 = gt.readbin(fl2,no,nt).transpose()
 inp3 =inp1+inp2
 ## For plotting the shots after modelling
 
-flout  = './png/12_wf_simple/obs_0301_fwi_2060.png'
+flout  = '../png/12_wf_simple/obs_0301_fwi_2060.png'
 
 fig  = plt.figure(figsize=(10,8), facecolor = "white")
 av   = plt.subplot(1,1,1)

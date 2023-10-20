@@ -47,8 +47,9 @@ if __name__ == "__main__":
     az        = fz + np.arange(nz)*dz
     ax        = fx + np.arange(nx)*dx
 
+#%%
     hmin,hmax = 1.5,4.0
-    fl1       = './input/org/marm2_sel.dat'
+    fl1       = '../input/org/marm2_sel.dat'
     inp1      = gt.readbin(fl1,nz,nx)
     perc      = 0.9
         
@@ -101,7 +102,7 @@ if __name__ == "__main__":
         fig = plt.figure(figsize=(10,8), facecolor = "white")
         av  = plt.subplot(1,1,1)
         hfig = av.imshow(inp)
-        plt.colorbar(hfig)
+        # plt.colorbar(hfig)
         fig.tight_layout()
         # flout3 = './png/rho_picks.png'
         # print("Export to file:",flout3)
@@ -139,8 +140,8 @@ if __name__ == "__main__":
         minp_x = pickt[0,0]
         maxp_x = pickt[0,-1]
     # Or extend to the limits of the grid     
-        minp_x = int(fx)
-        maxp_x = int(nx)
+        # minp_x = int(fx)
+        # maxp_x = int(nx)
         
     # Create a tck for interpolation with bspline
         tck = interpolate.splrep(pickt_x,pickt_y, s=10)
@@ -155,7 +156,7 @@ if __name__ == "__main__":
         plt.show()
         plt.ylim(-151,0) 
     # Convert into a matrix    
-        # ynew= np.asarray(ynew).astype(int)
+        ynew= np.asarray(ynew).astype(int)
         ynew= np.asarray(ynew)
         index = (ynew,xnew)
         rhof_int=np.zeros(inp1.shape) + vbg
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         fig.tight_layout()
         
         
-        return rhof_int, index,xnew,ynew
+        return rhof_int, index
     
     
 
@@ -232,39 +233,130 @@ def fill_custom_model(V_model,v_1,v_2,v_3,pente_1,pente_2):
 
 #%%
 
-fl3 = './input/15_picked_models/vel_full_3_CO2.dat'
+fl3 = '../input/25_v2_4_layers/4_interfaces_new_02.dat'
 inp3 = gt.readbin(fl3,nz,nx) 
 
 model3, interface3 = pick_interface(inp3)
 
-pente_3 = interface3[0] * 12.49/1000
+# pente_3 = interface3[0] * 12.49/1000
   
-for k in range(model3.shape[1]):
-    for i,z in enumerate(az):
+# for k in range(model3.shape[1]):
+#     for i,z in enumerate(az):
         
-        if z >= pente_3[k]:
-            model3[i,k] = 3.0
+#         if z >= pente_3[k]:
+#             model3[i,k] = 3.0
 
 
 outmodel = model3
-gt.writebin(outmodel,'./input/24_pick/3_interfaces.dat')      
-model_export = './input/24_pick/3_interfaces.dat'
+gt.writebin(outmodel,'../input/25_v2_4_layers/4_interfaces_ano.dat')      
+model_export = '../input/25_v2_4_layers/4_interfaces_ano.dat'
 inp3 = gt.readbin(model_export,nz,nx)            
             
 fig = plt.figure(figsize=(10,5))            
 hfig = plt.pcolor(ax,az,inp3)   
 plt.colorbar(hfig) 
 plt.gca().invert_yaxis()       
-flout3 = './png/test3_vel_full_model.png'
+flout3 = '../png/25_v2_4_layers/4_interfaces_ano.png'
 fig.savefig(flout3, bbox_inches='tight')
 
 
+df = pd.DataFrame(interface3)
+df.to_csv('../png/25_v2_4_layers/table_pick_ano.csv',header=False,index=False)
+
+pente_1 = interface3[0] * 12.49/1000
+pente_2 = interface3[0] * 12.49/1000+0.5
+
+      
+for k in range(model3.shape[1]):
+    for i,z in enumerate(az):
+        
+        if z >= pente_1[k] and z < pente_2[k]:
+            model3[i,k] = 3.0
+
+
+#%%    
+
+def plot_model(inp, flout):
+    # hmax = np.max(np.abs(inp2))
+    # hmin = -hmax
+
+    # print(hmin,hmax)
+
+    hmax = 3.3
+    hmin = 1.5
+    # hmin = np.max(inp)
+    # hmax = -hmin
+    # hmin = 0
+    fig = plt.figure(figsize=(10, 5), facecolor="white")
+    av = plt.subplot(1, 1, 1)
+    hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
+                      vmin=hmin, vmax=hmax, aspect='auto', alpha=1
+                      )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Depth (km)')
+    plt.colorbar(hfig1) 
+    print("Export to file:",flout)
+    fig.savefig(flout, bbox_inches='tight')
+    return inp[::11, 301]
+    
+fl3 = '../input/25_v2_4_layers/4_interfaces_ano_rc_norm.dat'
+inp3 = gt.readbin(fl3,nz,nx) 
+flout3 = '../png/4_interfaces_rc_norm.png'
+plot_model(inp3,flout3)
+
+
+# spot_x [m]	spot_y [m]	spot_z [m]
+# # 4543.246474	0.010000	-1457.886875
+# inp3[117,364]= 8
+# flout3 = '../png/25_v2_4_layers/spot_in_model.png'
+# plot_model(inp3,flout3)
+# model_export = '../input/25_v2_4_layers/spot_in_model.dat'
+# gt.writebin(inp3,model_export)     
+
+inp3[107:108,286:378] = 2.613
+inp3[107:109,290:374] = 2.613
+inp3[107:110,294:370] = 2.613
+inp3[107:111,298:366] = 2.613
+inp3[107:112,302:362] = 2.613
+# fig = plt.figure(figsize=(10,5))            
+# hfig = plt.pcolor(ax,az,inp3)   
+
+# plt.colorbar(hfig) 
+# plt.gca().invert_yaxis()       
+
+flout3 = '../png/25_v2_4_layers/4_interfaces_rc_norm.png'
+plot_model(inp3,flout3)
+model_export = '../input/25_v2_4_layers/4_interfaces_rc_norm.dat'
+gt.writebin(inp3,model_export)     
+
+# sm_ano = gaussian_filter(inp3,8)
+# flout_sm = '../png/25_v2_4_layers/4_interfaces_ano_smooth_rc_norm_2926.png'
+# plot_model(sm_ano,flout_sm)
+# gt.writebin(sm_ano,'../input/25_v2_4_layers/4_interfaces_ano_smooth_rc_norm_2926.dat')
+
+
+fl4 = '../input/25_v2_4_layers/4_interfaces_rc_norm.dat'
+inp4 = gt.readbin(fl4,nz,nx) 
+sm4 = gaussian_filter(inp4,8)
+flout_sm4 = '../png/25_v2_4_layers/4_interfaces_smooth_rc_norm.png'
+plot_model(sm4,flout_sm4)
+model_export = '../input/25_v2_4_layers/4_interfaces_smooth_rc_norm.dat'
+# gt.writebin(sm4,model_export)     
+
+
+# plt.figure(figsize=(10,5))
+# plt.plot(ax,pente_1,'r')
+# plt.plot(ax,pente_2,'b')
+
+# plt.xlim(ax[0],ax[-1])
+# plt.ylim(az[0],az[-1])
+# plt.gca().invert_yaxis()
 
 
 
 #%%
-# pente_1 = interface[0] * 12.49/1000
-# pente_2 = interface2[0] * 12.49/1000     
+# pente_1 = interface3[0] * 12.49/1000
+# pente_2 = interface3[0] * 12.49/1000   
 
       
 # plt.figure(figsize=(10,5))
@@ -299,10 +391,20 @@ fig.savefig(flout3, bbox_inches='tight')
 # fig.savefig(flout3, bbox_inches='tight')
 # gt.writebin(model_fill_sm,'./input/15_picked_models/vel_sm_model.dat')
 
+ 
+
+ # ## Region extension
+ # n = 10 
+ # ynew_ext = np.zeros(325*n)
+ # # number of pixels
+ 
+ # ind_ext = np.arrange
+ # for i in range (n):    
+ #     ind_ext[1,0] = index[0]
+    
 
 
-
-#%% PICK SEISMIC
+#%% PICK HORIZON FOR DEMIGRATION
 
 fl3 = './output/23_mig/org/nh10_is4/dens_corr/inv_betap_x.dat'
 inp3 = gt.readbin(fl3,nz,nx) 
@@ -319,4 +421,4 @@ df = pd.DataFrame(table_n)
 df.to_csv('./png/24_for_ray_tracing/table_pick.csv',header=False,index=False)
   
 
-    
+  

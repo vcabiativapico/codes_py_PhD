@@ -23,10 +23,10 @@ if __name__ == "__main__":
     ft        = -99.84e-3
     nz        = 151
     fz        = 0.0
-    dz        = 12.49/1000.
+    dz        = 12.00/1000.
     nx        = 601
     fx        = 0.0
-    dx        = 12.49/1000.
+    dx        = 12.00/1000.
     no        = 251
     do        = dx
     fo        = -(no-1)/2*do
@@ -39,14 +39,15 @@ if __name__ == "__main__":
 
 
 
-    fl1       = './input/18_3_interface/3_interfaces.dat'   
+    # fl1       = './input/18_3_interface/3_interfaces.dat'   
   
-    inp1      = gt.readbin(fl1,nz,nx)
+    # inp1      = gt.readbin(fl1,nz,nx)
     
-    area      = np.zeros(inp1.shape)
+   
     
   
     def modif_layer(inp1,r1,r2,nv): 
+        area      = np.zeros(inp1.shape)
         for i in range(nz):
             for j in range(nx):
                 if inp1[i,j] > r1 and inp1[i,j] < r2 : 
@@ -65,35 +66,43 @@ if __name__ == "__main__":
 
 
     def plot_model(inp,hmax,hmin,flout):
-        fig = plt.figure(figsize=(10,5), facecolor = "white")
+        fig = plt.figure(figsize=(11,6), facecolor = "white")
         av  = plt.subplot(1,1,1)
         hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
                           vmin=hmin,vmax=hmax,aspect='auto')
-        plt.colorbar(hfig)
+        plt.colorbar(hfig,format='%1.1f')
+        plt.rcParams['font.size'] = 14
+        plt.xlabel('Distance (km)')
+        plt.ylabel('Depth (km)')
         fig.tight_layout() 
         print("Export to file:",flout)
         fig.savefig(flout, bbox_inches='tight')
-
+        return inp[::11,301]
 
     hmin,hmax = 1.5,3.0
 
-    fl1       = './input/19_anomaly_4_layers/3_interfaces_anomaly_210.dat'   
-  
+    fl1       = '../input/25_v2_4_layers/4_interfaces_rc_norm.dat'   
     inp1      = gt.readbin(fl1,nz,nx)
-    nv1 = 1.5
-    inp_modif = modif_layer(inp1,2.09,2.11,nv1)
+    flout     = '../png/25_v2_4_layers/4_interfaces_rc_norm.png'
+    plot_model(inp1,3.5,1.5,flout)
+    
+    
+    r1 = 3.3
+    r2 = 3.4
+    nv1 = 3.238
+    inp_modif = modif_layer(inp1,r1,r2,nv1)
     print(inp_modif[::11,301])
     # nv2 = 1.71
     # inp_modif = modif_layer(inp_modif,2.2,2.4,nv2)
     
-    flout     = './png/19_anomaly_4_layers/3_interfaces_anomaly_150.png'
-    plot_model(inp_modif,3.0,1.5,flout)
+    flout     = '../png/25_v2_4_layers/4_interfaces_rc_norm.png'
+    plot_model(inp_modif,3.5,1.5,flout)
     
-    datout = './input/19_anomaly_4_layers/3_interfaces_anomaly_150.dat'
+    datout = '../input/25_v2_4_layers/4_interfaces_rc_norm.dat'
     gt.writebin(inp_modif,datout) 
     
-    
-    
+    # rc = [1.5, 1.8333333333333333, 2.2407407407407405, 2.738683127572016, 3.347279378143575, 4.091119239953258]
+    # rc_norm = [1.5, 1.715217391304348, 2.1150406504065042, 2.6135419841124716, 3.2380501871772447]
     # inp_modif[::7,301]
     # inp_modif = modif_layer(inp1,1.6,2.0)
     # imout     = './png/15_picked_models/vel_full_30_CO2.png'
