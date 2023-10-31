@@ -125,6 +125,9 @@ for i in range(no):
 
 
 
+
+
+
 hmax = np.max(np.abs(inp_w))/2
 hmax = 0.3
 hmin = -hmax

@@ -15,6 +15,7 @@ from matplotlib import gridspec
 from matplotlib.ticker import (MultipleLocator,
                                FormatStrFormatter,
                                AutoMinorLocator)
+from scipy.ndimage import gaussian_filter
 if __name__ == "__main__":
 
     os.system('mkdir -p png_course')
@@ -285,6 +286,20 @@ if __name__ == "__main__":
     #    fl1 = './input/marm2_smooth_s15.dat'
     #    gt.writebin(inp2,fl1)
 # To plot SMOOTH MODELS
+
+
+    def read_results(path):
+        spot_x = []
+        spot_y = []
+        spot_z = []
+        with open(path, newline='') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',')
+            header = next(spamreader)
+            for row in spamreader:
+                spot_x.append(float(row[7]))
+                spot_y.append(float(row[8]))
+                spot_z.append(float(row[9]))
+        return spot_x, spot_y, spot_z
     name = 0
     hmin, hmax = 0.1, 2.2
 
@@ -294,7 +309,7 @@ if __name__ == "__main__":
 
         # print(hmin,hmax)
 
-        hmax = 3.5
+        hmax = 4.5
         hmin = 1.5
         hmin = np.min(inp)
         hmax = -hmin
@@ -304,8 +319,8 @@ if __name__ == "__main__":
             fig = plt.figure(figsize=(10, 5), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto', alpha=1, cmap='seismic'
-                              )
+                              vmin=hmin, vmax=hmax, aspect='auto', alpha=1
+                              ,cmap='seismic')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -317,28 +332,34 @@ if __name__ == "__main__":
         # av.set_ylim([0.8,0.4])
         # plt.axvline(x=ax[tr], color='k',ls='--')
 
-        plt.colorbar(hfig1, format='%1.1f')
+        plt.colorbar(hfig1, format='%1.e')
         plt.rcParams['font.size'] = 14
         fig.tight_layout()
 
         print("Export to file:", flout)
         fig.savefig(flout, bbox_inches='tight')
-        return inp[::11, 301]
+        return inp[::11, 301],fig
 
     # fl1 = './output/smxmax_tr = 0.3ooth_test/smooth'+str(name)+'/avp_exact.dat'
     # fl1 = './input/vel_smooth.dat'
     # # fl1 = './input/13_4_ano_smoo/4_ano_4p0_smoo5.dat'
-    fl1 = '../input/vel_full.dat'
-    inp1 = gt.readbin(fl1,nz,nx)
-    flout = '../png/vel_full.png'
-    plot_model(inp1, flout)
-    # fl1 ='./output/avp_exact.dat'
-    nh = 10
-    nh2 = 2*nh+1
+    # fl1 = '../input/rho_smooth.dat'
+    # inp1 = gt.readbin(fl1,nz,nx)
+    # flout = '../png/rho_smooth.png'
+    # plot_model(inp1, flout)
+    # # # fl1 ='./output/avp_exact.dat'
+    # nh = 10
+    # nh2 = 2*nh+1
+    
+    
+    # marm2_smooth = gaussian_filter(inp1,15)
+    # flout2 = '../png/marm2_sm.png'
+    # plot_model(marm2_smooth,flout2)
+    # gt.writebin(marm2_smooth,'../input/org_full/marm2_sm15.dat') 
 
     # fls = '../input/25_v2_4_layers/4_interfaces_smooth_rc_norm.dat'
     # inps = gt.readbin(fls, nz, nx)
-    # # flout = '../png/25_v2_4_layers/4_interfaces_new_05.png'
+    # flout = '../png/25_v2_4_layers/4_interfaces_smooth_rc_norm.png'
     # plot_model(inps, flout)
 
     # fl1 = '../input/25_v2_4_layers/4_interfaces_smooth_05.dat'
@@ -375,15 +396,16 @@ if __name__ == "__main__":
     # flout = '../png/26_mig_4_interfaces/badj_rc_norm/inv_abetap.png'
     # plot_model(-inp3, flout)
 
-    fl4 = '../output/26_mig_4_interfaces/binv_rc_norm/inv_betap_x_s.dat'
+    fl4 = '../output/27_marm/badj/inv_betap_x_s.dat'
     inp4= -gt.readbin(fl4,nz,nx)
-    flout = '../png/26_mig_4_interfaces/binv_rc_norm/inv_betap_x_s.png'
+    flout = '../png/27_marm/badj/inv_betap_x_s.png'
     plot_model(-inp4,flout)
 
-
-    car = inp1*inp4/-4
-    flout = '../png/26_mig_4_interfaces/badj_rc_norm/inv_betap_norm.png'
-    plot_model(car,flout)    
+    
+    # car = inp1*inp4/-4
+    # flout = '../png/26_mig_4_interfaces/badj_rc_norm/inv_betap_norm.png'
+    # plot_model(car,flout)    
+    
     # fl5 = '../output/26_mig_4_interfaces/binv/inv_betap_h.dat'
     # inp5= gt.readbin(fl5,nz,nh2)
     # flout = '../png/26_mig_4_interfaces/binv/inv_betap_h.png'
