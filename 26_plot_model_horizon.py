@@ -64,7 +64,7 @@ def readbin(flnam,nz,nx):
     im = im.reshape(nz,nx,order='F')
     return im
 
-def plot_mig_hz(mig_img,horizon):
+def plot_mig_hz(mig_img, horizon):
     c_point = ['yellow','b','r','k','greenyellow']
     x_spline = np.arange(601)*12.00
     plt.figure(figsize=(16,8))
@@ -75,6 +75,7 @@ def plot_mig_hz(mig_img,horizon):
     plt.plot(x_spline,horizon,c='black',linewidth=3)  
     plt.axvline(3996,c='g',ls='--',alpha=0.75)
     plt.colorbar(format='%1.e')
+ 
     for i in range(np.size(rec_x)):
         plt.scatter(rec_x[i],30,s=80,color=c_point[i], marker='v',alpha=0.5)
     plt.xlabel('Distance (m)')
@@ -87,6 +88,8 @@ x_disc = np.arange(601)*12.00
 z_disc = np.arange(151)*12.00
 x_spline = np.arange(601)*12.00
 # z_spline = np.arange(len(d_interp))*5
+
+
 
 
 #%%
@@ -215,6 +218,8 @@ hz_adj_marm_org = read_bspline(hz_adj_marm_org,0)
 
 hz_inv_marm_sm = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm3_marm_inv_01.csv'
 hz_inv_marm_org = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_marm_inv_01.csv'
+
+
 hz_inv_marm_sm =  np.array(read_bspline(hz_inv_marm_sm,0))   
 hz_inv_marm_org =  np.array(read_bspline(hz_inv_marm_org,0)) 
 
@@ -227,7 +232,7 @@ marm_mig_binv = np.array(readbin(fl_marm_binv,nz,nx).T)
 
 # Read ray-tracing spot location results
 path_adj = '../../../../Demigration_SpotLight_Septembre2023/output/010_marm_sm_badj.csv'
-path_inv = '../../../../Demigration_SpotLight_Septembre2023/output/010_marm_sm_binv.csv'
+path_inv = '../../../../Demigration_SpotLight_Septembre2023/output/010_marm_sm_binv_PP21_P005.csv'
 
 spot_x_adj = read_results(path_adj,7)
 spot_y_adj = read_results(path_adj,8)
@@ -245,7 +250,8 @@ spot_x_inv = np.array(spot_x_inv)
 spot_y_inv = np.array(spot_y_inv)
 spot_z_inv = -np.array(spot_z_inv)
 
-
+# Read rec_x
+rec_x = read_results(path_inv,4)
 
 ## Difference of horizons
 hz_delta_sm = hz_inv_marm_sm - hz_adj_marm_sm

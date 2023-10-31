@@ -1263,8 +1263,6 @@ import tqdm
 # delta_y = 1
 # delta_z = 12.00
 
-
-
 ## Pour plus de points en Y
 INL_step = 50 
 XL_step = 12.00
@@ -1291,7 +1289,7 @@ delta_z = 12.00
 
 
 # file1 = 'Model_Vit_discret/table_pick_float.csv'
-file1 = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm3_marm_inv_01.csv'
+file1 = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm3_marm_adj_01.csv'
 #list storing the files, used for a loop
 
 list_files = [file1]
@@ -1354,16 +1352,16 @@ for file in list_files:
     i+=1
     
     
-    np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Parametres_vel_marm_sm_PP21.csv', Param_Input, fmt='%f',delimiter=",") 
-    np.savetxt("../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_hz_sm3_marm_inv_01_PP21_" + str(i) + ".csv",Weights,fmt='%f',delimiter=',')
+    # np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Parametres_vel_marm_sm_PP21.csv', Param_Input, fmt='%f',delimiter=",") 
+    np.savetxt("../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_hz_sm3_marm_adj_01_PP21_" + str(i) + ".csv",Weights,fmt='%f',delimiter=',')
 
 
 # %% Import Bsplines et comparaisons avec model
 
 
 import tqdm
-Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Parametres_vel_marm_sm.csv'
-Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_vel_marm_sm.csv'
+Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Parametres_vel_marm_sm_PP21.csv'
+Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_vel_marm_sm_PP21.csv'
 
 file = '../input/vel_smooth.dat'
 
@@ -1376,6 +1374,7 @@ t_sis = np.arange(0,1801,delta_z)
 t = np.arange(-delta_z,1800.01,0.2)
 
 compar_trace_nb = [1,100,200,300,400,500]
+
 x = [0]*6
 y = [0]*6
 # compar_trace_nb = 0
@@ -1395,9 +1394,9 @@ for i in range(np.size(compar_trace_nb)):
         vitesse,grad_c = Vitesse(x[i],y[i],-t[k],Parameters,Weights)
         
         vitesse_list.append(vitesse)
-        grad_c_x_list.append(grad_c[0])
-        grad_c_y_list.append(grad_c[1])
-        grad_c_z_list.append(grad_c[2])
+        # grad_c_x_list.append(grad_c[0])
+        # grad_c_y_list.append(grad_c[1])
+        # grad_c_z_list.append(grad_c[2])
     
     
     line1 = av.plot(t/1000,vitesse_list,'-',label='model tr = '+str(compar_trace_nb[i]))
@@ -1408,14 +1407,14 @@ for i in range(np.size(compar_trace_nb)):
     plt.tight_layout()
     plt.xlabel('Depth (km)')
     plt.ylabel('Velocity (m/s)')
-# plt.ylim(0,3000)
+   
 
 
 # %% QC_Bspline_model_vitesse
 
 import tqdm
-Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Parametres_vel_marm_sm.csv'
-Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_vel_marm_sm.csv'
+Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Parametres_vel_marm_sm_PP21.csv'
+Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_vel_marm_sm_PP21.csv'
 
 file = '../input/vel_smooth.dat'
 
@@ -1478,13 +1477,16 @@ Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor
 
 # inv_Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_hz_sm3_marm_inv_01_1.csv'
 inv_Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_hz_sm3_marm_inv_01_PP21_1.csv'
-adj_Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_hz_sm3_marm_adj_01_1.csv'
+adj_Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/010_Weights_hz_sm3_marm_adj_01_PP21_1.csv'
 
 Parameters_inv,inv_Weights_Horizon = load_weight_model(Param_File, inv_Weight_File)
-# Parameters_adj,adj_Weights_Horizon = load_weight_model(Param_File, adj_Weight_File)
+Parameters_adj,adj_Weights_Horizon = load_weight_model(Param_File, adj_Weight_File)
 
-Param_Input = Param_Input_class(Parameters_inv)
+Param_Input_inv = Param_Input_class(Parameters_inv)
+Param_Input_adj = Param_Input_class(Parameters_adj)
 
+
+    
 INL_step = 50 #TODO
 XL_step = 12.00 #TODO  
 azimuth1 = 0
@@ -1500,8 +1502,6 @@ M = I+3
 N = J+3
 L = K+3
 
-
-
 start_x = -10
 start_y = 0
 start_z = 0
@@ -1515,26 +1515,23 @@ Param_Input1 = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-
 y = 0
 x = np.arange(0,600*12.00,1)
 
-horizon = []
-grad_INL = []
-grad_XL = []
-for x_ind in x:
-    INL11,XL11 = INL_XL_z_infos(x_ind, y, Param_Input1)
-    vitesse,grad = Horizon(INL11,XL11, Param_Input, inv_Weights_Horizon)
-    grad_INL.append(grad[0])
-    grad_XL.append(grad[1])
+def read_bspline(Param_Input,Weights_Horizon):
+    horizon = []
+    grad_INL = []
+    grad_XL = []
+    for x_ind in x:
+        INL11,XL11 = INL_XL_z_infos(x_ind, y, Param_Input1)
+        vitesse,grad = Horizon(INL11,XL11, Param_Input, Weights_Horizon)
+        grad_INL.append(grad[0])
+        grad_XL.append(grad[1])
+        
+        horizon.append(vitesse)
     
-    horizon.append(vitesse)
-
-horizon = np.array(horizon)
-
-
-
-
+    horizon = np.array(horizon)
+    return horizon, grad_INL, grad_XL
 
 ## Read the original smoothed horizon
 def read_results(path,srow):
@@ -1552,8 +1549,8 @@ name = 'inv'
 file = '../output/27_marm/b'+str(name)+'/inv_betap_x_s.dat'
 Vit_model1 = readbin(file,151,601).T
 
-# bs_horizon_inv,grad_INL_inv,grad_XL_inv = read_bspline(Parameters_inv,Param_Input,inv_Weights_Horizon)
-# bs_horizon_adj,grad_INL_adj,grad_XL_adj = read_bspline(Parameters_adj,Param_Input,adj_Weights_Horizon)
+bs_horizon_inv,grad_INL_inv,grad_XL_inv = read_bspline(Param_Input_inv,inv_Weights_Horizon)
+bs_horizon_adj,grad_INL_adj,grad_XL_adj = read_bspline(Param_Input_adj,adj_Weights_Horizon)
 
 hz_inv_marm_sm = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm3_marm_'+str(name)+'_01.csv'
 hz_inv_marm_org = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_marm_'+str(name)+'_01.csv'
@@ -1564,58 +1561,46 @@ hz_inv_marm_org = read_results(hz_inv_marm_org,0)
 hmax = np.max(Vit_model1)
 hmin = -hmax
 
-x_disc = np.arange(601)*12.00
-plt.figure(figsize=(16,12))
-plt.plot(grad_INL)
+
+
+
+if name == 'adj':
+    hz_spline = bs_horizon_adj[::12] # Extract only values every 12 meters
+    hz_spline = np.append(hz_spline,bs_horizon_adj[-1])
+    grad_INL = grad_INL_adj
+    grad_XL = grad_XL_adj
+else:   
+    hz_spline = bs_horizon_inv[::12] # Extract only values every 12 meters
+    hz_spline = np.append(hz_spline,bs_horizon_inv[-1])
+    grad_INL = grad_INL_inv
+    grad_XL = grad_XL_inv
+
+plt.figure(figsize=(18,8))
+plt.imshow(Vit_model1.T,vmin=hmin, vmax=hmax,aspect = 2, 
+            extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]),cmap='seismic')
+plt.title('Weights')
+plt.tight_layout()
+plt.colorbar()
+
+
+
+
+plt.figure(figsize=(16,8))
+plt.plot(x_disc,hz_spline,'r')
+plt.plot(x_disc,hz_inv_marm_sm,'.',alpha=0.4)
+plt.title('comparing bspline vs horizon picked '+str(name))
 plt.xlabel('Distance (m)')
 plt.ylabel('Depth (m)')
-plt.title('GRAD INL')
-# plt.ylim(-1,1)
+plt.tight_layout()
+plt.ylim(1800,0)
 
-plt.figure(figsize=(16,12))
-plt.plot(grad_XL)
+
+plt.figure(figsize=(16,8))
+hz_error = hz_spline-np.array(hz_inv_marm_sm)
+plt.plot(hz_error,'-k')
 plt.xlabel('Distance (m)')
 plt.ylabel('Depth (m)')
-plt.title('GRAD XL')
-
-z_disc = np.arange(151)*12.00
-
-
-# if name == 'adj':
-#     hz_spline = bs_horizon_adj[::12] # Extract only values every 12 meters
-#     hz_spline = np.append(hz_spline,bs_horizon_adj[-1])
-# else:   
-#     hz_spline = bs_horizon_inv[::12] # Extract only values every 12 meters
-#     hz_spline = np.append(hz_spline,bs_horizon_inv[-1])
-
-
-
-# plt.figure(figsize=(18,8))
-# plt.imshow(Vit_model1.T,vmin=hmin, vmax=hmax,aspect = 2, 
-#            extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]),cmap='seismic')
-# plt.title('Weights')
-# plt.tight_layout()
-# plt.colorbar()
-
-
-
-
-# plt.figure(figsize=(16,8))
-# plt.plot(x_disc,hz_spline,'r')
-# plt.plot(x_disc,hz_inv_marm_sm,'.',alpha=0.4)
-# plt.title('comparing bspline vs horizon picked')
-# plt.xlabel('Distance (m)')
-# plt.ylabel('Depth (m)')
-# plt.tight_layout()
-# plt.ylim(1800,0)
-
-
-# plt.figure(figsize=(16,8))
-# hz_error = hz_spline-np.array(hz_inv_marm_sm)
-# plt.plot(hz_error,'-k')
-# plt.xlabel('Distance (m)')
-# plt.ylabel('Depth (m)')
-# plt.title('difference bspline vs horizon picked')
+plt.title('difference bspline vs horizon picked '+str(name))
 
 
 # hz_inv_marm_sm=np.array(hz_inv_marm_sm)
@@ -1624,18 +1609,24 @@ z_disc = np.arange(151)*12.00
 # hz_sp_error = horizon[np.array(ind)*12] 
 
 
+x_disc = np.arange(601)*12.00
+plt.figure(figsize=(16,12))
+plt.plot(grad_INL)
+plt.xlabel('Distance (m)')
+plt.ylabel('Depth (m)')
+plt.title('GRAD INL '+str(name))
+plt.ylim(-2,2)
 
-# plt.figure(figsize=(16,12))
-# plt.plot(grad_INL_inv)
-# plt.xlabel('Distance (m)')
-# plt.ylabel('Depth (m)')
-# plt.title('GRAD INL')
+plt.figure(figsize=(16,12))
+plt.plot(grad_XL)
+plt.xlabel('Distance (m)')
+plt.ylabel('Depth (m)')
+plt.title('GRAD XL '+str(name))
+plt.ylim(-2,2)
 
-# plt.figure(figsize=(16,12))
-# plt.plot(grad_XL_inv)
-# plt.xlabel('Distance (m)')
-# plt.ylabel('Depth (m)')
-# plt.title('GRAD XL')
+z_disc = np.arange(151)*12.00
+
+
 
 
 
