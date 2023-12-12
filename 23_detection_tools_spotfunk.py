@@ -187,7 +187,7 @@ if __name__ == "__main__":
     v_envelope = visualisation.overlay(envelope,si=dt)
     plt.title('Envelope ratio baseline vs monitor anomaly '+str(ano_nb)+' m/s')
     plt.xlim(-2,28)
-#%% SHOT GATHERS WAVE-EQUATION VS RAY-TRACING RESULTS
+#%% SHOT GATHERS WAVE-EQUATION VS RAY-TRACING travel-time RESULTS
 
     # tr = np.array([63,126,189])
     tr = np.array([42,84,126,168,210])
@@ -203,8 +203,8 @@ if __name__ == "__main__":
     # tr_adj = '../output/26_mig_4_interfaces/badj_rc_norm/t1_obs_000'+str(shot)+'.dat'
     # tr_inv = '../output/26_mig_4_interfaces/binv_rc_norm/t1_obs_000'+str(shot)+'.dat'
     
-    tr_adj = '../output/27_marm/badj/t1_obs_000'+str(shot)+'.dat'
-    tr_inv = '../output/27_marm/binv/t1_obs_000'+str(shot)+'.dat'
+    tr_adj = '../output/27_marm/mod_marm_inv/t1_obs_000'+str(shot)+'.dat'
+    tr_inv = '../output/27_marm/mod_marm_inv/t1_obs_000'+str(shot)+'.dat'
     
     
     inp_adj = -gt.readbin(tr_adj, no, nt).transpose()
@@ -222,16 +222,24 @@ if __name__ == "__main__":
     imag_hilb_inv = inp_hilb_inv.imag
         
     
-    # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/009_demig_sm_SR_az_12_all5_iz_inv.csv'
-    # path2 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/009_demig_sm_SR_az_12_all5_iz_adj.csv'
+    # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/008_demig_sm_SR_az_12_all5_iz_INV_PP21.csv'
+    # path2 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/008_demig_sm_SR_az_12_all5_iz_ADJ_PP21.csv'
     
-    path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/010_marm_sm_binv.csv'
-    path2 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/010_marm_sm_badj.csv'
+    # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/010_marm_sm_binv_PP21_P005_hz02.csv'
+    # path2 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/010_marm_sm_badj_PP21_P005_hz02.csv'
     
-    
+    path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/012_demig_AO_INV_PP21.csv'
+    path2 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/012_demig_AO_ADJ_PP21.csv'
+
+    path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/011_marm_sm_binv_PP21_P021_hz02.csv'
+    path2 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/011_marm_sm_badj_PP21_P021_hz02.csv'
+
+
     tt_inv = read_results(path1,17)
     tt_adj = read_results(path2,17)
     
+    tt_inv = np.array(tt_inv)-16
+    tt_adj = np.array(tt_adj)-16
     # tt_inv[0] = 1000
 
     def plot_gather_scatter(inp,t_time,lgd):
@@ -240,24 +248,24 @@ if __name__ == "__main__":
         # print(np.max(inp))
         c_point = ['yellow','b','r','k','greenyellow']
         if lgd == 'badj' :
-            hmin, hmax = -0.1,0.1
+            hmin, hmax = -0.10,0.10
             hfig = av.imshow(inp, extent=[ao[0], ao[-1], at[-1], at[0]],
                              vmin=hmin, vmax=hmax, aspect='auto',
                              cmap='seismic')
-            flout = '../png/26_mig_4_interfaces/badj_rc_norm/compare_RT_OBS_'+str(shot)+'.png'
+            flout = '../png/27_marm/diff_marm_inv/compare_RT_OBS_'+str(shot)+'.png'
             plt.title('Observed shot with the ADJOINT demigrated tt data \n')
-            plt.colorbar(hfig,format='%2.2f')
+            plt.colorbar(hfig,format='%1.e')
         else:
-            hmin, hmax = -0.1,0.1
+            hmin, hmax =-0.10,0.10
             hfig = av.imshow(inp, extent=[ao[0], ao[-1], at[-1], at[0]],
                              vmin=hmin, vmax=hmax, aspect='auto',
                              cmap='seismic')
-            flout = '../png/26_mig_4_interfaces/binv_rc_norm/compare_RT_OBS_'+str(shot)+'.png'
+            flout = '../png/27_marm/diff_marm_inv/compare_RT_OBS_'+str(shot)+'.png'
             plt.title('Observed shot with the INVERSE demigrated tt data \n')
-            plt.colorbar(hfig,format='%2.2f')
+            plt.colorbar(hfig,format='%1.e')
         for i in range(tr.size):
             plt.axvline(x=ao[tr[i]], color='k', ls='--',alpha=0.8)
-            plt.scatter(ao[tr[i]],t_time[i]/1000, color=c_point[i], ls='--')
+            plt.scatter(ao[tr[i]],t_time[i]/1000, color=c_point[3], ls='--')
             
         
         fig.tight_layout()
@@ -285,7 +293,7 @@ if __name__ == "__main__":
             xmax = np.max(inp[:, tr[i]])
             xmin = -xmax
             
-            inp1[:, tr[i]] = (inp[:, tr[i]]/np.max(inp[:, tr[i]]))
+            # inp[:, tr[i]] = (inp[:, tr[i]]/np.max(inp[:, tr[i]]))
             axi[i].plot(inp[:, tr[i]], at, 'b')
         
 
@@ -294,11 +302,11 @@ if __name__ == "__main__":
             axi[i].xaxis.set_major_formatter(FormatStrFormatter('%1.2f'))
             axi[i].set_xlabel('Offset: '+str(f'{ao[tr[i]]:.2f}'))
             # print('iter: '+str(i),'time: '+str(t_time[i]))
-            axi[i].axhline(t_time[i]/1000, color=c_point[i], ls='--')
+            axi[i].axhline(t_time[i]/1000, color=c_point[3], ls='--')
             fig.tight_layout()
-            
+            axi[i].grid()
         axi[0].set_ylabel('Time (s)')
-        axi[0].legend([lgd], loc='upper left', shadow=True)
+        axi[0].legend([lgd,'RayTT'], loc='upper left', shadow=True)
 
         # axi[0].legend(['Baseline','Monitor'],loc='upper left',shadow=True)
         fig.text(0.48, -0.01, "Amplitude")
@@ -309,8 +317,8 @@ if __name__ == "__main__":
     
 ### MINIMUM PHASE ORIGINAL
     lgd_inv = 'binv'    
-    # plot_gather_scatter(inp_inv,tt_inv,lgd_inv)
     lgd_adj = 'badj'
+    # plot_gather_scatter(inp_inv,tt_inv,lgd_inv)
     # plot_gather_scatter(inp_adj,tt_adj,lgd_adj)
     
    
@@ -325,21 +333,27 @@ if __name__ == "__main__":
     plot_gather_scatter(imag_hilb_inv,tt_inv,lgd_inv)
     plot_gather_scatter(imag_hilb_adj,tt_adj,lgd_adj)
     
-    flout3 = '../png/27_marm/binv/traces_phase_inv'
+    # flout1 = '../png/26_mig_4_interfaces/traces_inv_hilb'
+    # plot_trace_scatter(imag_hilb_inv,tt_inv,lgd_inv,flout1) 
+    # flout2 = '../png/26_mig_4_interfaces/traces_adj_hilb'
+    # plot_trace_scatter(imag_hilb_adj,tt_adj,lgd_adj,flout2)
+   
+    
+    flout3 = '../png/27_marm/diff_marm_inv/traces_phase_inv'
     plot_trace_scatter(imag_hilb_inv,tt_inv,lgd_inv,flout3) 
-    flout4 = '../png/27_marm/badj/traces_phase_adj'
+    flout4 = '../png/27_marm/diff_marm_inv/traces_phase_adj'
     plot_trace_scatter(imag_hilb_adj,tt_adj,lgd_adj,flout4)
     
         
     ## Calculate the difference
-    tt_delta = np.arange(np.size(tt_inv))
+   
     tt_delta = np.array(tt_inv)-np.array(tt_adj)
 
     print('mean difference :',np.mean(tt_delta))
     plt.figure(figsize=(16,8))
     c_point = ['yellow','b','r','k','greenyellow']
     for i in range(tt_delta.size):
-        plt.plot(ao[tr[i]],-tt_delta[i],marker='o',color=c_point[i])
+        plt.plot(ao[tr[i]],-tt_delta[i],'-o',color=c_point[3])
     plt.grid()
     plt.title('Difference between raytracing with hz in the badj or binv image')
     plt.xlabel('Offset (km)')

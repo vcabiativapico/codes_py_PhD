@@ -37,7 +37,7 @@ if __name__ == "__main__":
     ax        = fx + np.arange(nx)*dx
 
     hmin,hmax = 1.5,4.0
-    fl1       = './input/org/marm2_sel.dat'
+    fl1       = '../input/org/marm2_sel.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     inp1      = gt.readbin(fl1,nz,nx)
     perc      = 0.9
@@ -95,6 +95,173 @@ if __name__ == "__main__":
     inp1[ind3] = 4.0
     
     inp1[78:120,340:460] = 1.5
+    
+    
+    fig = plt.figure(figsize=(15,8), facecolor = "white")
+    av  = plt.subplot(1,1,1)
+    hfig = av.imshow(inp1, extent=[ax[0],ax[-1],az[-1],az[0]], \
+                      vmin=hmin,vmax=hmax,aspect='auto', \
+                      cmap='jet')
+    plt.colorbar(hfig)
+    
+    
+    #%% MODIFY MARMOUSI2 FOR DEMIGRATION
+    fl1       = '../input/org_full/marm2_full.dat'
+    inp_org   = gt.readbin(fl1,nz,nx)
+    
+    inp_cut    = inp_org[70:120,355:400]     # Zone B - Cut the model in the area of the anomaly
+    old_vel    = np.max(inp_cut)                # Find the value where the anomaly wants to be changed    
+    
+    hmin = 1.5
+    hmax = 4.5
+    
+    fig = plt.figure(figsize=(15,8), facecolor = "white")
+    av  = plt.subplot(1,1,1)
+    hfig = av.imshow(inp_org, extent=[ax[0],ax[-1],az[-1],az[0]], \
+                      vmin=hmin,vmax=hmax,aspect='auto' \
+                      )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Depth (km)')
+    plt.colorbar(hfig,format='%1.1f')
+    plt.rcParams['font.size'] = 16
+    fig.tight_layout()
+
+    
+    def modif_layer(inp1,r1,r2,nv): 
+        area      = np.zeros(inp1.shape)
+        for i in range(70,110): 
+            for j in range(355,400):
+                if inp1[i,j] > r1 and inp1[i,j] < r2 : 
+                    area[i,j] = 1
+                else: 
+                    area[i,j] = 0
+                
+                
+        index1     = np.where(area == 1)
+        new_vel    = nv
+        # new_vel   = 1.75*1.14
+        inp1[index1] = new_vel
+        
+        return inp1,index1
+    
+        
+    inp_mod, ind_mod = modif_layer(inp_org, 3.5, 4.0, 4.0)
+    
+    fl1       = '../input/org_full/marm2_full.dat'
+    inp_org   = gt.readbin(fl1,nz,nx)
+    inp_diff = inp_mod - inp_org
+      
+    # fig = plt.figure(figsize=(15,8), facecolor = "white")
+    # av  = plt.subplot(1,1,1)
+    # hfig = av.imshow(inp_cut, extent=[ax[0],ax[-1],az[-1],az[0]], \
+    #                   vmin=hmin,vmax=hmax,aspect='auto', \
+    #                   cmap='jet')
+    # plt.colorbar(hfig)
+    
+    inp_diff10 = inp_diff+1
+    
+    inp_diff10[ind_mod] = 4.0
+    
+    az[ind_mod[0][63]]
+    ax[ind_mod[1][63]]
+    
+    fig = plt.figure(figsize=(15,8), facecolor = "white")
+    av  = plt.subplot(1,1,1)
+    hfig = av.imshow(inp_diff10, extent=[ax[0],ax[-1],az[-1],az[0]], \
+                      vmin=hmin,vmax=hmax,aspect='auto' \
+                      )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Depth (km)')
+    plt.colorbar(hfig,format='%1.1f')
+    plt.rcParams['font.size'] = 16
+    fig.tight_layout()
+    flout = '../png/27_marm/diff_marm.png'
+    print("Export to file:", flout)
+    fig.savefig(flout, bbox_inches='tight')
+      
+    gt.writebin(inp_diff10,'../input/27_marm/diff_marm.dat')
+    
+    
+#%%
+    # fl1       = '../input/org_full/marm2_full.dat'
+    # fl2       = '../input/27_marm/marm2_sm15.dat'
+    
+    # fl1 = '../input/vel_full.dat'
+    # fl2 = '../input/vel_smooth.dat'
+    
+    fl1 = '../input/27_marm/inp_flat.dat'
+    fl2 = '../input/marm2_sm15.dat'
+    
+    
+    
+    
+    inp_org   = gt.readbin(fl1,nz,nx)
+    inp_smooth= gt.readbin(fl2,nz,nx)
+    inp_flat  = inp_org*0
+    
+    inp_flat[0:100] = 1.5
+    inp_flat[100:151] = 2.5
+    
+    inp_flat_corr   = inp_flat + 1/np.sqrt(inp_smooth)
+    
+    # inp_flat_corr = inp_flat+inp_smooth
+    
+    abetap = 1/inp_flat_corr**2
+    
+    # adbetap_exact = 1/inp_flat_corr**2 - 1/inp_smooth**2
+    
+    adbetap_exact = 1/inp_org**2 - 1/inp_smooth**2
+    
+    def plot_model_t(inp):
+        hmax = np.max(inp)
+        # hmax = 4.5
+        # hmin = 1.5
+        hmin = np.min(inp)
+        # hmin = -hmax
+        fig = plt.figure(figsize=(15,8), facecolor = "white")
+        av  = plt.subplot(1,1,1)
+        hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
+                          vmin=hmin,vmax=hmax,aspect='auto' \
+                          )
+        plt.xlabel('Distance (km)')
+        plt.ylabel('Depth (km)')
+        plt.colorbar(hfig,format='%1.1f')
+        plt.rcParams['font.size'] = 16
+        fig.tight_layout()
+        flout = '../png/27_marm/inp_flat.png'
+        print("Export to file:", flout)
+        fig.savefig(flout, bbox_inches='tight')
+    
+    plot_model_t(inp_flat)
+    
+    
+    # gt.writebin(inp_flat_corr,'../input/27_marm/inp_flat_diff.dat')
+#%%
+    fl1       = '../input/27_marm/diff_marm.dat'
+    fl2       = '../input/27_marm/marm2_sm15.dat'
+    inp_diff  = gt.readbin(fl1,nz,nx)
+    inp_smooth= gt.readbin(fl2,nz,nx)
+    
+    inp_ano   = inp_diff+inp_smooth-1
+    
+    hmin = 0
+    hmax = 4.5
+    
+    fig = plt.figure(figsize=(15,8), facecolor = "white")
+    av  = plt.subplot(1,1,1)
+    hfig = av.imshow(inp_ano, extent=[ax[0],ax[-1],az[-1],az[0]], \
+                      vmin=hmin,vmax=hmax,aspect='auto', cmap='jet'
+                      )
+    plt.xlabel('Distance (km)')
+    plt.ylabel('Depth (km)')
+    plt.colorbar(hfig,format='%1.2f')
+    plt.rcParams['font.size'] = 16
+    fig.tight_layout()
+    flout = '../png/27_marm/marm_ano_corr.png'
+    print("Export to file:", flout)
+    fig.savefig(flout, bbox_inches='tight')
+
+    gt.writebin(inp_ano,'../input/27_marm/marm_ano_corr.dat')
     
 #%%   
     ## GAUSSIAN FILTER SMOOTHING

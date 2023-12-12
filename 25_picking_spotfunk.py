@@ -55,9 +55,10 @@ if __name__ == "__main__":
 
 si = dz
 
-mig = 'adj'
+# mig = 'adj'
 # fl3 = '../output/23_mig/org/nh10_is4/dens_corr/inv_betap_x.dat'
-fl3 = '../output/27_marm/b'+str(mig)+'/inv_betap_x_s.dat'
+# fl3 = '../output/27_marm/b'+str(mig)+'/inv_betap_x_s.dat'
+fl3 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
 inp3 = gt.readbin(fl3,nz,nx).T
 
 
@@ -91,8 +92,15 @@ plt.gca().invert_yaxis()
 
 
 #%% EXPORT
+
+# df = pd.DataFrame(pointe_mute_base[0])
+# df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_marm_'+str(mig)+'_02.csv',header=False,index=False)
+
+# df = pd.DataFrame(pointe_smooth)
+# df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm'+str(sigma)+'_marm_'+str(mig)+'_02.csv',header=False,index=False)
+
 df = pd.DataFrame(pointe_mute_base[0])
-df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_marm_'+str(mig)+'_01.csv',header=False,index=False)
+df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_flat_marm.csv',header=False,index=False)
 
 df = pd.DataFrame(pointe_smooth)
-df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm'+str(sigma)+'_marm_'+str(mig)+'_01.csv',header=False,index=False)
+df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_sm_flat_marm.csv',header=False,index=False)
