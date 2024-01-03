@@ -221,7 +221,9 @@ if __name__ == "__main__":
     tr1 = '../output/27_marm/mod_marm_inv/t1_obs_000'+str(title)+'.dat'
     tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
-
+    
+    # tr3 ='../output/t1_obs_000361.dat'
+    
     inp1 = -gt.readbin(tr1, no, nt).transpose()
     inp2 = -gt.readbin(tr2, no, nt).transpose()
     inp3 = -gt.readbin(tr3, no, nt).transpose()
@@ -403,7 +405,7 @@ if __name__ == "__main__":
     # # fl1 = '../input/10_onl_two_ano/1p5_two_ano_4p0.dat'
     inp1 = gt.readbin(fl1,nz,nx)
     flout = '../png/dbetap_exact.png'
-    # flout = '../png/27_marm/flat_marm/inp_flat.png'
+    # flout = '../png/vel_full.png'
     plot_model(inp1, flout)
     
     
@@ -610,22 +612,27 @@ if __name__ == "__main__":
 # ######## INPUT FOR SIMPLE MODEL
 
     # fl1 = './input/19_anomaly_4_layers/3_interfaces_org_smooth5.dat'
-    fl1 = './input/19_anomaly_4_layers/3_interfaces_anomaly_250.dat'
+    # fl1 = '../input/19_anomaly_4_layers/3_interfaces_anomaly_250.dat'
     # fl1 = './input/18_3_interface/3_interfaces_dp.dat'
+    fl1 = '../input/vel_full.dat'
     inp1 = gt.readbin(fl1, nz, nx)  # model
     # fl2 = './output/12_wf_simple/sm10_2060/born/p2d_lsm_000004.dat'
     # fl3 = './output/12_wf_simple/sm10_2060/fwi/p2d_fwi_000004.dat'
     # fl5 = './output/12_wf_simple/sm15_4000/p0_fwi/p2d_fwi_000004.dat'
 
-    fl2 = './output/18_3_interfaces/org/born/p2d_lsm_000004.dat'
-    fl3 = './output/19_anomaly_4_layers/ano_190/fwi/p2d_fwi_000004.dat'
-    fl5 = './output/19_anomaly_4_layers/p0/fwi/p2d_fwi_000004.dat'
+    # fl2 = '../output/18_3_interfaces/org/born/p2d_lsm_000004.dat'
+    # fl3 = '../output/19_anomaly_4_layers/ano_190/fwi/p2d_fwi_000004.dat'
+    # fl5 = '../output/19_anomaly_4_layers/p0/fwi/p2d_fwi_000004.dat'
 
+
+    fl2 = '../output/29_sim_flat_marm/p2d_lsm_000001.dat'
+    
     nxl = 443
+    nxl = 291
     h_nxl = int((nxl-1)/2)
     born = -gt.readbin(fl2, nz, nxl*nt)   #
-    fwi = gt.readbin(fl3, nz, nxl*nt)    #
-    p0_fwi = gt.readbin(fl5, nz, nxl*nt)
+    # fwi = gt.readbin(fl3, nz, nxl*nt)    #
+    # p0_fwi = gt.readbin(fl5, nz, nxl*nt)
 
     # nxl = bites/4/nz/nt = bites/4/151/1501
     # position central (301-1)*dx = 3600
@@ -642,20 +649,20 @@ if __name__ == "__main__":
     # print("size",np.shape(born))
 
     born = np.reshape(born, (nz, nt, nxl))
-    fwi = np.reshape(fwi, (nz, nt, nxl))
-    p0_fwi = np.reshape(p0_fwi, (nz, nt, nxl))
+    # fwi = np.reshape(fwi, (nz, nt, nxl))
+    # p0_fwi = np.reshape(p0_fwi, (nz, nt, nxl))
 
-    # print("size",np.shape(born))
+    # # print("size",np.shape(born))
 
-    dm_fwi = p0_fwi-fwi  # Reflected FWI wavefield
+    # dm_fwi = p0_fwi-fwi  # Reflected FWI wavefield
 
-    diff = born-dm_fwi
+    # diff = born-dm_fwi
 
     # diff = born+fwi
-    hmax = 0.1
-    hmin = -0.1
-    # hmax = np.max(inp4
-    # hmin = np.min(inp4)
+    # hmax = 10
+    # hmin = -10
+    # hmax = np.max(born)
+    # hmin = np.min(born)
     # print(hmin,hmax)
 
     # TO PRODUCE SIMULATIONS OF THE FULL WAVEFIELD OVERLAYING THE MODEL
@@ -663,7 +670,7 @@ if __name__ == "__main__":
     def plot_sim_wf(bg, inp1):
         hmax = np.max(inp1)
         print('hmax: ', hmax)
-        hmax = 0.1
+        hmax = 1
         hmin = -hmax
         for i in range(100, 1500, 100):
             fig = plt.figure(figsize=(13, 6), facecolor="white")
@@ -677,14 +684,14 @@ if __name__ == "__main__":
             av.set_title('t = '+str(i)+' m/s')
             plt.colorbar(hfig)
             fig.tight_layout()
-            flout2 = './png/19_anomaly_4_layers/sim_ano_190/fwi_'+str(i)+'.png'
+            flout2 = '../png/29_sim_flat_marm/born_'+str(i)+'.png'
             print("Export to file:", flout2)
             fig.savefig(flout2, bbox_inches='tight')
             plt.rcParams['font.size'] = 18
         print(np.shape(bg))
         print(np.shape(inp1))
 
-    plot_sim_wf(inp1, fwi)
+    plot_sim_wf(inp1, born)
 
     def plot_sim_2wf(bg, inp1, inp2):
         hmax = np.max(inp1)

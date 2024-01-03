@@ -14,6 +14,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import geophy_tools as gt
 from scipy.ndimage import gaussian_filter, sobel
 import pickle as pk
+from scipy import interpolate
+
 
 if __name__ == "__main__":
     
@@ -182,7 +184,7 @@ if __name__ == "__main__":
     gt.writebin(inp_diff10,'../input/27_marm/diff_marm.dat')
     
     
-#%%
+#%% FLAT INTERFACE
     # fl1       = '../input/org_full/marm2_full.dat'
     # fl2       = '../input/27_marm/marm2_sm15.dat'
     
@@ -192,26 +194,43 @@ if __name__ == "__main__":
     fl1 = '../input/27_marm/inp_flat.dat'
     fl2 = '../input/marm2_sm15.dat'
     
-    
-    
-    
+
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_smooth= gt.readbin(fl2,nz,nx)
     inp_flat  = inp_org*0
     
-    inp_flat[0:100] = 1.5
+    # inp_flat[0:100] = 1.5
     inp_flat[100:151] = 2.5
     
-    inp_flat_corr   = inp_flat + 1/np.sqrt(inp_smooth)
+    # inp_flat_corr   = inp_flat + 1/np.sqrt(inp_smooth)
+    # inp_flat_tap = inp_flat 
+    # # inp_flat_corr = inp_flat+inp_smooth
     
-    # inp_flat_corr = inp_flat+inp_smooth
+    # abetap = 1/inp_flat_corr**2
     
-    abetap = 1/inp_flat_corr**2
+    # # adbetap_exact = 1/inp_flat_corr**2 - 1/inp_smooth**2
     
-    # adbetap_exact = 1/inp_flat_corr**2 - 1/inp_smooth**2
+    # adbetap_exact = 1/inp_org**2 - 1/inp_smooth**2
     
-    adbetap_exact = 1/inp_org**2 - 1/inp_smooth**2
+    def taper(ntap, sh,nx):
+        # nx =50
+        # ntap = 10
+        # sh = 10
+        
+        tapmin = np.max([sh,1])
+        tapmax = np.min([ntap+sh,nx])
+        tap = [1]*nx
+        for i in range(tapmin,tapmax):
+            val = np.sin((i-sh) / ntap * np.pi/2.)
+            val = val**2
+            tap[i] = tap[i]*val
+        for j in range(np.min([sh,nx])):
+            tap[j]= 0.0
+        # plt.plot(tap,'.')
+        return tap
     
+ 
+        
     def plot_model_t(inp):
         hmax = np.max(inp)
         # hmax = 4.5
@@ -228,19 +247,59 @@ if __name__ == "__main__":
         plt.colorbar(hfig,format='%1.1f')
         plt.rcParams['font.size'] = 16
         fig.tight_layout()
-        flout = '../png/27_marm/inp_flat.png'
+        flout = '../png/30_marm_flat/inp_flat.png'
         print("Export to file:", flout)
         fig.savefig(flout, bbox_inches='tight')
     
-    plot_model_t(inp_flat)
+    
+    tap_x = taper(100,10,nx)
+    tap_z = taper(15,5,nz)
+    inp_taper_l = inp_flat * tap_x
+    inp_taper_l_r = inp_taper_l * tap_x[::-1]
+    inp_taper_l_r_top =  np.transpose(inp_taper_l_r.T *tap_z)
+    inp_taper_all =  np.transpose(inp_taper_l_r_top.T *tap_z[::-1])  
     
     
-    # gt.writebin(inp_flat_corr,'../input/27_marm/inp_flat_diff.dat')
+    inp_taper_adbetap = 1/inp_taper_all**2 - 1/inp_smooth**2
+    
+    inp_taper_corr = inp_taper_all + inp_smooth
+    inp_taper_adbetap_exact = 1/inp_taper_corr**2 - 1/inp_smooth**2
+    
+    plot_model_t(inp_taper_all)
+    plot_model_t(inp_taper_adbetap)
+    
+    plot_model_t(inp_taper_adbetap_exact)
+       
+    gt.writebin(inp_taper_corr,'../input/30_marm_flat/inp_flat_taper_corr_org.dat')
+    
+#%%
+    fl1       = '../input/30_marm_flat/inp_flat_taper_corr_org.dat'
+    fl2       = '../input/16_densite_constante/rho_smooth_2x.dat'
+    inp_taper_corr  = gt.readbin(fl1,nz,nx)
+    inp_smooth= gt.readbin(fl2,nz,nx)
+    
+    
+    f = interpolate.RegularGridInterpolator((az,ax), inp_smooth,method='cubic',bounds_error=False, fill_value=None) 
+    az_new = np.linspace(az[0], az[-1], 301)
+    ax_new = np.linspace(ax[0], ax[-1], 1201)
+    AZ, AX = np.meshgrid(az_new, ax_new, indexing='ij')
+    INT_inp_smooth = f((AZ,AX))
+    
+    
+    plot_model_t(INT_inp_smooth)
+    gt.writebin(INT_inp_smooth,'../input/30_marm_flat/rho_smooth_2x.dat')
+    
+    # plot_model_t(INT_inp_taper_corr)
+    # gt.writebin(INT_inp_taper_corr,'../input/30_marm_flat/rho_full_2x.dat')
+    
 #%%
     fl1       = '../input/27_marm/diff_marm.dat'
     fl2       = '../input/27_marm/marm2_sm15.dat'
     inp_diff  = gt.readbin(fl1,nz,nx)
     inp_smooth= gt.readbin(fl2,nz,nx)
+    
+    
+    
     
     inp_ano   = inp_diff+inp_smooth-1
     
