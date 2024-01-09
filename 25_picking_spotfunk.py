@@ -63,6 +63,7 @@ si = dz
 # fl3 = '../output/27_marm/b'+str(mig)+'/inv_betap_x_s.dat'
 # fl3 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
 fl3 = '../input/27_marm/csg_raytracing_modeling.dat'
+fl3 = '../input/27_marm/csg_raytracing_modeling_2_0.dat'
 # inp3 = gt.readbin(fl3,nz,nx).T
 inp3 = gt.readbin(fl3,1501,101).T
 
@@ -111,4 +112,4 @@ plt.gca().invert_yaxis()
 # df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_sm_flat_marm.csv',header=False,index=False)
 
 df = pd.DataFrame(pointe_mute_base[0])
-df.to_csv('../input/27_marm/29_pick_csg.csv',header=['pick'],index=False)
+df.to_csv('../input/27_marm/29_pick_csg_flat.csv',header=['pick'],index=False)

@@ -310,7 +310,7 @@ for i in range(0,101,10):
     if str(src_x[i]) != 'nan': 
         indices.append(i)
         
-        path_ray[i] = "/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/baptiste_corr_v181223_y0.01/rays/opti_"+str(i)+"_ray.csv"
+        path_ray[i] = "/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug141223_raytracing/rays/opti_"+str(i)+"_ray.csv"
         ray_x = np.array(read_results(path_ray[i], 0))
         ray_z = np.array(read_results(path_ray[i], 2))
 
@@ -361,7 +361,7 @@ for i in range(0,101,10):
         plt.plot(vp,ray_z,'.')
         plt.xlabel('Vp (m/s)')
         plt.ylabel('Z (m)')
-        flout3 = "../png/27_marm/flat_marm/corr_az_pert/ray_vp_z_"+str(i)+"_p0007.png"
+        flout3 = "../png/27_marm/flat_marm/corr_az_pert/ray_vp_z_"+str(i)+"_corr.png"
         print("Export to file:", flout1)
         fig3.savefig(flout3, bbox_inches='tight') 
         

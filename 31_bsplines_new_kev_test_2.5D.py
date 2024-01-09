@@ -1162,10 +1162,10 @@ plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc
 plt.colorbar()
 # plt.gca().invert_yaxis()
 
-Vit_model1 = gaussian_filter(Vit_model1,5)
-plt.figure(figsize=(16,8))
-plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
-plt.colorbar()
+# Vit_model1 = gaussian_filter(Vit_model1,5)
+# plt.figure(figsize=(16,8))
+# plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
+# plt.colorbar()
 # plt.gca().invert_yaxis()
 
 Param_Input = Param_Input_class(Param_Input1)
@@ -1208,6 +1208,7 @@ np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/0
 # np.savetxt('Weights_vel_full_kevtest.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 
+
 # %% Visualisations 
 
 
@@ -1231,20 +1232,22 @@ Vit_model = np.vstack([Vit_model1,Vit_model1,Vit_model1,
 
 
 
+d_max = (151)*12.00
 
-d_max = 150*12.00
+d_interp = np.arange(0,d_max,12)
 
-d_interp = np.arange(0,d_max-1,5)
-# d_interp = np.arange(0,d_max-1,1)
+# d_max = 151*12.00
+# d_interp = np.arange(-delta_z,d_max-1,5)
+
 
 Bspline_2D = []
 
 # for k in tqdm.tqdm(range(0,601,5)):
 for k in tqdm.tqdm(range(0,601,1)):
     vitesse_list = []
-    # for j in range(0,len(d_interp),5):
-    for j in range(0,len(d_interp),1):
-        vitesse_list.append(Vitesse(12.00*k,0,-d_interp[j],Parameters,Weights)[0])
+    for j in range(0,len(d_interp)):
+    # for j in range(0,len(d_interp),1):
+        vitesse_list.append(Vitesse(0,12.00*k,-d_interp[j],Parameters,Weights)[0])
     
     Bspline_2D.append(vitesse_list)
 
@@ -1254,7 +1257,7 @@ x_disc = np.arange(601)*12.00
 z_disc = np.arange(151)*12.00
 
 x_spline = np.arange(601)*12.00
-z_spline = np.arange(len(d_interp))*5
+z_spline = np.arange(0,len(d_interp))*12
                     
 plt.figure(figsize=(16,8))
 plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
@@ -1266,6 +1269,23 @@ plt.imshow(Bspline_2D.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_spline[0],x_sp
 plt.colorbar()
 # plt.gca().invert_yaxis()
 
+
+colors = ['b','g','r','k','m']
+plt.figure(figsize=(10,8))
+for i in range(0,151,35):
+    plt.plot(z_disc,Vit_model1.T[:,i],'-',color=colors[int(i/35)],label='bspline tr = '+str(i))
+    plt.plot(z_spline,Bspline_2D.T[:,i],'.',color=colors[int(i/35)],alpha=0.7,label='model tr = '+str(i))
+    
+    plt.title('Model Bspline vs original model trace')
+    plt.legend(fontsize = 'x-small')
+    plt.tight_layout()
+    plt.xlabel('Depth (km)')
+    plt.ylabel('Velocity (m/s)')
+
+
+
+#%%
+''''''
 
 y_line = np.arange(-390,390,1)
 

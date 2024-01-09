@@ -218,28 +218,28 @@ if __name__ == "__main__":
     # tr2 = '../output/26_mig_4_interfaces/binv_rc_norm/t1_syn_000'+str(title)+'.dat'
     
     
-    tr1 = '../output/27_marm/mod_marm_inv/t1_obs_000'+str(title)+'.dat'
-    tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
-    tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/31_const_flat_tap/t1_obs_000'+str(title)+'.dat'
+    # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
+    # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     
     # tr3 ='../output/t1_obs_000361.dat'
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
-    inp2 = -gt.readbin(tr2, no, nt).transpose()
-    inp3 = -gt.readbin(tr3, no, nt).transpose()
+    # inp2 = -gt.readbin(tr2, no, nt).transpose()
+    # inp3 = -gt.readbin(tr3, no, nt).transpose()
     
     inp_hilb1 = np.zeros_like(inp1,dtype = 'complex_')   
-    inp_hilb2 = np.zeros_like(inp2,dtype = 'complex_')  
-    inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
+    # inp_hilb2 = np.zeros_like(inp2,dtype = 'complex_')  
+    # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
     
     for i in range(no):
         inp_hilb1[:,i] = hilbert(inp1[:,i])    
-        inp_hilb2[:,i] = hilbert(inp2[:,i])    
-        inp_hilb3[:,i] = hilbert(inp3[:,i]) 
+        # inp_hilb2[:,i] = hilbert(inp2[:,i])    
+        # inp_hilb3[:,i] = hilbert(inp3[:,i]) 
         
     inp_hilb1 = inp_hilb1.imag
-    inp_hilb2 = inp_hilb2.imag
-    inp_hilb3 = inp_hilb3.imag
+    # inp_hilb2 = inp_hilb2.imag
+    # inp_hilb3 = inp_hilb3.imag
     
     tr = [63,126,189]
     # tr = [71, 135, 201, 260, 333]
@@ -252,17 +252,17 @@ if __name__ == "__main__":
     
    
     hmin, hmax = -0.1,0.1
-    flout_gather = '../png/27_marm/obs_'+str(title)+'.png'
+    flout_gather = '../png/31_const_flat_tap/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, inp_hilb1, flout_gather)
 
-    hmin, hmax = -0.1,0.1
-    flout_gather = '../png/27_marm/syn_'+str(title)+'.png'
-    plot_shot_gathers(hmin, hmax, inp_hilb2, flout_gather)
+    # hmin, hmax = -0.1,0.1
+    # flout_gather = '../png/27_marm/syn_'+str(title)+'.png'
+    # plot_shot_gathers(hmin, hmax, inp_hilb2, flout_gather)
     
     
-    hmin, hmax = -0.1,0.1
-    flout_gather = '../png/27_marm/obs_'+str(title)+'.png'
-    plot_shot_gathers(hmin, hmax, inp_hilb3, flout_gather)
+    # hmin, hmax = -0.1,0.1
+    # flout_gather = '../png/27_marm/obs_'+str(title)+'.png'
+    # plot_shot_gathers(hmin, hmax, inp_hilb3, flout_gather)
 
     
     # xmax = 0.2
@@ -276,10 +276,10 @@ if __name__ == "__main__":
     # flout_gather = './png/19_anomaly_4_layers/190_ano/gather_fwi_190_ano.png'
     # plot_shot_gathers(hmin,hmax,inp2,flout_gather)
 
-    diff_born_fwi = (inp_hilb1-inp_hilb2)*6
-    hmin, hmax = -0.1,0.1
-    flout_gather = '../png/27_marm/diff_org_ano_'+str(title)+'.png'
-    plot_shot_gathers(hmin,hmax,diff_born_fwi,flout_gather)
+    # diff_born_fwi = (inp_hilb1-inp_hilb2)*6
+    # hmin, hmax = -0.1,0.1
+    # flout_gather = '../png/27_marm/diff_org_ano_'+str(title)+'.png'
+    # plot_shot_gathers(hmin,hmax,diff_born_fwi,flout_gather)
 # hmax = np.max(np.abs(inp2))/2
 # hmin = -hmax
     # hmin,hmax = -0.1,0.1
@@ -374,7 +374,7 @@ if __name__ == "__main__":
 
         print("Export to file:", flout)
         fig.savefig(flout, bbox_inches='tight')
-        return inp[::11, 301],fig
+        return inp,fig
     
     
    #  labelsize = 16
@@ -398,15 +398,17 @@ if __name__ == "__main__":
 
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/avp_exact.dat'
-    # # fl1 = '../input/27_marm/inp_flat_corr.dat'
-    fl1 = '../output/dbetap_exact.dat'
+    fl1 = '../output/30_marm_flat/dbetap_exact.dat'
+    # fl1 = '../input/vel_smooth.dat'
+    
+
     # fl1 = '../input/vel_full.dat'
     # # # fl1 = './input/13_4_ano_smoo/4_ano_4p0_smoo5.dat'
     # # fl1 = '../input/10_onl_two_ano/1p5_two_ano_4p0.dat'
     inp1 = gt.readbin(fl1,nz,nx)
     flout = '../png/dbetap_exact.png'
     # flout = '../png/vel_full.png'
-    plot_model(inp1, flout)
+    inp,fig_z =plot_model(inp1, flout)
     
     
     # plt.figure()

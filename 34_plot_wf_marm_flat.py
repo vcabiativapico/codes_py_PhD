@@ -59,17 +59,17 @@ def read_results(path,srow):
         # attr = [x for x in attr if str(x) != 'nan']
     return attr
  
-path1 ='/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/Demigration_Victor/015_marm_flat_v2_test_1e_4.csv'
+path1 ='/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug141223_raytracing/015_marm_flat_v2_test_p0001_v2_test_bp_az_0_4992.csv'
 
-src_x = np.array(read_results(path1,1))
-src_y = np.array(read_results(path1,2))
-src_z = np.array(read_results(path1,3))    
-rec_x = np.array(read_results(path1,4))  
-rec_y = np.array(read_results(path1,5))    
-rec_z = np.array(read_results(path1,6))
+src_x  = np.array(read_results(path1,1))
+src_y  = np.array(read_results(path1,2))
+src_z  = np.array(read_results(path1,3))    
+rec_x  = np.array(read_results(path1,4))  
+rec_y  = np.array(read_results(path1,5))    
+rec_z  = np.array(read_results(path1,6))
 spot_x = np.array(read_results(path1,7)) 
 spot_y = np.array(read_results(path1,8))
-spot_z= np.array(read_results(path1,9))
+spot_z = np.array(read_results(path1,9))
 off_x  = np.array(read_results(path1,16))
 tt_inv = np.array(read_results(path1,17))
 
@@ -85,7 +85,7 @@ shot = np.round(src_x/12)
 shot = np.array((np.rint(shot)).astype(int))
      
         
-fl1 = '../input/vel_smooth.dat'
+fl1 = '../input/27_marm/marm2_sm15.dat'
 bg = gt.readbin(fl1, nz, nx)  # model
 
 

@@ -90,9 +90,9 @@ def read_results(path,srow):
 #%%   
 """ READ AND PLOT SOURCE RECEIVER AND TRAVELTIME """
 
-# path1  = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/Demigration_Victor/015_marm_flat_v2_p100_zero.csv'
-# path1 ='/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/Demigration_Victor/015_marm_flat_v2_test_1e_4.csv'
-path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/baptiste_corr_v181223_y0.01/015_marm_flat_v2_test_p0001_v2_test_bp_az_0_4992.csv'
+# path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug141223_raytracing/015_marm_flat_v2_test_p0001_v2_test_bp_az_0_4992.csv'
+path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/016_flat_2000ms_1188/016_flat_1188_v2.csv'
+
 
 src_x = np.array(read_results(path1,1))
 src_y = np.array(read_results(path1,2))
@@ -113,10 +113,6 @@ for i in range(0,101):
 
 """ PLOT TRAVELTIMES OVER THE SHOTS """
 
-# ## Calculate the index of the shot
-shot = np.round(src_x/12)
-# shot = np.round(src_x/6)
-shot = np.array((np.rint(shot)).astype(int))
 
 
 csg_trace= np.zeros((nt,len(indices)))
@@ -130,6 +126,11 @@ dec_off_x[0]
 
 shot_idx = np.arange(126,476+1)
 dec_title = shot_idx*12
+
+
+
+
+
 
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -161,35 +162,30 @@ for k in range(len(dec_off_x)):
 d_dox = dec_off_x[0] - dec_off_x[1]
 sd_dox = src_x[0] - src_x[1]
 
-
+## READ ALL THE SHOTS 
 inp_hilb3 = np.zeros((351,1501, 251),dtype = 'complex_')
 
 # for i in range(351):
 for i in range(351):
     txt = str(i+126)
     title = txt.zfill(3)
-    # title = shot[indices[i]]  
-## Read the shots that converged
-    tr3 = '../output/30_marm_flat/t1_obs_000'+str(title)+'.dat'
+    # tr3 = '../output/30_marm_flat/t1_obs_000'+str(title)+'.dat'
+    tr3 = '../output/31_const_flat_tap/t1_obs_000'+str(title)+'.dat'
     inp3 = -gt.readbin(tr3, no, nt).transpose()
     # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
     for j in range(no):
         inp_hilb3[i][:,j] = hilbert(inp3[:,j]) 
 inp_hilb3 = inp_hilb3.imag
 
-# for i in range(0,351,50):
-#     hmin = -0.15
-#     hmax = 0.15
-#     fig = plt.figure(figsize=(10, 8), facecolor="white")
-#     av = plt.subplot(1, 1, 1)
-#     hfig = av.imshow(inp_hilb3[i], extent=[0, len(indices), at[-1], at[0]],
-#                       vmin=hmin, vmax=hmax, aspect='auto',
-#                       cmap='seismic')     
-#     # wiggle(inp_hilb3[i],tt=at,xx=ao   )
+## PLOT SHOTS   
+hmin, hmax = -0.1,0.1
+shot_num = 236
+flout_gather = '../png/31_const_flat_tap/obs_'+str(126+shot_num)+'.png'
+fig = plot_shot_gathers(hmin, hmax, inp_hilb3[shot_num], flout_gather)
+fig = plt.plot(-off_x[0]/1000,tt_inv[0]/1000,'ok')
 
-    
 
-## INTERPOLATION OF THE RECEIVERS
+## INTERPOLATION OF SHOTS AND RECEIVERS
 rec_to_int = np.zeros((4,1501,4))
 tr_INT     = np.zeros((4,1501,5)) 
 for i in range(len(indices)):    
@@ -198,20 +194,17 @@ for i in range(len(indices)):
     
     ind_shot_int = np.arange(sd_idx[i]-2,sd_idx[i]+2)
     shot_to_int = inp_hilb3[ind_shot_int][:,ind_tr_int]
-    # Call the traces wit index
+    # Interpolation on the receivers
     for j in range(4):
         rec_to_int[j][:,:] = inp_hilb3[ind_shot_int[j]][:,ind_tr_int]
-        f = interpolate.RegularGridInterpolator((at,ao[ind_tr_int]), rec_to_int[j],method='linear',bounds_error=False, fill_value=None) 
+        f = interpolate.RegularGridInterpolator((at,ao[ind_tr_int]), rec_to_int[j], method='linear',bounds_error=False, fill_value=None) 
         at_new = np.linspace(at[0], at[-1], 1501)
         ao_new = np.linspace(dec_off_x[i]-d_dox*2,dec_off_x[i]+d_dox*2, 5)
         AT, AO = np.meshgrid(at_new, ao_new, indexing='ij')
         tr_INT[j][:,:] = f((AT,AO))
         rec_int = tr_INT[:,:,2]
-            # shot_int[:,i] = tr_INT[:,2]
-        # plot_rec_int = np.asarray(csg_trace)
-        # plot_rec_int[:,i] = rec_int[3]
-        
-    f = interpolate.RegularGridInterpolator((at,(ind_shot_int+126)*12), rec_int.T,method='linear',bounds_error=False, fill_value=None) 
+    # Interpolation on the shots
+    f = interpolate.RegularGridInterpolator((at,(ind_shot_int+126)*12), rec_int.T, method='linear',bounds_error=False, fill_value=None) 
     at_new = np.linspace(at[0], at[-1], 1501)
     src_new = np.linspace(src_x[i]-sd_dox*2, src_x[i]+sd_dox*2, 5)
     AT, SRC = np.meshgrid(at_new, src_new, indexing='ij')
@@ -219,24 +212,84 @@ for i in range(len(indices)):
     csg_trace[:,i] = src_INT[:,2] 
 
     
-    
-# ## INTERPOLATION OF THE SHOTS
-# for i in range(len(indices)):   
-#     ind_shot_int = np.arange(sd_idx[i]-2,sd_idx[i]+2)
-#     shot_to_int = inp_hilb3[ind_shot_int][:,ind_tr_int]
-    
-#     f = interpolate.RegularGridInterpolator((at,ind_shot_int*12), tr_to_int,method='linear',bounds_error=False, fill_value=None) 
-#     at_new = np.linspace(at[0], at[-1], 1501)
-#     src_new = np.linspace(src_x[i]-sd_dox*2, src_x[i]+sd_dox*2, 5)
-#     AT, SRC = np.meshgrid(at_new, src_new, indexing='ij')
-#     src_INT = f((AT,SRC))
-#     csg_trace[:,i] = src_INT[:,2] 
-   
+flout = '../input/27_marm/csg_raytracing_modeling_2_0.dat'
+gt.writebin(csg_trace,flout)
 
 
+
+
+'''Tracé de rais analytique'''   
+
+
+h1     = dz * 99
+h2     = dz * 101+dz
+
+
+v1     = 2.00
+
+t0     = 2*h1 / v1
+t1     = np.sqrt(t0**2 + (ao/v1)**2)-ft
+
+ao_conv  = len(ao) # Read the axes to keep same size
+at_conv  = len(at)
+ 
+
+inp_x    = np.zeros((at_conv,ao_conv)) # initilize the matrix with zeros
+
+
+for i in range(no):
+    n = np.round(t1[i]/dt)
+    n = n.astype(int)    # Find the index and convert to integer
+    inp_x[n,i]   = ((n+1)*dt - t1[i]) / dt 
+    inp_x[n+1,i] = (t1[i]- n*dt) / dt
+    # n_p1 = np.round(t2[i]/dt)
+    # n_p1 = n_p1.astype(int)
+    # inp_x[n_p1,i] = ((n+1)*dt - t1[i]) / dt
+    # inp_x[n_p1+1,i] = (t1[i]- n*dt) / dt
+    
+
+# hmax = np.max(np.abs(inp_w))/2
+hmax = 0.1
+hmin = -hmax
+
+fig = plt.figure(figsize=(10, 8), facecolor="white")
+av = plt.subplot(1, 1, 1)
+hfig = av.imshow(inp_hilb3[shot_num], extent=[ao[0], ao[-1], at[-1], at[0]],
+                 vmin=hmin, vmax=hmax, aspect='auto',
+                 cmap='seismic')
+av.plot(ao,t1+ft-0.012,'k')
+av.plot(-off_x[0]/1000,tt_inv[0]/1000,'og')
+plt.colorbar(hfig, format='%2.2f')
+plt.rcParams['font.size'] = 16
+plt.xlabel('Offset (km)')
+plt.ylabel('Time (s)')
+fig.tight_layout()
+flout = '../input/31_const_flat_tap/csg_raytracing_modeling_2_0.png'
+print("Export to file:", flout)
+fig.savefig(flout, bbox_inches='tight')
+
+
+
+#%%
+
+h1     = dz * 98
+
+
+
+v1     = 2.00
+
+t0     = 2*h1 / v1
+t1     = np.sqrt(t0**2 + (off_x/1000/v1)**2)
+
+ao_conv  = len(ao) # Read the axes to keep same size
+at_conv  = len(at)
+ 
+
+
+'''Plots for comparsion'''
 ## PLOT THE RAYTRACING TRAVELTIMES OVERLAYING COMMON SPOT GATHER TRACES
-hmin = -0.15
-hmax = 0.15
+hmin = -0.1
+hmax = 0.1
 fig = plt.figure(figsize=(10, 8), facecolor="white")
 av = plt.subplot(1, 1, 1)
 # hfig = av.imshow(plot_rec_int, extent=[0, len(indices), at[-1], at[0]],
@@ -245,16 +298,32 @@ av = plt.subplot(1, 1, 1)
 hfig = av.imshow(csg_trace, extent=[0, len(indices), at[-1], at[0]],
                  vmin=hmin, vmax=hmax, aspect='auto',
                  cmap='seismic')    
-
-
+plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-k',markersize=3)
+plt.plot(np.arange(len(indices)),t1-0.012,'g')
+av.xaxis.set_ticks(np.arange(len(indices))) 
+av.xaxis.set_ticklabels(np.rint(off_x[indices]).astype(int))
+xticks = plt.gca().xaxis.get_major_ticks()
+for i in range(len(xticks)):
+    if i % 10 != 0:
+        xticks[i].set_visible(False)
+plt.legend(['raytracing','analytique'])
+plt.rcParams['font.size'] = 16
+plt.title('Common spot gather Raytracing and Modelling')
+plt.xlabel('Offset (m)')
+plt.ylabel('Time (s)')     
 
 ## PLOT A WIGGLE OVERLAY
 fig = plt.figure(figsize=(12, 10), facecolor="white")
 ## First and main plot 
 av = plt.subplot2grid((5, 1), (0, 0),rowspan=4)
+plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
 
-plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-or',markersize=3)
 wiggle(csg_trace,tt=at,xx=np.arange(len(indices)))
+
+plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
+
+plt.plot(np.arange(len(indices)),t1,'g')
+
 ## Define the tick axis
 av.xaxis.set_ticks(np.arange(len(indices))) 
 av.xaxis.set_ticklabels(np.rint(off_x[indices]).astype(int))
@@ -268,34 +337,79 @@ plt.rcParams['font.size'] = 16
 plt.title('Common spot gather Raytracing and Modelling')
 plt.xlabel('Offset (m)')
 plt.ylabel('Time (s)')       
-    # if i == 0:
-    #     ind_tr_int = tr1[np.arange(indices[i],indices[i+4])]
-        
-    # elif i == 1:
-    #     ind_tr_int = tr1[np.arange(indices[i-1],indices[i+3])]
-        
-    # elif i == len(indices)-1:
-    #     ind_tr_int = tr1[np.arange(indices[i-3],indices[i]+1)]
-        
-    # elif i == len(indices)-2:
-    #     ind_tr_int = tr1[np.arange(indices[i-2],indices[i]+2)]
+
+## Secondary plot 
+av1= plt.subplot2grid((5, 1), (4, 0),rowspan=1)
+plt.plot(np.arange(len(indices)),off_x[indices],'-')
+av1.xaxis.set_ticks(np.arange(len(indices))) 
+av1.xaxis.set_ticklabels(np.array(indices))
+# av1.xaxis.set_ticklabels(np.rint(off_x[indices]).astype(int))
+xticks = plt.gca().xaxis.get_major_ticks()
+for i in range(len(xticks)):
+    if i % 20 != 0:
+        xticks[i].set_visible(False)
+plt.ylabel('Offset (m)')
+plt.xlabel('Raytrace nb')  
+fig.tight_layout()
+flout = '../png/31_const_flat_tap/wiggle_csg_'+str(title)+'_interpolated.png'
+print("Export to file:", flout)
+fig.savefig(flout, bbox_inches='tight')
+
+
+
+
+plt.figure(figsize=(12, 10), facecolor="white")
+zero_ph_pick2 = np.array(read_results('../input/27_marm/29_pick_csg_flat.csv', 0))
+# zero_ph_pick2 = np.array(read_results('../input/27_marm/29_pick_csg.csv', 0))
+zero_ph_corr = zero_ph_pick2 - 100.11
+plt.plot(off_x,zero_ph_corr)
+plt.plot(off_x,tt_inv[indices],'-r',markersize=3)
+plt.legend(['modeling','raytracing'])
+plt.ylim(2000,0)
+plt.xlabel('offset (m)')
+plt.ylabel('time (ms)')
+
+
+decalage = zero_ph_corr - tt_inv[indices]
+plt.figure(figsize=(12, 10), facecolor="white")
+plt.plot(off_x,-decalage,'.')
+plt.xlabel('offset (m)')
+plt.ylabel('decalage (ms)')
+plt.title('Décalage entre tracé de rais et modélisation')
     
-    # else:
-    #     ind_tr_int = tr1[np.arange(indices[i-2],indices[i+2])]  
-    # print(ind_tr_int,tr1[i])
     
+plt.figure(figsize=(12,10))
+plt.plot(off_x,zero_ph_corr,label='Modeling')
+plt.plot(off_x,tt_inv[indices],'-r',markersize=3,label='Ray tracing')
+plt.plot(off_x,t1*1000,'k',label='Analytique')
+plt.title('Event on the CSG')
+plt.xlabel('offset (m)')
+plt.ylabel('time (ms)')
+plt.legend()
+
+decalage_ana_pick = zero_ph_corr - (t1*1000 )
+plt.figure(figsize=(12, 10), facecolor="white")
+plt.plot(off_x,-decalage_ana_pick,'.')
+plt.xlabel('offset (m)')
+plt.ylabel('decalage (ms)')
+plt.title('Décalage entre modélisation et analytique')
     
+
+
+decalage_ana_tt = tt_inv[indices] - (t1*1000)
+plt.figure(figsize=(12, 10), facecolor="white")
+plt.plot(off_x,-decalage_ana_tt,'.')
+plt.xlabel('offset (m)')
+plt.ylabel('decalage (ms)')
+plt.title('Décalage entre tracé de rais et analytique')
     
-#     ## Interpolation
-#     f = interpolate.RegularGridInterpolator((at,ao[ind_tr_int]), tr_for_int,method='linear',bounds_error=False, fill_value=None) 
-#     at_new = np.linspace(at[0], at[-1], 1501)
-#     ao_new = np.linspace(ao[ind_tr_int[-1]],[ind_tr_int[0]], 27)
-#     AT, AO = np.meshgrid(at_new, ao_new, indexing='ij')
-#     tr_INT = f((AT,AO))
-#     print(tr_INT,tr1[i])
-# ## Calculate the index of the offset in the shot according to the off_x
-#     k =   
-#     csg_trace[:,i] = tr_INT[:,k]    
-#     csg_trace[:,i] = tr_for_int[:,tr1[indices[i]]] 
-    # csg_trace_INT[:,i] = INT_inp_hilb3[:,tr[indices[i]]] 
-    
+
+""" PLOT THE POSITIONS AND RECEIVERS OBTAINED """
+colors = src_x[::2]
+fig = plt.figure(figsize= (10,7))
+plt.scatter(src_x[::2],src_y[::2],c=colors,marker='*',cmap='jet')
+plt.scatter(rec_x[::2],rec_y[::2],c=colors,marker='v',cmap='jet')
+plt.xlabel('x')
+plt.ylabel('y')
+# plt.ylim(-0.0001,0.0001)
+
