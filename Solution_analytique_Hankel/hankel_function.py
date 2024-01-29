@@ -62,10 +62,10 @@ def defwsrc(fmax, dt):
     Ricker = 2nd-order derivative of a Gaussian function
     """
     fc = fmax / 2.5  # Central frequency
-    ns2 = int(2 / fc / dt) + 1500 # Classical definition
+    ns2 = int(2 / fc / dt) + 1500  # Classical definition
     # ns2 = int(7.5/fmax/dt+0.5) # Large source, but better for inverse WWW
     # ns2 = 4 * int(3.0/2.5/fc/dt + 0.49)
-    ns = 1 + 2 * ns2  # Size of the source
+    ns = 1 + 2 * ns2   # Size of the source
     wsrc = np.zeros(ns)
     aw = np.zeros(ns)  # Time axis
     for it in range(ns):
