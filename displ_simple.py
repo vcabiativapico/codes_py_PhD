@@ -399,15 +399,15 @@ if __name__ == "__main__":
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     # fl1 = '../output/dbetap_exact.dat'
-    # fl1 = '../input/vel_smooth.dat'
+    fl1 = '../input/vel_full.dat'
     
 
-    fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
+    # fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
     # # # fl1 = './input/13_4_ano_smoo/4_ano_4p0_smoo5.dat'
     # # fl1 = '../input/10_onl_two_ano/1p5_two_ano_4p0.dat'
     inp1 = gt.readbin(fl1,nz,nx)
     # flout = '../png/avp_exact.png'
-    flout = '../png/vel_smooth.png'
+    flout = '../png/vel_full.png'
     inp,fig_z =plot_model(inp1, flout)
     
     

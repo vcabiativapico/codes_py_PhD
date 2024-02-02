@@ -9,7 +9,6 @@ Backward Euler Method in time
 import numpy as np
 from math import sin, cos, pi, sqrt, log, atan, log10, exp
 import matplotlib.pyplot as plt
-from matplotlib import rc
 import geophy_tools as gt
 from scipy.special import hankel1
 
