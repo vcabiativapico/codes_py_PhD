@@ -196,7 +196,7 @@ if __name__ == "__main__":
     # title = 501
     # title = 201
     # title = 301
-    title,no = 333,251
+    title,no = 301,251
     # nomax = 201
     # no = (nomax)+101
     # no = 302 # for 101 & 501
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     # tr2 = '../output/26_mig_4_interfaces/binv_rc_norm/t1_syn_000'+str(title)+'.dat'
     
     
-    tr1 = '../output/31_const_flat_tap/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/t1_obs_000'+str(title)+'.dat'
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     
@@ -251,9 +251,12 @@ if __name__ == "__main__":
     # plot_trace(xmax_tr,inp2,inp2,flout,tr)
     
    
-    hmin, hmax = -0.1,0.1
-    flout_gather = '../png/31_const_flat_tap/obs_'+str(title)+'.png'
+    
+    hmin = np.max(inp_hilb1)
+    hmax = -hmin
+    flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, inp_hilb1, flout_gather)
+    print(np.max(inp_hilb1))
 
     # hmin, hmax = -0.1,0.1
     # flout_gather = '../png/27_marm/syn_'+str(title)+'.png'
@@ -408,7 +411,7 @@ if __name__ == "__main__":
     inp1 = gt.readbin(fl1,nz,nx)
     # flout = '../png/avp_exact.png'
     flout = '../png/vel_full.png'
-    inp,fig_z =plot_model(inp1, flout)
+    inp,fig_z = plot_model(inp1, flout)
     
     
     # plt.figure()

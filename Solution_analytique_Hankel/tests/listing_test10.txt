@@ -1,0 +1,29 @@
+dt    = 0.00141
+dx    = 12.0
+dz    = 12.0
+do    = 12.0
+
+ft    = -0.10011
+
+fx    = 0.0
+fz    = 0.0
+fo    = -1494.0
+nx    = 600
+nz    = 150
+nt    = 1500
+no    = 250
+ 
+src_x = 3600.0
+rec_x = 3600.0
+src_z = 12.0
+rec_z = 12.0
+off_x = 0.0
+
+fmax  = 25
+v_max = 49.999954
+v_min = 0.0
+v0    = 2000
+
+Amplitude ratio = 19.821747
+Numerical max  = 0.0036365297
+Analytical max = 0.00018346160692211293

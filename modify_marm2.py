@@ -49,7 +49,7 @@ if __name__ == "__main__":
     new_sm = np.asarray(inp_org)
     new_sm = new_sm * 0+ 2.0
     
-    gt.writebin(new_sm,'../input/30_marm_flat/2_0_sm_constant.dat')
+    gt.writebin(new_sm,'Solution_analytique_Hankel/input/2000_sm_constant.dat')
 #%%
     # # # ######### Modifing initial model anomaly ############
 
@@ -284,13 +284,14 @@ if __name__ == "__main__":
     
     inp_const = new_sm + inp_taper_all
     inp_adbetap_const = 1/inp_const**2 - 1/new_sm**2
-    plot_model_t(inp_flat)
+    # plot_model_t(inp_flat)
     plot_model_t(inp_const)
-    plot_model_t(inp_adbetap_const)
+    # plot_model_t(inp_adbetap_const)
     
     # gt.writebin(inp_const,'../input/31_const_flat_tap/inp_flat_2050_const.dat')
-
+    gt.writebin(inp_const*1000,'Solution_analytique_Hankel/input/2050_dp_inp_flat.dat')
     
+
     
 #%%
     fl1       = '../input/30_marm_flat/inp_flat_taper_corr_org.dat'
