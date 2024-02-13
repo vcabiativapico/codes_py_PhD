@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 *.mp4
 Solution_analytique_Hankel/results/*
-
+Solution_analytique_Hankel/tests/
 Solution_analytique_Hankel/results/
 results/
 input/
