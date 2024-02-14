@@ -228,7 +228,7 @@ h2     = dz * 101+dz
 v1     = 2.00
 
 t0     = 2*h1 / v1
-t1     = np.sqrt(t0**2 + (ao/v1)**2)-ft
+t1     = np.sqrt(t0**2 + (ao/v1)**2)
 
 ao_conv  = len(ao) # Read the axes to keep same size
 at_conv  = len(at)

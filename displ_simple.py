@@ -218,7 +218,7 @@ if __name__ == "__main__":
     # tr2 = '../output/26_mig_4_interfaces/binv_rc_norm/t1_syn_000'+str(title)+'.dat'
     
     
-    tr1 = '../output/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/35_dt070/t1_obs_000'+str(title)+'.dat'
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     
