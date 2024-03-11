@@ -18,6 +18,7 @@ import csv
 import sys
 import gc
 from spotfunk.res.input import segy_reader
+from scipy.ndimage import gaussian_filter
 
 
 from spotfunk.res import bspline
@@ -326,64 +327,15 @@ def gradient_vitesse(INL, XL, z, weight, tx, ty, tz, delta_tx, delta_ty, delta_t
         derivalue_INL = 0
     if XL_constant:
         derivalue_XL = 0
-    derivalue_x = (np.cos(azimuth) * derivalue_INL + np.sin(azimuth) * derivalue_XL) / (delta_tx * INL_step)
-    derivalue_y = (np.sin(azimuth) * derivalue_INL - np.cos(azimuth) * derivalue_XL) / (delta_ty * XL_step)
+    # derivalue_x = (np.cos(azimuth) * derivalue_INL + np.sin(azimuth) * derivalue_XL) / (delta_tx * INL_step) #Is there a problem here ???
+    # derivalue_y = (np.sin(azimuth) * derivalue_INL - np.cos(azimuth) * derivalue_XL) / (delta_ty * XL_step) #Is there a problem here ???
+    
+    derivalue_x = (np.cos(azimuth+np.pi/2) * derivalue_INL + np.sin(azimuth+np.pi/2) * derivalue_XL) / (delta_tx * INL_step)
+    derivalue_y = (np.sin(azimuth+np.pi/2) * derivalue_INL - np.cos(azimuth+np.pi/2) * derivalue_XL) / (delta_ty * XL_step)  
+    
     derivalue_z = derivalue_z / delta_tz
 
     return [derivalue_x, derivalue_y, -derivalue_z]
-
-
-def gradient_horizon(INL, XL, weight, tx, ty, delta_tx, delta_ty, INL_step, XL_step, azimuth, INL_constant=False, XL_constant=False):
-    """
-    Compute the gradient of the velocity at a point
-    :param INL: INL coordinate of the point
-    :param XL: XL coordinate of the point
-    :param weight: list of Weights for the B-splines of the velocity
-    :param tx:
-    :param ty:
-    :param delta_tx:
-    :param delta_ty:
-    :param INL_step: Step between 2 inlines (if first cell is Inline 2 and second cell Inline 5, the step is 3)
-    :param XL_step: Step between 2 crosslines (if first cell is Crossline 2 and second cell Crossline 5, the step is 3)
-    :param azimuth: angle between a major axis and XL or INL (case by case)
-    :return: list, gradient of the velocity at a point
-    """
-
-    N = len(ty)
-
-    cpa = 0
-    while INL > tx[cpa]:
-        cpa += 1
-    ttx = [cpa - 2, cpa - 1, cpa, cpa + 1]
-
-    cpb = 0
-    while XL > ty[cpb]:
-        cpb += 1
-    tty = [cpb - 2, cpb - 1, cpb, cpb + 1]
-
-
-    derivalue_INL = 0
-    derivalue_XL = 0
-
-    for dx in ttx:
-        for dy in tty:
-            indice_mnl = int(dy + dx * N)
-
-            derivalue_INL += derivate_Bspline((INL - tx[int(dx)] + 2 * delta_tx) / delta_tx) * B_spline1(
-                (XL - ty[int(dy)] + 2 * delta_ty) / delta_ty) * weight[indice_mnl]
-            derivalue_XL += B_spline1((INL - tx[int(dx)] + 2 * delta_tx) / delta_tx) * derivate_Bspline(
-                (XL - ty[int(dy)] + 2 * delta_ty) / delta_ty) * weight[indice_mnl]
-            
-
-    if INL_constant:
-        derivalue_INL = 0
-    if XL_constant:
-        derivalue_XL = 0
-    derivalue_x = (np.cos(azimuth) * derivalue_INL + np.sin(azimuth) * derivalue_XL) / (delta_tx * INL_step)
-    derivalue_y = (np.sin(azimuth) * derivalue_INL - np.cos(azimuth) * derivalue_XL) / (delta_ty * XL_step)
-
-
-    return [derivalue_x, derivalue_y]
 
 def read_txt_file(path, filename):
     file = open(path + filename, 'r')
@@ -495,9 +447,9 @@ def Horizon(x, y, Param_Input, Weights_Horizon):
     delta_x = Param_Input.delta_x_
     delta_y = Param_Input.delta_y_
 
-
     INL, XL = x,y
 
+    # print(INL,XL)
 
     end_x = Param_Input.end_x_
     end_y = Param_Input.end_y_
@@ -507,7 +459,8 @@ def Horizon(x, y, Param_Input, Weights_Horizon):
 
     tx = Param_Input.tx_
     ty = Param_Input.ty_
-
+    # print(tx)
+    # print(ty)
     if start_x <= INL <= end_x and start_y <= XL <= end_y:
         vitesse = spline_interp_value_2d(INL, XL, Weights_Horizon, tx, ty, delta_tx, delta_ty)
 
@@ -538,9 +491,8 @@ def Horizon(x, y, Param_Input, Weights_Horizon):
         elif INL < start_x and XL < start_y:
             vitesse = spline_interp_value_2d(start_x, start_y, Weights_Horizon, tx, ty, delta_tx, delta_ty)
             
-    grad_h = gradient_horizon(INL, XL, Weights_Horizon, tx, ty, delta_tx, delta_ty, INL_step, XL_step, azimuth, INL_constant=False, XL_constant=False)
-    
-    return -vitesse,grad_h #We need positive values and horizon values are negative
+
+    return -vitesse #We need positive values and horizon values are negative
 
 def where_interface(x0, Param_Input, Weights_Horizon):
     """
@@ -998,12 +950,6 @@ def compute_and_export(project_name, final_grid, Param_Input, path, i, Param_Inp
     np.savetxt(path + "Parametres_" + project_name + "_full_layer" + str(i) + ".csv", Param_Input_list, fmt='%f', delimiter=",")
 
 
-def readbin(filename,nz,nx):
-    with open(filename,'rb') as f:
-        im = np.fromfile(f,dtype=np.float32)
-    im = im.reshape(nz,nx,order='F')
-    return im
-
 
 
 def conditionnement2d(Mat,M,L,I,K,alpha):
@@ -1042,60 +988,45 @@ def conditionnement2d(Mat,M,L,I,K,alpha):
     return Mat
 
 
-def interp2d(Dataset,Param_Input,limite = 100, facteur=1):
+def interp2d(Dataset,Param_Input,limite = 100):
 
 
 
     start_INL = Param_Input[0]
-    start_XL = Param_Input[1]
-    delta_INL = Param_Input[4]
-    delta_XL = Param_Input[5]
-    INL_step = Param_Input[2]
-    XL_step = Param_Input[3]
+    start_z = Param_Input[1]
+    delta_INL = Param_Input[2]
+    delta_z = Param_Input[3]
+    # INL_step = Param_Input[6]
+    # XL_step = Param_Input[7]
     # azimuth = Param_Input[8]
     I = Param_Input[6]
-    J = Param_Input[7]
+    K = Param_Input[7]
     # X_or = Param_Input[12]
     # Y_or = Param_Input[13]
-    
+
+    M = I+3
+    L = K+3
 
 
 
-    end_INL = start_INL + (I-1)*INL_step
-    end_XL = start_XL + (J-1)*XL_step
+    end_INL = start_INL + (I-1)*delta_INL
+    end_z = start_z + (K-1)*delta_z
 
-    delta_tINL = facteur * INL_step #Space between knots in INL direction
-    delta_tXL = facteur * XL_step #Space between knots in XL/z direction (for horizon, XL)
-    
-    #Knots list in INL
-    tINL = [start_INL - 2* delta_tINL]
-    last_value = start_INL - 2* delta_tINL
-    while last_value < end_INL:
-        last_value += delta_tINL
-        tINL.append(last_value)
-    tINL.append(last_value + delta_tINL)
+    delta_tINL = delta_INL #Space between knots in INL direction
+    delta_tz = delta_z #Space between knots in XL/z direction (for horizon, XL)
 
-    #Knots list in XL/z
-    tXL = [start_XL - 2* delta_tXL]
-    last_value = start_XL - 2* delta_tXL
-    while last_value < end_XL:
-        last_value += delta_tXL
-        tXL.append(last_value)
-    tXL.append(last_value + delta_tXL)
+    tINL = np.arange(start_INL-2*delta_tINL,end_INL+delta_tINL+0.01,delta_tINL) #Knots list in INL
+    tz = np.arange(start_z-2*delta_tz,end_z+delta_tz+0.01,delta_tz) #Knots list in XL/z
 
-    M, N = len(tINL), len(tXL)
-
-
-    INL = np.arange(start_INL,end_INL+0.01,INL_step)
-    XL = np.arange(start_XL,end_XL+0.01,XL_step)
+    INL = np.arange(start_INL,end_INL+0.01,delta_INL) #INL data
+    z = np.arange(start_z,end_z+0.01,delta_z) #XL/z data
 
     start_time = time.time()
 
     B_spline_INL = np.zeros((I,M))
 
     for i in range(I):
-        start = np.ceil(i/facteur)
-        m = np.arange(start, start + 3 + 0.001, 1)
+        m = np.arange(i,i+3+0.001,1)
 
         for mm in m:
             try:
@@ -1104,21 +1035,20 @@ def interp2d(Dataset,Param_Input,limite = 100, facteur=1):
                 pass
 
 
-    B_spline_XL = np.zeros((J,N))
+    B_spline_z = np.zeros((K,L))
 
-    for j in range(J):
-        start = np.ceil(j/facteur)
-        n = np.arange(start, start + 3 + 0.001, 1)
-        
-        for nn in n:
+    for k in range(K):
+        l = np.arange(k,k+3+0.001,1)
+
+        for ll in l:
             try:
-                B_spline_XL[j][int(nn)] = B_spline1((XL[j]-tXL[int(nn)]+2*delta_tXL)/delta_tXL)
+                B_spline_z[k][int(ll)] = B_spline1((z[k]-tz[int(ll)]+2*delta_tz)/delta_tz)
             except:
                 pass
 
 
 
-    Mat = lil_matrix((I*J+M*N,M*N))
+    Mat = lil_matrix((I*K+M*L,M*L))
 
 
     #export_line = []
@@ -1127,38 +1057,35 @@ def interp2d(Dataset,Param_Input,limite = 100, facteur=1):
 
     for i in range(I):
 
-        for j in range(J):
+        for k in range(K):
 
-            start = np.ceil(i/facteur)
-            m = np.arange(start, start + 3 + 0.001, 1)
-            start = np.ceil(j/facteur)
-            n = np.arange(start, start + 3 + 0.001, 1)
+            m = np.arange(i,i+3+0.001,1)
+            l = np.arange(k,k+3+0.001,1)
 
             for mm in m:
-                for nn in n:
+                for ll in l:
 
 
-                     indice_mn = int(nn + mm*N)
-                     indice_ij = int(j  + i*J)
+                     indice_ml = int(ll + mm*L)
+                     indice_ik = int(k  + i*K)
 
-                     Mat[indice_ij,indice_mn] = B_spline_INL[i][int(mm)]*B_spline_XL[j][int(nn)]
+                     Mat[indice_ik,indice_ml] = B_spline_INL[i][int(mm)]*B_spline_z[k][int(ll)]
 
 
     alpha = 0.3
-    Mat = conditionnement2d(Mat, M, N, I, J, alpha)
+    Mat = conditionnement2d(Mat, M, L, I, K, alpha)
 
     print("Création de Mat : {}s".format(time.time()-start_time))
 
-    b = np.zeros(I*J+M*N)
+    b = np.zeros(I*K+M*L)
 
     for i in range(I):
 
-        for j in range(J):
+        for k in range(K):
 
-            indice_ij = j + i*J
-            
+            indice_ijk = k + i*K
 
-            b[indice_ij] = -Dataset[indice_ij] #We want negative values
+            b[indice_ijk] = Dataset[i,k]
 
 
     start_time = time.time()
@@ -1169,6 +1096,16 @@ def interp2d(Dataset,Param_Input,limite = 100, facteur=1):
 
 
     return Weights[0]
+
+
+
+
+def readbin(filename,nz,nx):
+    with open(filename,'rb') as f:
+        im = np.fromfile(f,dtype=np.float32)
+    im = im.reshape(nz,nx,order='F')
+    return im
+
 
 
 # %% Generate Bspline model for velocity
@@ -1377,7 +1314,7 @@ for file in list_files:
     
     VDataset1 = np.vstack([VDataset for _ in range(5)]).reshape(5*601)
     
-    Weights = interp2d(VDataset1, Param_Input, limite=200, facteur=fact)
+    Weights = interp2d(VDataset1, Param_Input, limite=200)
     i+=1
     
     

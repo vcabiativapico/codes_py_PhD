@@ -1,0 +1,42 @@
+use kdiff3
+#### Comparison of dt ####
+
+	With dt = 1.41e-3 -> 19.822855
+	With dt = 1.269e-3 -> 19.80306
+	Ratio is : 19.80306/19.822855 = 0.9990014051961738
+
+	There is no dependency on dt
+
+#### Comparison of dx and dz ####
+
+	With dx, dz= 12.0 -> 19.822855
+	With dx, dz = 10.8 -> 13.059519
+	Ratio is : 19.82285/13.059519 = 1.51788
+
+	x = log(1.51788) / log(1/0.9/0.9)= 3.96
+
+	%%There is a dependency of 2 for dx and 2 for dz
+
+	We multiply the result by (dx*dz)**2
+
+#### Comparison of vel ####
+
+	With vel*1.0 -> r1 = 19.822855
+	With vel*0.9 -> r2 = 19.822853
+
+	Ratio is 19.822855/19.822853 = 0.9999998991063597
+
+	There is NO dependency on the velocity
+
+#### Comparison of v0 ####
+
+	With v0*1.0 -> r1 = 19.822855
+	With v0*0.9 -> r2 = 18.600481
+	
+	Ratio is 19.822855/18.600481 = 1.06572
+	
+	x = np.log(1.06572)/np.log(1/0.9) = 0.604
+
+	%% There is a dependency of 0.604
+
+	We multiply the result by (V0/2)

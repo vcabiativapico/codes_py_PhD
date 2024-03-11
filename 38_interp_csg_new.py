@@ -36,7 +36,7 @@ if __name__ == "__main__":
     nx = 601
     fx = 0.0
     dx = 12.0/1000.
-    no =251
+    no = 251
    # no        = 2002
     do = dx
     fo = -(no-1)/2*do
@@ -93,6 +93,8 @@ def read_results(path,srow):
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug141223_raytracing/015_marm_flat_v2_test_p0001_v2_test_bp_az_0_4992.csv'
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/016_flat_2000ms_1188/016_flat_1188_v2.csv'
 path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/018_2000ms_606/018_flat_606_v2.csv'
+# path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/040_marm2/binv/040_rt_binv_marm_sm_full.csv'
+# path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/040_marm2/badj/040_rt_badj_marm_sm_full.csv'
 
 
 src_x = np.array(read_results(path1,1))
@@ -107,16 +109,22 @@ spot_z= np.array(read_results(path1,9))
 off_x  = np.array(read_results(path1,16))
 tt_inv = np.array(read_results(path1,17))
 
+
 indices = []
-for i in range(0,101):
-    if str(src_x[i]) != 'nan':
+for i in range(len(src_x)):
+    if str(src_x[i]) != 'nan' or -1476 < off_x[i] > 1476:
         indices.append(i)
 
+# indices = []
+# for i in range(len(src_x)):
+#     if str(src_x[i]) != 'nan':
+#         indices.append(i)
 """ PLOT TRAVELTIMES OVER THE SHOTS """
 
 
 
 csg_trace= np.zeros((nt,len(indices)))
+csg_trace = np.zeros((nt,len(src_x)))
 csg_trace_INT = np.zeros((nt,len(indices)))
 shot_int = np.zeros((nt,476-126))
 
@@ -143,12 +151,13 @@ sd_val = []
 sd_idx = []
 for k in range(len(src_x)):
     sd_val.append(find_nearest(dec_title,src_x[k])[0])
+    print(src_x[k])
     sd_idx.append(find_nearest(dec_title,src_x[k])[1])
 
 
 fd_val = []
 fd_idx = []
-for k in range(len(dec_off_x)):
+for k in range(len(src_x)):
     fd_val.append(find_nearest(ao, dec_off_x[k])[0])
     fd_idx.append(find_nearest(ao, dec_off_x[k])[1])
     
@@ -156,22 +165,21 @@ for k in range(len(dec_off_x)):
 
 
 
-## Pour les traces interpolées
-# idx_off = np.round(off_x/6)
-# tr = idx_off[:]+251
-# tr = np.array((np.rint(tr)).astype(int))
+
 d_dox = dec_off_x[0] - dec_off_x[1]
 sd_dox = src_x[0] - src_x[1]
 
 ## READ ALL THE SHOTS 
-inp_hilb3 = np.zeros((351,1501, 251),dtype = 'complex_')
+# inp_hilb3 = np.zeros((351,nt, no),dtype = 'complex_')
+inp_hilb3 = np.zeros((351,nt, no))
 
-# for i in range(351):
+
+
 for i in range(351):
     txt = str(i+126)
     title = txt.zfill(3)
-    # tr3 = '../output/30_marm_flat/t1_obs_000'+str(title)+'.dat'
-    tr3 = '../out_141/t1_obs_000'+str(title)+'.dat'
+    tr3 = '../output/out_141/t1_obs_000'+str(title)+'.dat'
+    # tr3 = '../output/40_marm_ano/badj/t1_obs_000'+str(title)+'.dat'
     inp3 = -gt.readbin(tr3, no, nt).transpose()
     # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
     for j in range(no):
@@ -180,10 +188,11 @@ for i in range(351):
         
         
 # inp_hilb3 = inp_hilb3.imag
-inp_hilb3 = inp_hilb3.real
+# inp_hilb3 = inp_hilb3.real
+# inp_hilb3 = inp3
 
 ## PLOT SHOTS   
-hmin, hmax = -0.01,0.01
+hmin, hmax = -10,10
 shot_num = 236
 flout_gather = '../png/out_141/obs_'+str(126+shot_num)+'.png'
 fig = plot_shot_gathers(hmin, hmax, inp_hilb3[shot_num], flout_gather)
@@ -191,17 +200,33 @@ fig = plt.plot(-off_x[0]/1000,tt_inv[0]/1000,'ok')
 
 
 ## INTERPOLATION OF SHOTS AND RECEIVERS
-rec_to_int = np.zeros((4,1501,4))
-tr_INT     = np.zeros((4,1501,5)) 
-for i in range(len(indices)):    
-    # Index creation, we take extract four values around the desired offset to interpolate
-    ind_tr_int = np.arange(fd_idx[i]-2,fd_idx[i]+2)
+rec_to_int = np.zeros((4,nt,4))
+tr_INT     = np.zeros((4,nt,5)) 
+
+for k,i in enumerate(indices): 
     
-    ind_shot_int = np.arange(sd_idx[i]-2,sd_idx[i]+2)
-    shot_to_int = inp_hilb3[ind_shot_int][:,ind_tr_int]
+    print('given index is: ',fd_idx[i])
+    # Index creation, we extract four values around the desired offset to interpolate
+    if fd_idx[i] > 2:
+        ind_tr_int = np.arange(fd_idx[i]-2,fd_idx[i]+2)
+    else:
+        ind_tr_int = [0, 1, 2, 3]
+    print(ind_tr_int)
+    print('offset is :',dec_off_x[i])
+    
+    # ind_shot_int = np.arange(sd_idx[i]-2,sd_idx[i]+2)
+    if sd_idx[i] < 350:
+        ind_shot_int = np.arange(sd_idx[i]-2,sd_idx[i]+2)
+    else:  
+        ind_shot_int = np.array([347, 348, 349, 350])
+        
+    # shot_to_int = inp_hilb3[ind_shot_int][:,ind_tr_int]
+    
     # Interpolation on the receivers
     for j in range(4):
+        
         rec_to_int[j][:,:] = inp_hilb3[ind_shot_int[j]][:,ind_tr_int]
+        
         f = interpolate.RegularGridInterpolator((at,ao[ind_tr_int]), rec_to_int[j], method='linear',bounds_error=False, fill_value=None) 
         at_new = np.linspace(at[0], at[-1], 1501)
         ao_new = np.linspace(dec_off_x[i]-d_dox*2,dec_off_x[i]+d_dox*2, 5)
@@ -217,7 +242,7 @@ for i in range(len(indices)):
     csg_trace[:,i] = src_INT[:,2] 
 
     
-flout = '../input/out_141/csg_raytracing_modeling_2_0.dat'
+flout = '../input/csg_raytracing_marm_sm.dat'
 gt.writebin(csg_trace,flout)
 
 
@@ -313,13 +338,13 @@ av = plt.subplot(1, 1, 1)
 # hfig = av.imshow(plot_rec_int, extent=[0, len(indices), at[-1], at[0]],
 #                  vmin=hmin, vmax=hmax, aspect='auto',
 #                  cmap='seismic')
-hfig = av.imshow(csg_trace, extent=[0, len(indices), at[-1]-ft, at[0]-ft],
+hfig = av.imshow(csg_trace, extent=[0, len(src_x), at[-1]-ft, at[0]-ft],
                  vmin=hmin, vmax=hmax, aspect='auto',
                  cmap='seismic')    
-plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-k',markersize=3)
-plt.plot(np.arange(len(indices)),t1,'g')
+# plt.plot(np.arange(len(src_x)),tt_inv[:]/1000,'-k',markersize=3)
+plt.plot(np.arange(len(src_x)),t1,'g')
 av.xaxis.set_ticks(np.arange(len(indices))) 
-av.xaxis.set_ticklabels(np.rint(off_x[indices]).astype(int))
+av.xaxis.set_ticklabels(np.rint(off_x[:]).astype(int))
 xticks = plt.gca().xaxis.get_major_ticks()
 for i in range(len(xticks)):
     if i % 10 != 0:
@@ -331,16 +356,16 @@ plt.xlabel('Offset (m)')
 plt.ylabel('Time (s)')     
 
 ## PLOT A WIGGLE OVERLAY
-fig = plt.figure(figsize=(12, 10), facecolor="white")
+fig = plt.figure(figsize=(8, 8), facecolor="white")
 ## First and main plot 
 av = plt.subplot2grid((5, 1), (0, 0),rowspan=4)
 plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
 
-wiggle(csg_trace,tt=at-ft,xx=np.arange(len(indices)))
+wiggle(csg_trace[:,::3],tt=at-ft,xx=np.arange(len(indices))[::3])
 
-plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
+# plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
 
-plt.plot(np.arange(len(indices)),t1,'r')
+plt.plot(np.arange(len(indices))[::2],t1[::2],'r')
 
 ## Define the tick axis
 av.xaxis.set_ticks(np.arange(len(indices))) 
@@ -396,10 +421,10 @@ plt.ylabel('decalage (ms)')
 plt.title('Difference between analytical and numerical ray-tracing')
     
     
-plt.figure(figsize=(12,10))
+plt.figure(figsize=(7,4))
 # plt.plot(off_x,zero_ph_corr,label='Modeling')
-plt.plot(off_x,tt_inv[indices],'-r',markersize=3,label='Ray tracing')
-plt.plot(off_x,t1*1000,'.k',label='Analytique')
+plt.plot(off_x,t1*1000,'-k',label='Analytical')
+plt.plot(off_x[::2],tt_inv[indices][::2],'.r',markersize=3,label='Numerical')
 plt.title('Event on the CSG')
 plt.xlabel('offset (m)')
 plt.ylabel('time (ms)')
@@ -428,6 +453,9 @@ plt.title('Difference between ray-tracing numerical and analytical solution')
 z_max = np.zeros(101)
 for i in range(101):
     path_ray = "/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/016_flat_2000ms_1188/rays/opti_"+str(i)+"_ray.csv"
+    # path_ray = "/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/040_marm2/binv/rays/opti_"+str(i)+"_ray.csv"
+
+
     ray_z = np.array(read_results(path_ray, 2))
     z_max[i] = np.max(ray_z)
 

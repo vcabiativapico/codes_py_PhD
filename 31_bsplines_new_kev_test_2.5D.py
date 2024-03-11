@@ -1107,6 +1107,116 @@ def readbin(filename,nz,nx):
     return im
 
 
+def interp1d(Dataset,Param_Input,limite = 100):
+
+    start_INL = Param_Input[0]
+    # start_z = Param_Input[1]
+    delta_INL = Param_Input[2]
+    # delta_z = Param_Input[3]
+    # INL_step = Param_Input[6]
+    # XL_step = Param_Input[7]
+    # azimuth = Param_Input[8]
+    I = Param_Input[6]
+    # K = Param_Input[7]
+    # X_or = Param_Input[12]
+    # Y_or = Param_Input[13]
+
+    M = I+3
+    # L = K+3
+
+
+
+    end_INL = start_INL + (I-1)*delta_INL
+    # end_z = start_z + (K-1)*delta_z
+
+    delta_tINL = delta_INL #Space between knots in INL direction
+    # delta_tz = delta_z #Space between knots in XL/z direction (for horizon, XL)
+
+    tINL = np.arange(start_INL-2*delta_tINL,end_INL+delta_tINL+0.01,delta_tINL) #Knots list in INL
+    # tz = np.arange(start_z-2*delta_tz,end_z+delta_tz+0.01,delta_tz) #Knots list in XL/z
+
+    INL = np.arange(start_INL,end_INL+0.01,delta_INL) #INL data
+    # z = np.arange(start_z,end_z+0.01,delta_z) #XL/z data
+
+    start_time = time.time()
+
+    B_spline_INL = np.zeros((I,M))
+
+    for i in range(I):
+        m = np.arange(i,i+3+0.001,1)
+
+        for mm in m:
+            try:
+                B_spline_INL[i][int(mm)] = B_spline1((INL[i]-tINL[int(mm)]+2*delta_tINL)/delta_tINL)
+            except:
+                pass
+
+
+    # B_spline_z = np.zeros((K,L))
+
+    # for k in range(K):
+    #     l = np.arange(k,k+3+0.001,1)
+
+    #     for ll in l:
+    #         try:
+    #             B_spline_z[k][int(ll)] = B_spline1((z[k]-tz[int(ll)]+2*delta_tz)/delta_tz)
+    #         except:
+    #             pass
+
+
+
+    Mat = lil_matrix((I,M))
+
+
+    #export_line = []
+    #export_row = []
+    #Mat_value = []
+
+    for i in range(I):
+
+        # for k in range(K):
+
+            m = np.arange(i,i+3+0.001,1)
+            # l = np.arange(k,k+3+0.001,1)
+
+            for mm in m:
+                # for ll in l:
+
+
+                     indice_ml = int(mm)
+                     indice_ik = int(i)
+
+                     Mat[indice_ik,indice_ml] = B_spline_INL[i][int(mm)]
+
+
+    # alpha = 0.3
+    # Mat = conditionnement2d(Mat, M, L, I, K, alpha)
+
+    print("Création de Mat : {}s".format(time.time()-start_time))
+
+    b = np.zeros(I)
+
+    for i in range(I):
+
+        # for k in range(K):
+
+            indice_ijk =  i
+
+            b[indice_ijk] = Dataset[i]
+
+
+    start_time = time.time()
+    # Weights = lsqr(Mat,b,iter_lim = limite,show=True)
+    Weights = lsqr(Mat,b,show=True)
+
+    print("Création de weights : {}s".format(time.time()-start_time))
+
+
+    return Weights[0]
+
+
+
+
 # %%
 
 # path = 'C:/Users/Kevin/SpotLight/SpotLighters - Documents/SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Demigration_SpotLight_Septembre2023/Demigration_Victor/'
@@ -1196,17 +1306,41 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Param_marm_smooth.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
-
-
-
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Weights_marm_2p5D_smooth.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 
 # np.savetxt('Weights_vel_full_kevtest.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
+
+################################################
+
+
+
+file_pick = '../input/40_marm_ano/badj_mig_pick_smooth.csv'
+
+data_horizon = [] 
+with open(file_pick, newline='') as csvfile:
+    spamreader = csv.reader(csvfile, delimiter=',')
+    for row in spamreader:
+        data_horizon.append(float(row[0]))
+data_horizon = np.array(data_horizon)
+
+
+Weights_hz = interp1d(data_horizon, Param_Input)
+
+Weights_2D_mat_hz = Weights_hz[np.newaxis,:]*np.ones(M)[:,np.newaxis]*2/3
+
+Weight_2D_inline = Weights_2D_mat_hz.reshape(M*N)
+
+plt.figure()
+plt.plot(Weight_2D_inline)
+
+# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/.csv', Param_Exit, fmt='%f',delimiter=",")   
+
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_weights_hz_marm_badj_smpick.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
 
 
 # %% Visualisations 
@@ -1306,11 +1440,11 @@ for y in y_line:
     
 plt.figure(figsize=(16,12))
 plt.plot(y_line,test_y)
-plt.xlabel('Y (m)',fontsize=18) 
-plt.ylabel('Vitesse (m/s)',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe y',fontsize=18)    
+plt.xlabel('Y (m)',fontsize=25) 
+plt.ylabel('Vitesse (m/s)',fontsize=25) 
+plt.yticks(fontsize=25)
+plt.xticks(fontsize=25)
+plt.title('Test selon axe y',fontsize=25)    
 
 # plt.figure(figsize=(16,12))
 # plt.plot(y_line,test_y)

@@ -44,6 +44,22 @@ if __name__ == "__main__":
     inp1      = gt.readbin(fl1,nz,nx)
     perc      = 0.9
     
+        
+    def plot_model(inp,hmin,hmax):
+        plt.rcParams['font.size'] = 18
+        fig = plt.figure(figsize=(10,5), facecolor = "white")
+        av  = plt.subplot(1,1,1)
+        hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
+                          vmin=hmin,vmax=hmax,aspect='auto' \
+                         )
+        plt.colorbar(hfig)
+        fig.tight_layout()
+        return fig
+        
+    def export_model(inp,fig,imout,flout):
+        fig.savefig(imout, bbox_inches='tight')
+        gt.writebin(inp,flout)  
+    
 #%%
 
     new_sm = np.asarray(inp_org)
@@ -104,41 +120,31 @@ if __name__ == "__main__":
     
     inp1[78:120,340:460] = 1.5
     
-    
-    fig = plt.figure(figsize=(15,8), facecolor = "white")
-    av  = plt.subplot(1,1,1)
-    hfig = av.imshow(inp1, extent=[ax[0],ax[-1],az[-1],az[0]], \
-                      vmin=hmin,vmax=hmax,aspect='auto', \
-                      cmap='jet')
-    plt.colorbar(hfig)
-    
+    plot_model(inp1,hmin,hmax)
+
     
     #%% MODIFY MARMOUSI2 FOR DEMIGRATION
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     
-    inp_cut    = inp_org[70:120,355:400]     # Zone B - Cut the model in the area of the anomaly
+    x1 = 280
+    x2 = 400
+    z1 = 70
+    z2 = 120
+    
+    inp_cut    = inp_org[z1:z2,x1:x2]     # Zone B - Cut the model in the area of the anomaly
     old_vel    = np.max(inp_cut)                # Find the value where the anomaly wants to be changed    
     
     hmin = 1.5
     hmax = 4.5
     
-    fig = plt.figure(figsize=(15,8), facecolor = "white")
-    av  = plt.subplot(1,1,1)
-    hfig = av.imshow(inp_org, extent=[ax[0],ax[-1],az[-1],az[0]], \
-                      vmin=hmin,vmax=hmax,aspect='auto' \
-                      )
-    plt.xlabel('Distance (km)')
-    plt.ylabel('Depth (km)')
-    plt.colorbar(hfig,format='%1.1f')
-    plt.rcParams['font.size'] = 16
-    fig.tight_layout()
+    plot_model(inp_org,hmin,hmax)
 
     
     def modif_layer(inp1,r1,r2,nv): 
         area      = np.zeros(inp1.shape)
-        for i in range(70,110): 
-            for j in range(355,400):
+        for i in range(z1,z2): 
+            for j in range(x1,x2):
                 if inp1[i,j] > r1 and inp1[i,j] < r2 : 
                     area[i,j] = 1
                 else: 
@@ -153,19 +159,13 @@ if __name__ == "__main__":
         return inp1,index1
     
         
-    inp_mod, ind_mod = modif_layer(inp_org, 3.5, 4.0, 4.0)
+    inp_mod, ind_mod = modif_layer(inp_org, 3.5, 3.8, 4.0)
     
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_diff = inp_mod - inp_org
-      
-    # fig = plt.figure(figsize=(15,8), facecolor = "white")
-    # av  = plt.subplot(1,1,1)
-    # hfig = av.imshow(inp_cut, extent=[ax[0],ax[-1],az[-1],az[0]], \
-    #                   vmin=hmin,vmax=hmax,aspect='auto', \
-    #                   cmap='jet')
-    # plt.colorbar(hfig)
-    
+    plot_model(inp_cut,hmin,hmax)
+
     inp_diff10 = inp_diff+1
     
     inp_diff10[ind_mod] = 4.0
@@ -173,21 +173,12 @@ if __name__ == "__main__":
     az[ind_mod[0][63]]
     ax[ind_mod[1][63]]
     
-    fig = plt.figure(figsize=(15,8), facecolor = "white")
-    av  = plt.subplot(1,1,1)
-    hfig = av.imshow(inp_diff10, extent=[ax[0],ax[-1],az[-1],az[0]], \
-                      vmin=hmin,vmax=hmax,aspect='auto' \
-                      )
-    plt.xlabel('Distance (km)')
-    plt.ylabel('Depth (km)')
-    plt.colorbar(hfig,format='%1.1f')
-    plt.rcParams['font.size'] = 16
-    fig.tight_layout()
-    flout = '../png/27_marm/diff_marm.png'
-    print("Export to file:", flout)
-    fig.savefig(flout, bbox_inches='tight')
-      
-    gt.writebin(inp_diff10,'../input/27_marm/diff_marm.dat')
+    
+    fig1 = plot_model(inp_mod,hmin,hmax)
+    imout1 = '../png/39_mig_marm_flat/marm_ano_full.png'
+    flout1 = '../input/39_mig_marm_flat/marm_ano_full.dat'
+    
+    export_model(inp_mod,fig1,imout1,flout1)
     
     
 #%% FLAT INTERFACE
@@ -197,7 +188,8 @@ if __name__ == "__main__":
     # fl1 = '../input/vel_full.dat'
     # fl2 = '../input/vel_smooth.dat'
     
-    fl1 = '../input/27_marm/inp_flat.dat'
+    # fl1 = '../input/27_marm/inp_flat.dat'
+    fl1 = '../input/33_report_model/vel_full.dat'
     fl2 = '../input/marm2_sm15.dat'
     
 
@@ -243,7 +235,7 @@ if __name__ == "__main__":
         # hmin = 1.5
         hmin = np.min(inp)
         # hmin = -hmax
-        fig = plt.figure(figsize=(15,8), facecolor = "white")
+        fig = plt.figure(figsize=(14,7), facecolor = "white")
         av  = plt.subplot(1,1,1)
         hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
                           vmin=hmin,vmax=hmax,aspect='auto' \
@@ -251,19 +243,19 @@ if __name__ == "__main__":
         plt.xlabel('Distance (km)')
         plt.ylabel('Depth (km)')
         plt.colorbar(hfig,format='%1.1f')
-        plt.rcParams['font.size'] = 16
+        plt.rcParams['font.size'] = 20
         fig.tight_layout()
         flout = '../png/30_marm_flat/inp_flat.png'
         print("Export to file:", flout)
         fig.savefig(flout, bbox_inches='tight')
     
     
-    tap_x = taper(100,10,nx)
-    tap_z = taper(15,5,nz)
-    inp_taper_l = inp_flat * tap_x
-    inp_taper_l_r = inp_taper_l * tap_x[::-1]
-    inp_taper_l_r_top =  np.transpose(inp_taper_l_r.T *tap_z)
-    inp_taper_all =  np.transpose(inp_taper_l_r_top.T *tap_z[::-1])  
+    # tap_x = taper(100,10,nx)
+    # tap_z = taper(15,5,nz)
+    # inp_taper_l = inp_flat * tap_x
+    # inp_taper_l_r = inp_taper_l * tap_x[::-1]
+    # inp_taper_l_r_top =  np.transpose(inp_taper_l_r.T *tap_z)
+    # inp_taper_all =  np.transpose(inp_taper_l_r_top.T *tap_z[::-1])  
     
    
     
@@ -282,16 +274,22 @@ if __name__ == "__main__":
     # gt.writebin(inp_taper_all,'../input/30_marm_flat/inp_flat_taper.dat')
     
     
-    inp_const = new_sm + inp_taper_all
-    inp_adbetap_const = 1/inp_const**2 - 1/new_sm**2
-    # plot_model_t(inp_flat)
-    plot_model_t(inp_const)
+    # inp_const = new_sm + inp_taper_all
+    # inp_adbetap_const = 1/inp_const**2 - 1/new_sm**2
+    # # plot_model_t(inp_flat)
+    # plot_model_t(inp_const-2)
     # plot_model_t(inp_adbetap_const)
     
     # gt.writebin(inp_const,'../input/31_const_flat_tap/inp_flat_2050_const.dat')
-    gt.writebin(inp_const*1000,'Solution_analytique_Hankel/input/2050_dp_inp_flat.dat')
+    # gt.writebin(inp_const*1000,'Solution_analytique_Hankel/input/2050_dp_inp_flat.dat')
     
 
+
+    '''Modification of the flat model of two interfaces with marm_smooth15'''
+    inp_corr = inp_org+inp_smooth-2
+    plot_model_t(inp_corr)
+    plot_model_t(inp_smooth)
+    gt.writebin(inp_corr,'../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat')
     
 #%%
     fl1       = '../input/30_marm_flat/inp_flat_taper_corr_org.dat'

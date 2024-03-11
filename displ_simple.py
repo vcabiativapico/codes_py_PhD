@@ -196,7 +196,7 @@ if __name__ == "__main__":
     # title = 501
     # title = 201
     # title = 301
-    title,no = 301,251
+    title,no = 462,251
     # nomax = 201
     # no = (nomax)+101
     # no = 302 # for 101 & 501
@@ -218,26 +218,27 @@ if __name__ == "__main__":
     # tr2 = '../output/26_mig_4_interfaces/binv_rc_norm/t1_syn_000'+str(title)+'.dat'
     
     
-    tr1 = '../output/35_dt070/t1_obs_000'+str(title)+'.dat'
+    # tr1 = '../output/38_mig_workflow/binv/t1_obs_000'+str(title)+'.dat'
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
-    
+    tr1 = '../output/40_marm_ano/binv/t1_obs_000'+str(title)+'.dat'
+    tr2 = '../output/40_marm_ano/binv_ano/t1_obs_000'+str(title)+'.dat'
     # tr3 ='../output/t1_obs_000361.dat'
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
-    # inp2 = -gt.readbin(tr2, no, nt).transpose()
+    inp2 = -gt.readbin(tr2, no, nt).transpose()
     # inp3 = -gt.readbin(tr3, no, nt).transpose()
     
-    inp_hilb1 = np.zeros_like(inp1,dtype = 'complex_')   
+    # inp_hilb1 = np.zeros_like(inp1,dtype = 'complex_')   
     # inp_hilb2 = np.zeros_like(inp2,dtype = 'complex_')  
     # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
     
-    for i in range(no):
-        inp_hilb1[:,i] = hilbert(inp1[:,i])    
+    # for i in range(no):
+    #     inp_hilb1[:,i] = hilbert(inp1[:,i])    
         # inp_hilb2[:,i] = hilbert(inp2[:,i])    
         # inp_hilb3[:,i] = hilbert(inp3[:,i]) 
         
-    inp_hilb1 = inp_hilb1.imag
+    # inp_hilb1 = inp_hilb1.imag
     # inp_hilb2 = inp_hilb2.imag
     # inp_hilb3 = inp_hilb3.imag
     
@@ -252,12 +253,29 @@ if __name__ == "__main__":
     
    
     
-    hmin = np.max(inp_hilb1)
+    hmin = np.max(inp1)
     hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
-    plot_shot_gathers(hmin, hmax, inp_hilb1, flout_gather)
-    print(np.max(inp_hilb1))
-
+    plot_shot_gathers(hmin, hmax, -inp1, flout_gather)
+ 
+    
+    hmin = np.max(inp1)
+    hmax = -hmin
+    flout_gather = '../png/obs_'+str(title)+'.png'
+    plot_shot_gathers(hmin, hmax, -inp2, flout_gather)
+   
+    
+    diff = inp1 - inp2
+    hmin = np.max(inp1)
+    hmax = -hmin
+    flout_gather = '../png/obs_'+str(title)+'.png'
+    plot_shot_gathers(hmin, hmax, diff, flout_gather)
+    # plt.plot(ao[idx_nr_off]+ao[idx_nr_off],at)
+    
+    # plt.figure(figsize=(3, 8))
+    # plt.plot(inp1[:,151]*10,at)
+    # plt.ylim(nt*dt,ft)
+    
     # hmin, hmax = -0.1,0.1
     # flout_gather = '../png/27_marm/syn_'+str(title)+'.png'
     # plot_shot_gathers(hmin, hmax, inp_hilb2, flout_gather)
@@ -348,18 +366,18 @@ if __name__ == "__main__":
         # hmin = -hmax
 
         # print(hmin,hmax)
-
+        plt.rcParams['font.size'] = 20
         hmax = 2.05
         hmin = 2.0
-        # hmin = np.min(inp)
-        # hmax = -hmin
+        hmin = np.min(inp)
+        hmax = -hmin
         # hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
-            fig = plt.figure(figsize=(16, 8), facecolor="white")
+            fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto', alpha=1, cmap='seismic')
+                              vmin=hmin, vmax=hmax, aspect='auto',cmap='seismic')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -370,9 +388,9 @@ if __name__ == "__main__":
         # av.set_xlim([2.5,4.5])
         # av.set_ylim([0.8,0.4])
         # plt.axvline(x=ax[tr], color='k',ls='--')
-
-        plt.colorbar(hfig1, format='%1.2f')
-        plt.rcParams['font.size'] = 14
+        # plt.axhline(0.606, color='w')
+        # plt.colorbar(hfig1, format='%1.1f',label='m/s')
+        # plt.colorbar(hfig1, format='%1.1f',label='m/s')
         fig.tight_layout()
 
         print("Export to file:", flout)
@@ -403,12 +421,14 @@ if __name__ == "__main__":
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     # fl1 = '../output/dbetap_exact.dat'
     fl1 = '../input/vel_full.dat'
-    
+    fl1 =  '../input/marm2_full.dat'
+    # fl1 = '../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat'
 
     # fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
     # # # fl1 = './input/13_4_ano_smoo/4_ano_4p0_smoo5.dat'
     # # fl1 = '../input/10_onl_two_ano/1p5_two_ano_4p0.dat'
     inp1 = gt.readbin(fl1,nz,nx)
+   
     # flout = '../png/avp_exact.png'
     flout = '../png/vel_full.png'
     inp,fig_z = plot_model(inp1, flout)
@@ -477,12 +497,33 @@ if __name__ == "__main__":
     # flout = '../png/27_marm/diff_marm_corr/adbetap.png'
     # plot_model(-inp3, flout)
 
-    
-    fl4 = '../output/30_marm_flat/inv_betap_x_s.dat'
+    # fl4 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
+    fl4 = '../output/40_marm_ano/badj/inv_betap_x_s.dat'
+    # fl4 = '../output/inv_betap_x_s.dat'
     inp4= -gt.readbin(fl4,nz,nx)
-    flout = '../png/30_marm_flat/inv_betap_x_s.png'
+    flout = '../png/inv_betap_x_s.png'
     plot_model(-inp4,flout)
+   
+    
+   # plt.axhline(50*dz,color='k')
+    # plt.axhline(99*dz,color='k')
 
+    # plt.figure(figsize=(5,10))
+    # plt.plot(inp4[:,300],az)
+    # plt.plot((inp1[:,300]-2)*25,az)
+    # plt.axhline(50*dz,color='r')
+    # # plt.axhline(99.5*dz,color='r')
+    # # plt.ylim(1.1,1.35)
+    # plt.ylim(0.75,0.5)
+    
+    # plt.figure(figsize=(5,10))
+    # plt.plot(inp4[:,300],az)
+    # # plt.plot((inp1[:,300]-2)*25,az)
+    # # plt.axhline(50.5*dz,color='r')
+    # plt.axhline(99*dz,color='r')
+    # plt.ylim(1.1,1.35)
+    
+    
     
     # car = inp1*inp4/-4
     # flout = '../png/26_mig_4_interfaces/badj_rc_norm/inv_betap_norm.png'

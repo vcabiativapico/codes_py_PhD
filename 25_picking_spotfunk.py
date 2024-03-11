@@ -61,18 +61,23 @@ si = dz
 # mig = 'adj'
 # fl3 = '../output/23_mig/org/nh10_is4/dens_corr/inv_betap_x.dat'
 # fl3 = '../output/27_marm/b'+str(mig)+'/inv_betap_x_s.dat'
-# fl3 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
-fl3 = '../input/27_marm/csg_raytracing_modeling.dat'
-fl3 = '../input/27_marm/csg_raytracing_modeling_2_0.dat'
-# inp3 = gt.readbin(fl3,nz,nx).T
-inp3 = gt.readbin(fl3,1501,101).T
+fl3 = '../output/27_marm/badj/inv_betap_x_s.dat'
+
+# fl3 = '../output/39_mig_marm_flat/badj/inv_betap_x_s.dat'
+
+# fl3 = '../input/27_marm/csg_raytracing_modeling.dat'
+# fl3 = '../input/27_marm/csg_raytracing_modeling_2_0.dat'
+inp3 = gt.readbin(fl3,nz,nx).T # for migrated images
+
+# inp3 = gt.readbin(fl3,1501,101).T # for CSGs
 
 
 %matplotlib qt5
 
 app = QApplication(sys.argv)
 
-window = GUI_picking_horizon.MainWindow(inp3, win1= 0, win2=int(at[-1]*1000+100.11) ,si=dt,gain=3,trace=False,dpix=500,dpiy=500)
+# window = GUI_picking_horizon.MainWindow(inp3, win1= 0, win2=int(at[-1]*1000+100.11) ,si=dt,gain=3,trace=False,dpix=500,dpiy=500)
+window = GUI_picking_horizon.MainWindow(inp3, win1= 0,si=si,gain=3,thresh = 5,trace=False,dpix=500,dpiy=500)
 
 window.show()
 
@@ -89,18 +94,21 @@ pointe_smooth = gaussian_filter(pointe_mute_base[0], sigma)
 
 plt.figure(figsize=(16,8))
 plt.plot(pointe_smooth)
-plt.ylim(500,1800)
+# plt.ylim(500,1800)
 plt.gca().invert_yaxis()
 plt.figure(figsize=(16,8))
 plt.plot(pointe_mute_base[0],'-r')
-plt.ylim(500,1800)
+# plt.ylim(500,1800)
 plt.gca().invert_yaxis()
 
 
 #%% EXPORT
 
-# df = pd.DataFrame(pointe_mute_base[0])
-# df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_marm_'+str(mig)+'_02.csv',header=False,index=False)
+df = pd.DataFrame(pointe_mute_base[0])
+df.to_csv('../input/40_marm_ano/badj_mig_pick.csv',header=False,index=False)
+
+df = pd.DataFrame(pointe_smooth)
+df.to_csv('../input/40_marm_ano/badj_mig_pick_smooth.csv',header=False,index=False)
 
 # df = pd.DataFrame(pointe_smooth)
 # df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_hz_sm'+str(sigma)+'_marm_'+str(mig)+'_02.csv',header=False,index=False)
@@ -111,5 +119,5 @@ plt.gca().invert_yaxis()
 # df = pd.DataFrame(pointe_smooth)
 # df.to_csv('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/pick/27_sm_flat_marm.csv',header=False,index=False)
 
-df = pd.DataFrame(pointe_mute_base[0])
-df.to_csv('../input/27_marm/29_pick_csg_flat.csv',header=['pick'],index=False)
+# df = pd.DataFrame(pointe_mute_base[0])
+# df.to_csv('../input/27_marm/29_pick_csg_flat.csv',header=['pick'],index=False)

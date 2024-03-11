@@ -91,7 +91,7 @@ def read_results(path,srow):
 
 # path1  = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/Demigration_Victor/015_marm_flat_v2_p100_zero.csv'
 # path1 ='/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/Demigration_Victor/015_marm_flat_v2_test_1e_4.csv'
-path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug141223_raytracing/015_marm_flat_v2_test_p0001_v2_test_bp_az_0_4992.csv'
+path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/039_mig_marm_flat/badj/020_badj_marm_sm_flat_601.csv'
 
 src_x = np.array(read_results(path1,1))
 src_y = np.array(read_results(path1,2))
