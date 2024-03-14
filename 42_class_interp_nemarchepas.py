@@ -358,25 +358,27 @@ def read_shots_around(gather_path,nb_gathers,param):
     return inp3
 
 
-def interpolate_src_rec(nb_traces,nb_gathers,at,ao,inp3,off_x,src_x,do,dx,diff_ind_max):
-    tr_INT     = np.zeros((len(nb_gathers),nt,5)) 
+
+
+def interpolate_src_rec(nb_traces,nb_gathers,inp3,p,diff_ind_max):
+    tr_INT     = np.zeros((len(nb_gathers),p.nt_,5)) 
     
     for k, i in enumerate(nb_gathers): 
     
         # Interpolation on the receivers
         for j in range(len(nb_gathers)):
            
-            f = interpolate.RegularGridInterpolator((at,ao[nb_traces]), inp3[j][:,nb_traces], method='linear',bounds_error=False, fill_value=None) 
-            at_new = at
-            ao_new = np.linspace(off_x[diff_ind_max]/1000-do*2,off_x[diff_ind_max]/1000+do*2, 5)
+            f = interpolate.RegularGridInterpolator((p.at_,p.ao_[nb_traces]), inp3[j][:,nb_traces], method='linear',bounds_error=False, fill_value=None) 
+            at_new = p.at_
+            ao_new = np.linspace(p.off_x_[diff_ind_max]/1000-p.do_*2,p.off_x_[diff_ind_max]/1000+do*2, 5)
             AT, AO = np.meshgrid(at_new, ao_new, indexing='ij')
             tr_INT[j][:,:] = f((AT,AO))
             rec_int = tr_INT[:,:,2]
                 
         # Interpolation on the shots
-        f = interpolate.RegularGridInterpolator((at,nb_gathers*12), rec_int.T, method='linear',bounds_error=False, fill_value=None) 
+        f = interpolate.RegularGridInterpolator((p.at_,nb_gathers*12), rec_int.T, method='linear',bounds_error=False, fill_value=None) 
         at_new = at
-        src_new = np.linspace(src_x[diff_ind_max] - dx*2000, src_x[diff_ind_max] + dx*2000, 5)
+        src_new = np.linspace(p.src_x_[diff_ind_max] - p.dx_*2000, p.src_x_[diff_ind_max] + dx*2000, 5)
         AT, SRC = np.meshgrid(at_new, src_new, indexing='ij')
         src_INT = f((AT,SRC))
         interp_trace = src_INT[:,2] 
@@ -384,6 +386,34 @@ def interpolate_src_rec(nb_traces,nb_gathers,at,ao,inp3,off_x,src_x,do,dx,diff_i
     # print(src_new)
     # print(ao[nb_traces])
     return interp_trace
+
+
+# def interpolate_src_rec(nb_traces,nb_gathers,at,ao,inp3,off_x,src_x,do,dx,diff_ind_max):
+#     tr_INT     = np.zeros((len(nb_gathers),nt,5)) 
+    
+#     for k, i in enumerate(nb_gathers): 
+    
+#         # Interpolation on the receivers
+#         for j in range(len(nb_gathers)):
+           
+#             f = interpolate.RegularGridInterpolator((at,ao[nb_traces]), inp3[j][:,nb_traces], method='linear',bounds_error=False, fill_value=None) 
+#             at_new = at
+#             ao_new = np.linspace(off_x[diff_ind_max]/1000-do*2,off_x[diff_ind_max]/1000+do*2, 5)
+#             AT, AO = np.meshgrid(at_new, ao_new, indexing='ij')
+#             tr_INT[j][:,:] = f((AT,AO))
+#             rec_int = tr_INT[:,:,2]
+                
+#         # Interpolation on the shots
+#         f = interpolate.RegularGridInterpolator((at,nb_gathers*12), rec_int.T, method='linear',bounds_error=False, fill_value=None) 
+#         at_new = at
+#         src_new = np.linspace(src_x[diff_ind_max] - dx*2000, src_x[diff_ind_max] + dx*2000, 5)
+#         AT, SRC = np.meshgrid(at_new, src_new, indexing='ij')
+#         src_INT = f((AT,SRC))
+#         interp_trace = src_INT[:,2] 
+#     # print(ao_new)
+#     # print(src_new)
+#     # print(ao[nb_traces])
+#     return interp_trace
 
 # print('offset input: ',off_x_1[diff_ind_max])
 # print('source input: ',src_x_1[diff_ind_max])
@@ -403,7 +433,7 @@ def trace_from_rt(diff_ind_max,gather_path,p):
     inp3 = read_shots_around(gather_path, nb_gathers, p)
     
     # ao = fo + np.arange(no)*do
-    fin_trace = interpolate_src_rec(nb_traces,nb_gathers,p.at_,p.ao_,inp3,-p.off_x_,p.src_x_,p.do_,p.dx_,diff_ind_max)    
+    fin_trace = interpolate_src_rec(nb_traces,nb_gathers,inp3,p,diff_ind_max)    
     return fin_trace
 
 

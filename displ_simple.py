@@ -370,8 +370,8 @@ if __name__ == "__main__":
         hmax = 2.05
         hmin = 2.0
         hmin = np.min(inp)
-        hmax = -hmin
-        # hmax = np.max(inp)
+        # hmax = -hmin
+        hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
@@ -389,7 +389,7 @@ if __name__ == "__main__":
         # av.set_ylim([0.8,0.4])
         # plt.axvline(x=ax[tr], color='k',ls='--')
         # plt.axhline(0.606, color='w')
-        # plt.colorbar(hfig1, format='%1.1f',label='m/s')
+        plt.colorbar(hfig1, format='%1.1f',label='m/s')
         # plt.colorbar(hfig1, format='%1.1f',label='m/s')
         fig.tight_layout()
 
@@ -421,7 +421,7 @@ if __name__ == "__main__":
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     # fl1 = '../output/dbetap_exact.dat'
     fl1 = '../input/vel_full.dat'
-    fl1 =  '../input/marm2_full.dat'
+    # fl1 =  '../input/marm2_full.dat'
     # fl1 = '../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat'
 
     # fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'

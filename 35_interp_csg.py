@@ -171,7 +171,7 @@ for i in range(351):
     txt = str(i+126)
     title = txt.zfill(3)
     # tr3 = '../output/30_marm_flat/t1_obs_000'+str(title)+'.dat'
-    tr3 = '../out_141/t1_obs_000'+str(title)+'.dat'
+    tr3 = '../output/out_141/t1_obs_000'+str(title)+'.dat'
     inp3 = -gt.readbin(tr3, no, nt).transpose()
     # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
     for j in range(no):
@@ -217,8 +217,8 @@ for i in range(len(indices)):
     csg_trace[:,i] = src_INT[:,2] 
 
     
-flout = '../input/out_141/csg_raytracing_modeling_2_0.dat'
-gt.writebin(csg_trace,flout)
+# flout = '../input/out_141/csg_raytracing_modeling_2_0.dat'
+# gt.writebin(csg_trace,flout)
 
 
 
@@ -308,7 +308,7 @@ at_conv  = len(at)
 ## PLOT THE RAYTRACING TRAVELTIMES OVERLAYING COMMON SPOT GATHER TRACES
 hmin = -0.01
 hmax = 0.01
-fig = plt.figure(figsize=(10, 8), facecolor="white")
+fig = plt.figure(figsize=(7, 8), facecolor="white")
 av = plt.subplot(1, 1, 1)
 # hfig = av.imshow(plot_rec_int, extent=[0, len(indices), at[-1], at[0]],
 #                  vmin=hmin, vmax=hmax, aspect='auto',
@@ -331,16 +331,16 @@ plt.xlabel('Offset (m)')
 plt.ylabel('Time (s)')     
 
 ## PLOT A WIGGLE OVERLAY
-fig = plt.figure(figsize=(12, 10), facecolor="white")
+fig = plt.figure(figsize=(8, 8), facecolor="white")
 ## First and main plot 
 av = plt.subplot2grid((5, 1), (0, 0),rowspan=4)
 plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
 
-wiggle(csg_trace,tt=at-ft,xx=np.arange(len(indices)))
+wiggle(csg_trace[:,::4],tt=at-ft,xx=np.arange(len(indices))[::4])
 
-plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
+plt.plot(np.arange(len(indices))[::4],tt_inv[indices][::4]/1000,'-r',markersize=3, label='raytracing')
 
-plt.plot(np.arange(len(indices)),t1,'r')
+plt.plot(np.arange(len(indices))[::4],t1[::4],'.b',label='analytical')
 
 ## Define the tick axis
 av.xaxis.set_ticks(np.arange(len(indices))) 
@@ -350,7 +350,7 @@ for i in range(len(xticks)):
     if i % 10 != 0:
         xticks[i].set_visible(False)
 ## Labels
-plt.legend(['raytracing','modeling'])
+plt.legend()
 plt.rcParams['font.size'] = 16
 plt.title('Common spot gather Raytracing and Modelling')
 plt.xlabel('Offset (m)')

@@ -136,7 +136,7 @@ if __name__ == "__main__":
     old_vel    = np.max(inp_cut)                # Find the value where the anomaly wants to be changed    
     
     hmin = 1.5
-    hmax = 4.5
+    hmax = 5.5
     
     plot_model(inp_org,hmin,hmax)
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
         return inp1,index1
     
         
-    inp_mod, ind_mod = modif_layer(inp_org, 3.5, 3.8, 4.0)
+    inp_mod, ind_mod = modif_layer(inp_org, 3.5, 3.8, 5.5)
     
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
@@ -175,8 +175,8 @@ if __name__ == "__main__":
     
     
     fig1 = plot_model(inp_mod,hmin,hmax)
-    imout1 = '../png/39_mig_marm_flat/marm_ano_full.png'
-    flout1 = '../input/39_mig_marm_flat/marm_ano_full.dat'
+    imout1 = '../png/40_marm_ano/marm_ano_full_55.png'
+    flout1 = '../input/40_marm_ano/marm_ano_full_55.dat'
     
     export_model(inp_mod,fig1,imout1,flout1)
     

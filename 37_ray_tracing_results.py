@@ -106,6 +106,8 @@ tt_inv_2 = read_results(path2,17)
     
 """ PLOT THE POSITIONS AND RECEIVERS OBTAINED """
 def plot_positions(src_x,src_y,rec_x,rec_y,dec=1):
+    """ Plot source and receiver position,
+    dec : decimates the number of source and receivers to plot. Useful if they are many"""
     colors = src_x[::dec]
     fig = plt.figure(figsize= (10,7))
     plt.scatter(src_x[::dec],src_y[::dec],c=colors,marker='*',cmap='jet')
