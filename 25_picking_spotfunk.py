@@ -77,7 +77,7 @@ inp3 = gt.readbin(fl3,nz,nx).T # for migrated images
 app = QApplication(sys.argv)
 
 # window = GUI_picking_horizon.MainWindow(inp3, win1= 0, win2=int(at[-1]*1000+100.11) ,si=dt,gain=3,trace=False,dpix=500,dpiy=500)
-window = GUI_picking_horizon.MainWindow(inp3, win1= 0,si=si,gain=3,thresh = 5,trace=False,dpix=500,dpiy=500)
+window = GUI_picking_horizon.MainWindow(inp3, win1= 0, si=si, gain=3, thresh = 5,trace=False,dpix=500,dpiy=500)
 
 window.show()
 
@@ -106,6 +106,7 @@ plt.gca().invert_yaxis()
 
 df = pd.DataFrame(pointe_mute_base[0])
 df.to_csv('../input/40_marm_ano/badj_mig_pick.csv',header=False,index=False)
+
 
 df = pd.DataFrame(pointe_smooth)
 df.to_csv('../input/40_marm_ano/badj_mig_pick_smooth.csv',header=False,index=False)

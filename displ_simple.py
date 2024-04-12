@@ -195,8 +195,8 @@ if __name__ == "__main__":
 
     # title = 501
     # title = 201
-    # title = 301
-    title,no = 462,251
+    title = 301
+    # title,no = 462,251
     # nomax = 201
     # no = (nomax)+101
     # no = 302 # for 101 & 501
@@ -221,9 +221,10 @@ if __name__ == "__main__":
     # tr1 = '../output/38_mig_workflow/binv/t1_obs_000'+str(title)+'.dat'
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
-    tr1 = '../output/40_marm_ano/binv/t1_obs_000'+str(title)+'.dat'
-    tr2 = '../output/40_marm_ano/binv_ano/t1_obs_000'+str(title)+'.dat'
+    # tr1 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/45_marm_ano_v3/t1_obs_000'+str(title)+'.dat'
     # tr3 ='../output/t1_obs_000361.dat'
+    tr2 = '../output/t1_obs_000'+str(title)+'.dat'
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
     inp2 = -gt.readbin(tr2, no, nt).transpose()
@@ -253,20 +254,20 @@ if __name__ == "__main__":
     
    
     
-    hmin = np.max(inp1)
-    hmax = -hmin
+    hmin = -0.2
+    hmax = 0.2
     flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, -inp1, flout_gather)
  
     
-    hmin = np.max(inp1)
-    hmax = -hmin
+    # hmin = np.max(inp1)
+    # hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, -inp2, flout_gather)
    
     
     diff = inp1 - inp2
-    hmin = np.max(inp1)
+    hmin = np.max(diff)
     hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, diff, flout_gather)
@@ -370,14 +371,14 @@ if __name__ == "__main__":
         hmax = 2.05
         hmin = 2.0
         hmin = np.min(inp)
-        # hmax = -hmin
+        hmax = -hmin
         hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto',cmap='seismic')
+                              vmin=hmin, vmax=hmax, aspect='auto')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -395,7 +396,7 @@ if __name__ == "__main__":
 
         print("Export to file:", flout)
         fig.savefig(flout, bbox_inches='tight')
-        return inp,fig
+        return inp, fig
     
     
    #  labelsize = 16
@@ -420,8 +421,9 @@ if __name__ == "__main__":
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     # fl1 = '../output/dbetap_exact.dat'
-    fl1 = '../input/vel_full.dat'
-    # fl1 =  '../input/marm2_full.dat'
+    fl1 = '../output/43_deep_flat_ano/dbetap_exact.dat'
+    # fl1 = '../output/40_marm_ano/binv/abetap.dat'
+    fl1 =  '../input/vel_full.dat'
     # fl1 = '../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat'
 
     # fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
@@ -498,7 +500,7 @@ if __name__ == "__main__":
     # plot_model(-inp3, flout)
 
     # fl4 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
-    fl4 = '../output/40_marm_ano/badj/inv_betap_x_s.dat'
+    fl4 = '../output/inv_betap_x_s.dat'
     # fl4 = '../output/inv_betap_x_s.dat'
     inp4= -gt.readbin(fl4,nz,nx)
     flout = '../png/inv_betap_x_s.png'

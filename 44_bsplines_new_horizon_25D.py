@@ -1223,6 +1223,7 @@ def interp1d(Dataset,Param_Input,limite = 100):
 file = '../input/27_marm/marm2_sm15.dat'
 
 
+
 INL_step = 200 
 XL_step = 12.00   
 azimuth1 = 90
@@ -1305,9 +1306,9 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Param_marm_smooth.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Param_marm_smooth.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Weights_marm_2p5D_smooth.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Weights_marm_2p5D_smooth.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 
@@ -1318,9 +1319,7 @@ Param_Exit = [start_x,start_y,start_z,
 
 
 
-file_pick = '../input/40_marm_ano/binv_mig_pick_smooth.csv'
-# file_pick = '../../../../Demigration_SpotLight_Septembre2023/input/041_marm2_slope/hz_inv.csv'
-
+file_pick = '../input/40_marm_ano/badj_mig_pick_smooth.csv'
 
 data_horizon = [] 
 with open(file_pick, newline='') as csvfile:
@@ -1330,7 +1329,7 @@ with open(file_pick, newline='') as csvfile:
 data_horizon = np.array(data_horizon)
 
 
-Weights_hz = interp1d(data_horizon, Param_Input)
+Weights_hz = -interp1d(data_horizon, Param_Input)
 
 Weights_2D_mat_hz = Weights_hz[np.newaxis,:]*np.ones(M)[:,np.newaxis]*2/3
 
@@ -1339,9 +1338,9 @@ Weight_2D_inline = Weights_2D_mat_hz.reshape(M*N)
 plt.figure()
 plt.plot(Weight_2D_inline)
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/test.csv', Param_Exit, fmt='%f',delimiter=",")   
+# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/042_weights_hz_pick_inv_slope.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_weights_hz_marm_badj_smpick.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
 
 
 # %% Visualisations 
@@ -1588,7 +1587,3 @@ plt.ylabel('Gradient de vitesse',fontsize=18)
 plt.xticks(fontsize=18)
 plt.xticks(fontsize=18)
 plt.title('Test selon axe z (gradient en z)',fontsize=18)
-
-
-
-

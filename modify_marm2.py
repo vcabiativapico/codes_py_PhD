@@ -7,7 +7,7 @@ Display the results
 import os
 import numpy as np
 from math import log, sqrt, log10, pi, cos, sin, atan
-
+import csv
 import matplotlib.pyplot as plt
 from matplotlib import use
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -46,13 +46,15 @@ if __name__ == "__main__":
     
         
     def plot_model(inp,hmin,hmax):
-        plt.rcParams['font.size'] = 18
+        plt.rcParams['font.size'] = 16
         fig = plt.figure(figsize=(10,5), facecolor = "white")
         av  = plt.subplot(1,1,1)
         hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
-                          vmin=hmin,vmax=hmax,aspect='auto' \
+                          vmin=hmin,vmax=hmax,aspect='auto'\
                          )
         plt.colorbar(hfig)
+        plt.xlabel('Distance (Km)')
+        plt.ylabel('Profondeur (Km)')
         fig.tight_layout()
         return fig
         
@@ -63,7 +65,7 @@ if __name__ == "__main__":
 #%%
 
     new_sm = np.asarray(inp_org)
-    new_sm = new_sm * 0+ 2.0
+    new_sm = new_sm * 0 + 2.0
     
     gt.writebin(new_sm,'Solution_analytique_Hankel/input/2000_sm_constant.dat')
 #%%
@@ -125,12 +127,14 @@ if __name__ == "__main__":
     
     #%% MODIFY MARMOUSI2 FOR DEMIGRATION
     fl1       = '../input/org_full/marm2_full.dat'
+    fl2       = '../input/marm2_sm15.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
+    inp_sm    = gt.readbin(fl2,nz,nx)
     
-    x1 = 280
-    x2 = 400
-    z1 = 70
-    z2 = 120
+    x1 = 270
+    x2 = 300
+    z1 = 75
+    z2 = 100
     
     inp_cut    = inp_org[z1:z2,x1:x2]     # Zone B - Cut the model in the area of the anomaly
     old_vel    = np.max(inp_cut)                # Find the value where the anomaly wants to be changed    
@@ -139,7 +143,7 @@ if __name__ == "__main__":
     hmax = 5.5
     
     plot_model(inp_org,hmin,hmax)
-
+      
     
     def modif_layer(inp1,r1,r2,nv): 
         area      = np.zeros(inp1.shape)
@@ -159,26 +163,111 @@ if __name__ == "__main__":
         return inp1,index1
     
         
-    inp_mod, ind_mod = modif_layer(inp_org, 3.5, 3.8, 5.5)
+    inp_mod, ind_mod = modif_layer(inp_org, 2.5, 2.65, 4.5)
     
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_diff = inp_mod - inp_org
     plot_model(inp_cut,hmin,hmax)
-
+    
+      
     inp_diff10 = inp_diff+1
     
     inp_diff10[ind_mod] = 4.0
-    
-    az[ind_mod[0][63]]
-    ax[ind_mod[1][63]]
+      
+    # az[ind_mod[0][63]]
+    # ax[ind_mod[1][63]] 
     
     
     fig1 = plot_model(inp_mod,hmin,hmax)
-    imout1 = '../png/40_marm_ano/marm_ano_full_55.png'
-    flout1 = '../input/40_marm_ano/marm_ano_full_55.dat'
-    
+    imout1 = '../png/45_marm_ano_v3/fwi_ano_full_45.png'
+    flout1 = '../input/45_marm_ano_v3/fwi_ano_45.dat'
     export_model(inp_mod,fig1,imout1,flout1)
+    
+    fig1 = plot_model(inp_org,hmin,hmax)
+    imout1 = '../png/45_marm_ano_v3/fwi_ano_org.png'
+    flout1 = '../input/45_marm_ano_v3/fwi_org.dat'
+    export_model(inp_org,fig1,imout1,flout1)
+    
+ #%%   
+    # az[ind_mod[0][63]]
+    # ax[ind_mod[1][63]]
+    
+    
+    fig1 = plot_model(inp_mod,hmin,hmax)
+    imout1 = '../png/41_marm_ano_new/marm_ano_full_55.png'
+    flout1 = '../input/41_marm_ano_new/marm_ano_full_55.dat'
+    
+    def read_pick(path,srow):
+        attr = []
+        with open(path, newline='') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',')
+            # header = next(spamreader)
+            for row in spamreader:
+                attr.append(float(row[srow]))
+        return attr
+    
+    def pente_function(path_slope,ax):
+        path_demig = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023'
+        file = path_demig + path_slope
+        point_x = np.array(read_pick(file,0))/1000
+        point_z = -np.array(read_pick(file,2))/1000
+        
+        print(point_z, point_x)
+        m = (point_z[1] - point_z[0])/(point_x[1] - point_x[0])
+        print(m)
+        b = point_z[0] - point_x[0] * m
+        print(b)
+        z = ax * m + b
+        return z, m
+    
+    
+    def fill_custom_model(V_model,pente_1,v_couche_1,v_couche_2,az):   
+        print('shape',V_model.shape)
+        ''' 
+        Calculates the custom model with a slope function 
+        The input V_model has shape : (601, 151)
+        '''
+        
+        for k in range(V_model.shape[0]):
+            
+            for i,z in enumerate(az):
+                
+                if z < pente_1[k]:
+                    V_model[k,i] = v_couche_1
+                    
+  
+                else:
+        
+                    V_model[k,i] = v_couche_2
+        
+        return V_model   
+    
+    
+    
+    
+    
+    inp_anomaly = inp_org * 0 
+    inp_anomaly[ind_mod] = 4.0
+    inp_anomaly_sm = inp_anomaly + inp_sm
+    plot_model(inp_anomaly_sm,hmin,hmax)
+    
+    
+    # imout_2 = '../png/41_marm_ano_new/marm_ano_only_40.png'
+    # flout_2 = '../input/41_marm_ano_new/marm_ano_only_40.dat'
+    # export_model(inp_mod,fig1,imout_2,flout_2)
+    
+    ## Construct a slope model
+    path_slope_inv = '/output/041_marm2_slope_binv_2946/slope_binv.csv'
+    pente_1, m = pente_function(path_slope_inv, ax)
+    inp_slope_model = fill_custom_model(inp_org.T, pente_1,1.5,2.5,az).T
+    
+    
+    # Create the model 
+    plot_model(inp_slope_model,hmin,hmax)
+    imout_3 = '../png/41_marm_ano_new/slope_only_25.png'
+    flout_3 = '../input/41_marm_ano_new/slope_only_25.dat'
+    # export_model(inp_slope_model,fig1,imout_3,flout_3)
     
     
 #%% FLAT INTERFACE
@@ -195,7 +284,7 @@ if __name__ == "__main__":
 
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_smooth= gt.readbin(fl2,nz,nx)
-    inp_flat  = inp_org*0
+    inp_flat  = inp_org * 0
     
     # inp_flat[0:100] = 1.5
     inp_flat[51:100] = 0.05
@@ -289,7 +378,7 @@ if __name__ == "__main__":
     inp_corr = inp_org+inp_smooth-2
     plot_model_t(inp_corr)
     plot_model_t(inp_smooth)
-    gt.writebin(inp_corr,'../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat')
+    # gt.writebin(inp_corr,'../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat')
     
 #%%
     fl1       = '../input/30_marm_flat/inp_flat_taper_corr_org.dat'
