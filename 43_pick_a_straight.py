@@ -6,14 +6,6 @@ Created on Mon Sep 25 15:30:57 2023
 @author: vcabiativapico
 """
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon May 15 11:54:19 2023
-
-@author: vcabiativapico
-"""
-
 """
 Display the results
 """
@@ -64,7 +56,7 @@ def plot_mig_image(inp,ax,az):
     hmin = -hmax
     fig = plt.figure(figsize=(15,7), facecolor = "white")
     av  = plt.subplot(1,1,1)
-    hfig = av.imshow(inp, vmin=hmin,vmax=hmax,extent=[ax[0], ax[-1], az[-1], az[0]],aspect='auto', cmap='seismic')
+    hfig = av.imshow(inp[50:100,200:350], vmin=hmin,vmax=hmax,extent=[ax[200], ax[350], az[100], az[50]],aspect='auto', cmap='seismic')
     print('az',az.shape)
    
     
@@ -213,7 +205,8 @@ file_pick_binv = '../input/40_marm_ano/binv_mig_pick_smooth.csv'
 pick_hz_binv = np.array(read_pick(file_pick_binv,0))/1000
 
 
-fl3_adj = '../output/40_marm_ano/badj/inv_betap_x.dat'
+# fl3_adj = '../output/40_marm_ano/badj/inv_betap_x.dat'
+fl3_adj = '../output/45_marm_ano_v3/mig_badj_sm8/inv_betap_x_s.dat'
 inp3_adj = gt.readbin(fl3_adj,nz,nx) 
 pick_adj = pick_interface_model(inp3_adj,pick_hz_badj,nx,nz)
 # print('pick_adj',pick_adj)
@@ -221,7 +214,9 @@ pick_adj = np.array(pick_adj) * dx * 1000
 print('pick_adj',pick_adj)
 
 
-fl3_inv = '../output/40_marm_ano/binv/inv_betap_x.dat'
+# fl3_inv = '../output/40_marm_ano/binv/inv_betap_x.dat'
+fl3_inv = '../output/45_marm_ano_v3/mig_binv_sm8/inv_betap_x_s.dat'
+
 inp3_inv = gt.readbin(fl3_inv,nz,nx) 
 pick_inv = pick_interface_model(inp3_inv,pick_hz_binv,nx,nz)
 # print('pick_adj',pick_inv)
@@ -230,33 +225,33 @@ pick_inv = np.array(pick_inv) * dx * 1000
 # hz_inv = horizon_for_bspline(pick_inv,dz)
 
 
-print('pick_inv',pick_inv)
-# 
+# print('pick_inv',pick_inv)
+# # 
 
 
 
 
-out_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/041_marm2_slope/'
+out_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/046_37_35_degrees_sm8/'
 
 df = pd.DataFrame(pick_inv)
-df.to_csv(out_path+'pick_inv_7.csv', header=False, index=False)
+df.to_csv(out_path+'pick_inv_sm8.csv', header=False, index=False)
 
 df = pd.DataFrame(pick_adj)
-df.to_csv(out_path+'pick_adj_7.csv', header=False, index=False)
+df.to_csv(out_path+'pick_adj_sm8.csv', header=False, index=False)
 
 
 #%%
 
 
 # path_demig = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/042_slope_comp'
-# path_slope = '/slope_binv_7.csv'
+# path_slope = '/slope_binv_fault.csv'
 # file = path_demig + path_slope
 # point_x_inv = np.array(read_pick(file,0))
 # point_z_inv = -np.array(read_pick(file,2))
 # pick_inv = np.array([[point_z_inv[0],point_z_inv[1]],[point_x_inv[0],point_x_inv[1]]])
 
 
-# path_slope = '/slope_badj_7.csv'
+# path_slope = '/slope_badj_fault.csv'
 # file = path_demig + path_slope
 # point_x_adj = np.array(read_pick(file,0))
 # point_z_adj = -np.array(read_pick(file,2))
@@ -322,20 +317,20 @@ plt.xlabel('Distance (m)')
 plt.ylabel('Depth (m)')
 
 
-demig_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/042_slope_comp'
+demig_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/046_37_35_degrees_sm8'
 
 df = pd.DataFrame(np.append(norm_inv,d_inv))
-df.to_csv(demig_path+'/norm_d_binv_7.csv',header=False,index=False)
+df.to_csv(demig_path+'/norm_d_binv_sm8.csv',header=False,index=False)
 
 df = pd.DataFrame(np.append(norm_adj,d_adj))
-df.to_csv(demig_path+'/norm_d_badj_7.csv',header=False,index=False)
+df.to_csv(demig_path+'/norm_d_badj_sm8.csv',header=False,index=False)
 
 
 df = pd.DataFrame([point1_adj,point2_adj])
-df.to_csv(demig_path+'/slope_badj_7.csv',header=False,index=False)
+df.to_csv(demig_path+'/slope_badj_sm8.csv',header=False,index=False)
 
 df = pd.DataFrame([point1_inv,point2_inv])
-df.to_csv(demig_path+'/slope_binv_7.csv',header=False,index=False)
+df.to_csv(demig_path+'/slope_binv_sm8.csv',header=False,index=False)
 
 
 
@@ -506,7 +501,7 @@ plt.figure()
 plt.plot(pick_adj[1], -pick_adj[0], label='QTV')
 plt.plot(pick_inv[1], -pick_inv[0], label='QTV')
 
-
+#%%
 def calculate_angle(pick):
     angle = np.arctan( (pick[0][0] -pick[0][1]) / (pick[1][0] - pick[1][1] )) * 180 / np.pi
     percentage = (pick[0][0] -pick[0][1]) / (pick[1][0] - pick[1][1] ) * 100
@@ -551,7 +546,7 @@ class Param_class:
         self.spot_y_ = read_results(path,8)
         self.spot_z_ = read_results(path,9)
         self.off_x_ = read_results(path,16)
-        self.tt_inv_ = read_results(path,17)
+        self.tt_i_TL1801nv_ = read_results(path,17)
         self.nt_ = 1501
         self.dt_ = 1.41e-3
         self.ft_ = -100.11e-3
@@ -578,7 +573,7 @@ p_inv = Param_class(path_inv)
 def calculate_slope(degrees, spot_x, spot_z,inp=inp3_adj, plot=False):
     m = np.tan(degrees * np.pi/180) 
     b = spot_z - m * spot_x
-    point_x = np.array([spot_x - 150, spot_x+150])
+    point_x = np.array([spot_x - 150, spot_x + 150])
     point_z = point_x * m + b
     plt.figure(figsize=(10,8))
     plt.plot(point_x,point_z,'k')
@@ -589,11 +584,15 @@ def calculate_slope(degrees, spot_x, spot_z,inp=inp3_adj, plot=False):
     p3 = np.array([point_x[0], 1200 , point_z[0]])
     
     if plot==True: 
+        plt.figure(figsize=(10,8))
         plot_mig_image(inp, ax, -az)
-        plt.plot(point_x/1000,point_z/1000)
+        plt.plot(point_x/1000,point_z/1000,linewidth=3)
+        plt.scatter(spot_x/1000,spot_z/1000,c='k')
+        plt.xlabel('Distance (km)')
+        plt.ylabel('Depth (km)')
     return p1, p2, p3
 
-json_file = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/042_marm2_smooth_binv_slope'
+
 
 def write_json_file(json_file, input_val,degree):
     # Step 1: Read the JSON file
@@ -601,10 +600,10 @@ def write_json_file(json_file, input_val,degree):
         data = json.load(file)
     
     # Step 2: Modify the dictionary
-    data['interfaces_data'][1]['a'] = input_val['a']
-    data['interfaces_data'][1]['b'] = input_val['b']
-    data['interfaces_data'][1]['c'] = input_val['c']
-    data['interfaces_data'][1]['d'] = input_val['d']
+    data['raytracing_config']['interfaces_data'][1]['a'] = input_val['a']
+    data['raytracing_config']['interfaces_data'][1]['b'] = input_val['b']
+    data['raytracing_config']['interfaces_data'][1]['c'] = input_val['c']
+    data['raytracing_config']['interfaces_data'][1]['d'] = input_val['d']
     
     # Step 3: Write the modified dictionary back to the JSON file
     with open(json_file+degree+'.json', 'w') as file:
@@ -614,26 +613,29 @@ def write_json_file(json_file, input_val,degree):
 
 
 
-normales = []
-d_values = []
-dict_input = []
-for i in range(7,12,1):
-    pt_inv1, pt_inv2, pt_inv3 = calculate_slope(i, p_inv.spot_x_[0], p_inv.spot_z_[0])     
-    normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
-    d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
-    calculate_angle([[-pt_inv1[2],-pt_inv2[2]],[pt_inv1[0],pt_inv2[0]]])
-    dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
+# normales = []
+# d_values = []
+# dict_input = []
+# for i in range(7,12,1):
+#     pt_inv1, pt_inv2, pt_inv3 = calculate_slope(i, p_inv.spot_x_[0], p_inv.spot_z_[0])     
+#     normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
+#     d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
+#     calculate_angle([[-pt_inv1[2],-pt_inv2[2]],[pt_inv1[0],pt_inv2[0]]])
+#     dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
     
-    df = pd.DataFrame([pt_inv1,pt_inv2])
-    df.to_csv(demig_path+'/degrees/slope_degree_'+str(i)+'.csv',header=False,index=False)
-    write_json_file(json_file, dict_input[-1],'degree_'+str(i))
+#     df = pd.DataFrame([pt_inv1,pt_inv2])
+#     df.to_csv(demig_path+'/degrees/slope_degree_'+str(i)+'.csv',header=False,index=False)
+#     write_json_file(json_file, dict_input[-1],'degree_'+str(i))
 
 
  # df = pd.DataFrame([point1_inv,point2_inv])
  # df.to_csv(demig_path+'/slope_binv_6.csv',header=False,index=False)
    
 
-
+fl3_adj = '../output/40_marm_ano/badj/inv_betap_x.dat'
+fl3_inv = '../output/40_marm_ano/binv/inv_betap_x.dat'
+inp3_adj = gt.readbin(fl3_adj,nz,nx) 
+inp3_inv = gt.readbin(fl3_inv,nz,nx) 
 
 p_inv.spot_x_[0] = 3360.
 p_inv.spot_z_[0] = -1080.
@@ -641,12 +643,77 @@ pt_inv1, pt_inv2, pt_inv3 = calculate_slope(35, p_inv.spot_x_[0], p_inv.spot_z_[
 normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
 d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
 dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
-write_json_file(json_file, dict_input[-1],'steep_35_degree_'+str(i))
+# write_json_file(json_file, dict_input[-1],'steep_35_degree_'+str(i))
+
+
+base_path = '/home/vcabiativapico/local/src/victor/out2dcourse/input/45_marm_ano_v3'
+
+df = pd.DataFrame([pt_inv1, pt_inv2])
+df.to_csv(base_path+'/slope_binv_35.csv',header=False,index=False)
+
 
 p_inv.spot_x_[0] = 3360.
 p_inv.spot_z_[0] = -1094.
 pt_inv1, pt_inv2, pt_inv3 = calculate_slope(37, p_inv.spot_x_[0], p_inv.spot_z_[0],inp=inp3_adj, plot=True)
 normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
 d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
+# dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
+# write_json_file(json_file, dict_input[-1],'steep_37_degree_'+str(i))
+
+# base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/45_marm_ano_v3/'
+
+
+df = pd.DataFrame([pt_inv1, pt_inv2])
+df.to_csv(base_path+'/slope_binv_37.csv',header=False,index=False)
+
+#%%
+
+# fl3_adj = '../output/40_marm_ano/badj/inv_betap_x.dat'
+
+
+# fl3_inv = '../output/40_marm_ano/binv/inv_betap_x.dat'
+
+json_file = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_sm8_correction_new_solver/046_sm8_QTV_degree_37'
+
+fl3_inv = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/inv_betap_x_s.dat'
+fl3_adj = '../output/45_marm_ano_v3/mig_badj_sm8_TL1801/inv_betap_x_s.dat'
+
+inp3_adj = gt.readbin(fl3_adj,nz,nx) 
+inp3_inv = gt.readbin(fl3_inv,nz,nx) 
+
+normales = []
+d_values = []
+dict_input = []
+p_inv.spot_x_[0] = 3396.
+p_inv.spot_z_[0] = -1058.
+pt_inv1, pt_inv2, pt_inv3 = calculate_slope(37, p_inv.spot_x_[0], p_inv.spot_z_[0],inp=inp3_inv, plot=True)
+normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
+d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
 dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
-write_json_file(json_file, dict_input[-1],'steep_37_degree_'+str(i))
+# write_json_file(json_file, dict_input[-1],'045_sm8_QTV_degree_'+str(i))
+
+
+base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_sm8_correction_new_solver'
+
+
+df = pd.DataFrame([pt_inv1, pt_inv2])
+df.to_csv(base_path+'/slope_QTV_sm8.csv',header=False,index=False)
+
+
+normales = []
+d_values = []
+dict_input = []
+p_inv.spot_x_[0] = 3396.
+p_inv.spot_z_[0] = -1065.
+pt_inv1, pt_inv2, pt_inv3 = calculate_slope(39, p_inv.spot_x_[0], p_inv.spot_z_[0],inp=inp3_adj, plot=True)
+normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
+d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
+dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
+# write_json_file(json_file, dict_input[-1],'045_sm8_STD_degree_'+str(i))
+
+base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_sm8_correction_new_solver'
+
+
+df = pd.DataFrame([pt_inv1, pt_inv2])
+df.to_csv(base_path+'/slope_STD_sm8.csv',header=False,index=False)
+

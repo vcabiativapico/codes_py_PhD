@@ -61,11 +61,11 @@ def read_results(path,srow):
 
 
 
-gen_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/042_slope_comp/05_pick_deep_flat_event/'
+gen_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug_110424_raytracing_new_solver/'
 
 
-path_adj = gen_path + 'tolerance_badj/042_rt_badj_marm_slope_function.csv'
-path_inv = gen_path + 'tolerance_binv/042_rt_binv_marm_slope_function.csv'
+path_adj = gen_path + 'depth_demig_out/35_degrees/results/depth_demig_output.csv'
+path_inv = gen_path + 'depth_demig_out/37_degrees/results/depth_demig_output.csv'
 
 
 
@@ -110,46 +110,158 @@ p_inv = Param_class(path_inv)
 
 
 
-path_demig = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/042_slope_comp'
+path_demig = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/'
 
 
-# df = pd.read_csv(path_demig+'/results_both_tol05.csv')
 
-df = pd.read_csv(path_demig+'/result_ts_off/results_both_angle_7_9_2.csv')
+df = pd.read_csv(path_demig+'046_37_35_degrees_sm8/result_ts_off/046_sm8_37_35_degrees.csv')
 
+# df = pd.read_csv(path_demig+'044_fault_slope/result_ts_off/results_both_angles_fault_114perc.csv')
 
 
 for column in df.columns:
     globals()[column] = np.array(df[column].values.tolist())
 
 
+ratio_mean_TS = mean_TS_inv/mean_TS_adj
+ratio_ext_TS = ext_binv_SLD_TS/ext_badj_SLD_TS
+
 
 plt.figure(figsize=(10,8))
-plt.title('Maximum Timeshift vs Offset for Angle 7° and 9°')
-plt.plot(offset_7,max_7,'-')
-
-
-plt.plot(offset_9,max_9,'-')
-plt.ylabel('Maximum Timeshift')
+plt.title('Mean Timeshift vs Offset for QTV and STD')
+plt.plot(offset_inv,mean_TS_inv,'.')
+plt.plot(offset_adj,mean_TS_adj,'.')
+plt.ylabel('Mean Timeshift (ms)')
 plt.xlabel('Offset')
-plt.legend(['7°','9°'])
+plt.legend(['QTV','STD'])
 # plt.ylim(2.9,6.1)
 # plt.xlim(580,1210)
 
 plt.figure(figsize=(10,8))
-plt.plot(offset_9,-rec_x_9 + rec_x_7,'-')
-plt.plot(offset_9,-src_x_9 + src_x_7,'-')
-plt.ylabel('diff rec x (m)')
+plt.title('Extremum Timeshift vs Offset')
+plt.plot(offset_inv,ext_binv_SLD_TS,'.')
+plt.plot(offset_adj,ext_badj_SLD_TS,'.')
+plt.ylabel('Extemum Timeshift (ms)')
 plt.xlabel('Offset')
-plt.legend(['rec','src'])
-plt.ylim(35,50)
+plt.legend(['QTV','STD'])
+# plt.ylim(1,10)
+# plt.xlim(580,1210)
+
+
+#%%
+plt.rcParams['font.size'] = 16
+plt.figure(figsize=(10,8))
+plt.title('Ratio of the mean Timeshift')
+plt.plot(offset_inv,ratio_mean_TS,'.')
+plt.ylabel(r'$\frac{MEAN \ TS \ QTV}{MEAN \ TS \ STD} $ ')
+plt.xlabel('Offset')
+# plt.ylim(0,4)
+
 
 
 plt.figure(figsize=(10,8))
-plt.plot(offset_7,max_7,'.')
-plt.plot(offset_9,max_9,'.')
-plt.plot(offset_9,-rec_x_9 + rec_x_7,'-')
-plt.plot(offset_9,-src_x_9 + src_x_7,'-  ')
+plt.title('Ratio of the extremum TS QTV and STD')
+plt.plot(offset_inv,ratio_ext_TS,'.')
+plt.ylabel(r'$\frac{MAX \ TS \ QTV}{MAX \ TS \ STD}$ ')
+plt.xlabel('Offset')
+
+
+
+
+
+plt.figure(figsize=(10,8))
+plt.title('Minimum CC vs Offset for Angle QTV and STD')
+plt.plot(offset_inv,min_CC_inv,'.')
+plt.plot(offset_adj,min_CC_adj,'.')
+plt.ylabel('Extremum CC')
+plt.xlabel('Offset')
+plt.legend(['QTV','STD'])
+
+plt.figure(figsize=(10,8))
+plt.title('Mean CC vs Offset for Angle QTV and STD')
+plt.plot(offset_inv,mean_CC_inv,'.')
+plt.plot(offset_adj,mean_CC_adj,'.')
+plt.ylabel('Mean CC')
+plt.xlabel('Offset')
+plt.legend(['QTV','STD'])
+# plt.ylim(2.9,6.1)
+# plt.xlim(580,1210)
+
+ratio_mean_CC = mean_CC_inv/mean_CC_adj
+ratio_ext_CC = min_CC_inv/min_CC_adj
+
+plt.figure(figsize=(10,8))
+plt.title('Ratio of the cross-correlation')
+plt.plot(offset_inv,ratio_mean_CC,'.')
+plt.ylabel(r'$\frac{MEAN \ TS \ QTV}{MEAN \ TS \ STD} $ ')
+plt.xlabel('Offset')
+# plt.ylim(0,4)
+
+
+
+plt.figure(figsize=(10,8))
+plt.title('Ratio of the minimum cross-correlation QTV and STD')
+plt.plot(offset_inv,ratio_ext_CC,'.')
+plt.ylabel(r'$\frac{MIN \ CC \ QTV}{MIN \ CC \ STD}$ ')
+plt.xlabel('Offset')
+
+
+
+
+plt.figure(figsize=(10,8))
+plt.title('Mean NRMS vs Offset for Angle QTV and STD')
+plt.plot(offset_inv,mean_NRMS_inv,'.')
+plt.plot(offset_adj,mean_NRMS_adj,'.')
+plt.ylabel('Mean NRMS')
+plt.xlabel('Offset')
+plt.legend(['QTV','STD'])
+# plt.ylim(2.9,6.1)
+# plt.xlim(580,1210)
+
+
+plt.figure(figsize=(10,8))
+plt.title('Extremum NRMS vs Offset for Angle QTV and STD')
+plt.plot(offset_inv,ext_NRMS_binv,'.')
+plt.plot(offset_adj,ext_NRMS_badj,'.')
+plt.ylabel('Mean NRMS')
+plt.xlabel('Offset')
+plt.legend(['QTV','STD'])
+# plt.ylim(2.9,6.1)
+# plt.xlim(580,1210)
+
+ratio_mean_NRMS = mean_NRMS_inv/mean_NRMS_adj
+ratio_ext_NRMS = ext_NRMS_binv/ext_NRMS_badj
+
+
+plt.figure(figsize=(10,8))
+plt.title('Ratio of the mean NRMS QTV and STD')
+plt.plot(offset_inv,ratio_mean_NRMS,'.')
+plt.ylabel(r'$\frac{Mean \ NRMS \ QTV}{Mean \ NRMS \ STD}$ ')
+plt.xlabel('Offset')
+
+plt.figure(figsize=(10,8))
+plt.title('Ratio of the extremum NRMS QTV and STD')
+plt.plot(offset_inv,ratio_ext_NRMS,'.')
+plt.ylabel(r'$\frac{EXT \ NRMS \ QTV}{EXT \ NRMS \ STD}$ ')
+plt.xlabel('Offset')
+
+
+
+
+plt.figure(figsize=(10,8))
+plt.plot(offset_adj, rec_x_adj - rec_x_inv,'-')
+plt.plot(offset_adj, src_x_adj - src_x_inv,'-')
 plt.ylabel('diff rec x (m)')
 plt.xlabel('Offset')
-plt.ylim(0,50)
+plt.legend(['REC','SRC'])
+# plt.ylim(35,50)
+
+
+plt.figure(figsize=(10,8))
+plt.plot(offset_inv,max_TS_inv,'.')
+plt.plot(offset_adj,max_TS_adj,'.')
+plt.plot(offset_adj,rec_x_adj - rec_x_inv,'-')
+plt.plot(offset_adj,src_x_adj - src_x_inv,'-')
+plt.ylabel('diff rec x (m)')
+plt.xlabel('Offset')
+# plt.ylim(0,50)

@@ -23,7 +23,7 @@ if __name__ == "__main__":
     labelsize = 16
     nt        = 1001
     dt        = 2.08e-3
-    ft        = -99.84e-3
+    ft        = -100.11e-3
     nz        = 151
     fz        = 0.0
     dz        = 12.49/1000.
@@ -127,20 +127,27 @@ if __name__ == "__main__":
     
     #%% MODIFY MARMOUSI2 FOR DEMIGRATION
     fl1       = '../input/org_full/marm2_full.dat'
+    # fl1       = '../input/45_marm_ano_v3/fwi_ano_45.dat'
+    
     fl2       = '../input/marm2_sm15.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_sm    = gt.readbin(fl2,nz,nx)
     
-    x1 = 270
+    x1 = 220
     x2 = 300
-    z1 = 75
+    z1 = 78
     z2 = 100
+    
+    # x1 = 295
+    # x2 = 317
+    # z1 = 75
+    # z2 = 100
     
     inp_cut    = inp_org[z1:z2,x1:x2]     # Zone B - Cut the model in the area of the anomaly
     old_vel    = np.max(inp_cut)                # Find the value where the anomaly wants to be changed    
     
     hmin = 1.5
-    hmax = 5.5
+    hmax = 4.5
     
     plot_model(inp_org,hmin,hmax)
       
@@ -156,22 +163,28 @@ if __name__ == "__main__":
                 
                 
         index1     = np.where(area == 1)
-        new_vel    = nv
-        # new_vel   = 1.75*1.14
+        # new_vel    = nv
+        inp1_before = inp1[index1]
+        new_vel   = inp1[index1]*1.14
         inp1[index1] = new_vel
         
+        print(new_vel - inp1_before)
+        print(np.mean(new_vel - inp1_before))
         return inp1,index1
     
         
-    inp_mod, ind_mod = modif_layer(inp_org, 2.5, 2.65, 4.5)
+    # inp_mod, ind_mod = modif_layer(inp_org, 2.55, 2.649, 4.5)
+    
+    inp_mod, ind_mod = modif_layer(inp_org, 2.5, 2.65, 5)
     
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_diff = inp_mod - inp_org
     plot_model(inp_cut,hmin,hmax)
     
-      
-    inp_diff10 = inp_diff+1
+    
+    
+    inp_diff10 = inp_diff + 1
     
     inp_diff10[ind_mod] = 4.0
       
@@ -180,15 +193,26 @@ if __name__ == "__main__":
     
     
     fig1 = plot_model(inp_mod,hmin,hmax)
-    imout1 = '../png/45_marm_ano_v3/fwi_ano_full_45.png'
-    flout1 = '../input/45_marm_ano_v3/fwi_ano_45.dat'
-    export_model(inp_mod,fig1,imout1,flout1)
+    # imout1 = '../png/45_marm_ano_v3/fwi_ano_full_114_percent.png'
+    # flout1 = '../input/45_marm_ano_v3/fwi_ano_fault_114_percent.dat'
+    # export_model(inp_mod,fig1,imout1,flout1)
     
     fig1 = plot_model(inp_org,hmin,hmax)
-    imout1 = '../png/45_marm_ano_v3/fwi_ano_org.png'
-    flout1 = '../input/45_marm_ano_v3/fwi_org.dat'
-    export_model(inp_org,fig1,imout1,flout1)
+    # imout1 = '../png/45_marm_ano_v3/fwi_ano_org.png'
+    # flout1 = '../input/45_marm_ano_v3/fwi_org.dat'
+    # export_model(inp_org,fig1,imout1,flout1)
     
+    
+    inp_sm = gaussian_filter(inp_org,15)
+    fig1 = plot_model(inp_sm,hmin,hmax)
+    # imout1 = '../png/45_marm_ano_v3/fwi_sm.png'
+    # flout1 = '../input/45_marm_ano_v3/fwi_sm.dat'
+    # export_model(inp_sm,fig1,imout1,flout1)
+    
+    import pandas as pd
+    df = pd.DataFrame(np.transpose(ind_mod))
+    df.to_csv('../input/45_marm_ano_v3/fwi_ano_114_percent.csv',header=False,index=False)
+
  #%%   
     # az[ind_mod[0][63]]
     # ax[ind_mod[1][63]]

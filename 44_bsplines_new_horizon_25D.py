@@ -1220,7 +1220,9 @@ def interp1d(Dataset,Param_Input,limite = 100):
 # %%
 
 # path = 'C:/Users/Kevin/SpotLight/SpotLighters - Documents/SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Demigration_SpotLight_Septembre2023/Demigration_Victor/'
-file = '../input/27_marm/marm2_sm15.dat'
+# file = '../input/27_marm/marm2_sm15.dat'
+
+file = '../input/45_marm_ano_v3/fwi_sm.dat'
 
 
 
@@ -1306,9 +1308,9 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Param_marm_smooth.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Param_marm_smooth.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_Weights_marm_2p5D_smooth.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Weights_marm_2p5D_smooth.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 
@@ -1340,7 +1342,7 @@ plt.plot(Weight_2D_inline)
 
 # np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/040_weights_hz_marm_badj_smpick.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
+# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_weights_hz_marm_badj_smpick.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
 
 
 # %% Visualisations 
@@ -1349,11 +1351,17 @@ np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/0
 import tqdm
 
 
-Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
-Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
+# Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
+# Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
+
+Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Param_marm_smooth.csv'
+Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Weights_marm_2p5D_smooth.csv'
+
 
 file = '../input/27_marm/marm2_sm15.dat'
 
+# file = '../input/45_marm_ano_v3/fwi_sm.dat'
+# 
 
 
 Parameters,Weights = load_weight_model(Param_File, Weight_File)
@@ -1429,22 +1437,27 @@ grad_x = []
 grad_y = []
 grad_z = []
 
+
 for y in y_line:
     
-    vitesse,grad = Vitesse(4000,y,-1000,Parameters,Weights)
+    vitesse,grad = Vitesse(y,4000,-1000,Parameters,Weights)
     
     test_y.append(vitesse)
     grad_x.append(grad[0])
     grad_y.append(grad[1])
     grad_z.append(grad[2])
     
+    
+plt.rcParams['font.size'] = 30
 plt.figure(figsize=(16,12))
-plt.plot(y_line,test_y)
-plt.xlabel('Y (m)',fontsize=25) 
-plt.ylabel('Vitesse (m/s)',fontsize=25) 
+plt.plot(y_line,test_y,linewidth=4)
+plt.xlabel('Y (m)') 
+plt.ylabel('Vitesse (m/s)') 
 plt.yticks(fontsize=25)
 plt.xticks(fontsize=25)
-plt.title('Test selon axe y',fontsize=25)    
+plt.title('Test selon axe y')    
+plt.ylim(2540.060,2540.062)
+
 
 # plt.figure(figsize=(16,12))
 # plt.plot(y_line,test_y)
@@ -1456,14 +1469,14 @@ plt.title('Test selon axe y',fontsize=25)
 # plt.title('Test selon axe y (zoom)',fontsize=18)
 
 
-
+plt.rcParams['font.size'] = 30
 plt.figure(figsize=(16,12))
-plt.plot(y_line,grad_x)
-plt.xlabel('Y (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe y (gradient en x)',fontsize=18)
+plt.plot(y_line,grad_x,linewidth=4)
+plt.xlabel('Y (m)') 
+plt.ylabel('Gradient de vitesse') 
+
+plt.title('Test selon axe y (gradient en x)')
+plt.ylim(-4.22e-09,-4.245e-09)
 
 plt.figure(figsize=(16,12))
 plt.plot(y_line,grad_y)

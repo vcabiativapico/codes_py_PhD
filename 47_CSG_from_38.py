@@ -27,7 +27,7 @@ if __name__ == "__main__":
   
 ## Building simple vel and rho models to test modeling
     labelsize = 16
-    nt = 1501
+    nt = 1801
     dt = 1.41e-3
     ft = -100.11e-3
     nz = 151
@@ -93,10 +93,9 @@ def read_results(path,srow):
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/Debug141223_raytracing/015_marm_flat_v2_test_p0001_v2_test_bp_az_0_4992.csv'
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/016_flat_2000ms_1188/016_flat_1188_v2.csv'
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output2/018_2000ms_606/018_flat_606_v2.csv'
-path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/047_simple_flat_marm_new_solver/depth_demig_out/out_data/results/depth_demig_output.csv'
+path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_sm8_correction_new_solver/QTV/depth_demig_out/QTV/results/depth_demig_output.csv'
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/040_marm2/binv/040_rt_binv_marm_sm_full.csv'
 # path1 = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/040_marm2/badj/040_rt_badj_marm_sm_full.csv'
-
 
 src_x = np.array(read_results(path1,1))
 src_y = np.array(read_results(path1,2))
@@ -129,7 +128,7 @@ csg_trace = np.zeros((nt,len(src_x)))
 csg_trace_INT = np.zeros((nt,len(indices)))
 shot_int = np.zeros((nt,476-126))
 
-dec_off_x = -off_x/1000
+dec_off_x = off_x/1000
 no = 251
 dec_off_x[0]
 
@@ -176,12 +175,18 @@ inp_hilb3 = np.zeros((351,nt, no))
 
 
 
+
+
 for i in range(351):
     txt = str(i+126)
     title = txt.zfill(3)
-    tr3 = '../output/out_141/t1_obs_000'+str(title)+'.dat'
-    # tr3 = '../output/40_marm_ano/badj/t1_obs_000'+str(title)+'.dat'
-    inp3 = -gt.readbin(tr3, no, nt).transpose()
+    # tr3 = '../output/out_141/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/45_marm_ano_v3/ano_114_perc_1801TL/t1_obs_000'+str(title)+'.dat'
+    tr2 = '../output/45_marm_ano_v3/org_1801TL/t1_obs_000'+str(title)+'.dat'
+    inp1 = -gt.readbin(tr1, no, nt).transpose()
+    inp2 = -gt.readbin(tr2, no, nt).transpose()
+    inp3 = inp2
+    # inp3 = inp1
     # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
     for j in range(no):
         # inp_hilb3[i][:,j] = hilbert(inp3[:,j]) 
@@ -193,11 +198,11 @@ for i in range(351):
 # inp_hilb3 = inp3
 
 ## PLOT SHOTS   
-hmin, hmax = -10,10
+hmin, hmax = -0.2,0.2
 shot_num = 236
 flout_gather = '../png/out_141/obs_'+str(126+shot_num)+'.png'
 fig = plot_shot_gathers(hmin, hmax, inp_hilb3[shot_num], flout_gather)
-fig = plt.plot(-off_x[0]/1000,tt_inv[0]/1000,'ok')
+fig = plt.plot(off_x[0]/1000,tt_inv[0]/1000,'ok')
 
 
 ## INTERPOLATION OF SHOTS AND RECEIVERS
@@ -229,14 +234,14 @@ for k,i in enumerate(indices):
         rec_to_int[j][:,:] = inp_hilb3[ind_shot_int[j]][:,ind_tr_int]
         
         f = interpolate.RegularGridInterpolator((at,ao[ind_tr_int]), rec_to_int[j], method='linear',bounds_error=False, fill_value=None) 
-        at_new = np.linspace(at[0], at[-1], 1501)
+        at_new = np.linspace(at[0], at[-1], nt)
         ao_new = np.linspace(dec_off_x[i]-d_dox*2,dec_off_x[i]+d_dox*2, 5)
         AT, AO = np.meshgrid(at_new, ao_new, indexing='ij')
         tr_INT[j][:,:] = f((AT,AO))
         rec_int = tr_INT[:,:,2]
     # Interpolation on the shots
     f = interpolate.RegularGridInterpolator((at,(ind_shot_int+126)*12), rec_int.T, method='linear',bounds_error=False, fill_value=None) 
-    at_new = np.linspace(at[0], at[-1], 1501)
+    at_new = np.linspace(at[0], at[-1], nt)
     src_new = np.linspace(src_x[i]-sd_dox*2, src_x[i]+sd_dox*2, 5)
     AT, SRC = np.meshgrid(at_new, src_new, indexing='ij')
     src_INT = f((AT,SRC))
@@ -294,10 +299,10 @@ plt.colorbar(hfig, format='%2.2f')
 plt.rcParams['font.size'] = 16
 plt.xlabel('Offset (km)')
 plt.ylabel('Time (s)')
-fig.tight_layout()
-flout = '../input/out_141/csg_raytracing_modeling_2_0.png'
-print("Export to file:", flout)
-fig.savefig(flout, bbox_inches='tight')
+# fig.tight_layout()
+# flout = '../input/out_141/csg_raytracing_modeling_2_0.png'
+# print("Export to file:", flout)
+# fig.savefig(flout, bbox_inches='tight')
 
 
 
@@ -332,8 +337,8 @@ at_conv  = len(at)
 
 '''Plots for comparsion'''
 ## PLOT THE RAYTRACING TRAVELTIMES OVERLAYING COMMON SPOT GATHER TRACES
-hmin = -0.01
-hmax = 0.01
+hmin = -0.1
+hmax = 0.1
 fig = plt.figure(figsize=(10, 8), facecolor="white")
 av = plt.subplot(1, 1, 1)
 # hfig = av.imshow(plot_rec_int, extent=[0, len(indices), at[-1], at[0]],
@@ -341,32 +346,35 @@ av = plt.subplot(1, 1, 1)
 #                  cmap='seismic')
 hfig = av.imshow(csg_trace, extent=[0, len(src_x), at[-1]-ft, at[0]-ft],
                  vmin=hmin, vmax=hmax, aspect='auto',
-                 cmap='seismic')    
-# plt.plot(np.arange(len(src_x)),tt_inv[:]/1000,'-k',markersize=3)
-plt.plot(np.arange(len(src_x)),t1,'g')
+                 cmap='seismic')   
+av.plot(csg_trace[:,62]*80 + 62,at-ft,'k')
+# plt.plot(np.arange(len(src_x)),tt_inv[:],'-k',markersize=3)
+# plt.plot(np.arange(len(src_x)),t1,'g')
 av.xaxis.set_ticks(np.arange(len(indices))) 
 av.xaxis.set_ticklabels(np.rint(off_x[:]).astype(int))
+plt.colorbar(hfig, format='%2.2f')
 xticks = plt.gca().xaxis.get_major_ticks()
 for i in range(len(xticks)):
     if i % 10 != 0:
         xticks[i].set_visible(False)
-plt.legend(['raytracing','analytique'])
+# plt.legend(['raytracing','analytique'])
 plt.rcParams['font.size'] = 16
 plt.title('Common spot gather Raytracing and Modelling')
 plt.xlabel('Offset (m)')
 plt.ylabel('Time (s)')     
 
+
+
 ## PLOT A WIGGLE OVERLAY
 fig = plt.figure(figsize=(8, 8), facecolor="white")
 ## First and main plot 
 av = plt.subplot2grid((5, 1), (0, 0),rowspan=4)
-plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
 
 wiggle(csg_trace[:,::3],tt=at-ft,xx=np.arange(len(indices))[::3])
 
-# plt.plot(np.arange(len(indices)),tt_inv[indices]/1000,'-r',markersize=3)
+# plt.plot(np.arange(len(indices)),tt_inv[indices],'-r',markersize=3)
 
-plt.plot(np.arange(len(indices))[::2],t1[::2],'r')
+# plt.plot(np.arange(len(indices))[::2],t1[::2],'r')
 
 ## Define the tick axis
 av.xaxis.set_ticks(np.arange(len(indices))) 
@@ -376,7 +384,7 @@ for i in range(len(xticks)):
     if i % 10 != 0:
         xticks[i].set_visible(False)
 ## Labels
-plt.legend(['raytracing','modeling'])
+# plt.legend(['raytracing','modeling'])
 plt.rcParams['font.size'] = 16
 plt.title('Common spot gather Raytracing and Modelling')
 plt.xlabel('Offset (m)')

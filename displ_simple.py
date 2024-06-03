@@ -111,7 +111,7 @@ if __name__ == "__main__":
         
     
     tr   = [71,135,201]
-    tr1 = '../output/t1_obs_000201.dat'
+    tr1 = '../output/43_deep_flat_ano/t1_obs_000201.dat'
     inp1 = gt.readbin(tr1,no,nt).transpose()
     flout  = '../png/t1_obs_000201.png'
     hmax = np.max(inp1)
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         fig.savefig(flout, bbox_inches='tight')
 
     xmax_tr = 0.3
-
+    nt =1501
     # title = 501
     # title = 201
     title = 301
@@ -222,12 +222,12 @@ if __name__ == "__main__":
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     # tr1 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
-    tr1 = '../output/45_marm_ano_v3/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/43_deep_flat_ano/t1_obs_000'+str(title)+'.dat'
     # tr3 ='../output/t1_obs_000361.dat'
-    tr2 = '../output/t1_obs_000'+str(title)+'.dat'
+    # tr2 = '../output/t1_obs_000'+str(title)+'.dat'
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
-    inp2 = -gt.readbin(tr2, no, nt).transpose()
+    # inp2 = -gt.readbin(tr2, no, nt).transpose()
     # inp3 = -gt.readbin(tr3, no, nt).transpose()
     
     # inp_hilb1 = np.zeros_like(inp1,dtype = 'complex_')   
@@ -371,7 +371,7 @@ if __name__ == "__main__":
         hmax = 2.05
         hmin = 2.0
         hmin = np.min(inp)
-        hmax = -hmin
+        # hmax = -hmin
         hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
@@ -421,9 +421,9 @@ if __name__ == "__main__":
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     # fl1 = '../output/dbetap_exact.dat'
-    fl1 = '../output/43_deep_flat_ano/dbetap_exact.dat'
+    fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
     # fl1 = '../output/40_marm_ano/binv/abetap.dat'
-    fl1 =  '../input/vel_full.dat'
+    # fl1 =  '../input/vel_full.dat'
     # fl1 = '../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat'
 
     # fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
@@ -432,7 +432,7 @@ if __name__ == "__main__":
     inp1 = gt.readbin(fl1,nz,nx)
    
     # flout = '../png/avp_exact.png'
-    flout = '../png/vel_full.png'
+    flout = '../png/fwi_ano_114_percent.png'
     inp,fig_z = plot_model(inp1, flout)
     
     
@@ -661,9 +661,12 @@ if __name__ == "__main__":
 
     # fl1 = './input/19_anomaly_4_layers/3_interfaces_org_smooth5.dat'
     # fl1 = '../input/19_anomaly_4_layers/3_interfaces_anomaly_250.dat'
-    # fl1 = './input/18_3_interface/3_interfaces_dp.dat'
-    fl1 = '../input/vel_full.dat'
+    # fl1 = '../input/18_3_interface/3_interfaces_dp.dat'
+    # fl1 = '../input/vel_full.dat'
+    
+    fl1 = '../output/30_marm_flat/adbetap.dat'
     inp1 = gt.readbin(fl1, nz, nx)  # model
+    
     # fl2 = './output/12_wf_simple/sm10_2060/born/p2d_lsm_000004.dat'
     # fl3 = './output/12_wf_simple/sm10_2060/fwi/p2d_fwi_000004.dat'
     # fl5 = './output/12_wf_simple/sm15_4000/p0_fwi/p2d_fwi_000004.dat'
@@ -673,9 +676,9 @@ if __name__ == "__main__":
     # fl5 = '../output/19_anomaly_4_layers/p0/fwi/p2d_fwi_000004.dat'
 
 
-    fl2 = '../output/29_sim_flat_marm/p2d_lsm_000001.dat'
-    
-    nxl = 443
+    fl2 = '../output/30_marm_flat/p2d_lsm_000001.dat'
+    nt = 1501
+    # nxl = 443
     nxl = 291
     h_nxl = int((nxl-1)/2)
     born = -gt.readbin(fl2, nz, nxl*nt)   #
