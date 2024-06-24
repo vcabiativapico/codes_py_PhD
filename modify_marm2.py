@@ -209,9 +209,9 @@ if __name__ == "__main__":
     # flout1 = '../input/45_marm_ano_v3/fwi_sm.dat'
     # export_model(inp_sm,fig1,imout1,flout1)
     
-    import pandas as pd
-    df = pd.DataFrame(np.transpose(ind_mod))
-    df.to_csv('../input/45_marm_ano_v3/fwi_ano_114_percent.csv',header=False,index=False)
+    # import pandas as pd
+    # df = pd.DataFrame(np.transpose(ind_mod))
+    # df.to_csv('../input/45_marm_ano_v3/fwi_ano_114_percent.csv',header=False,index=False)
 
  #%%   
     # az[ind_mod[0][63]]

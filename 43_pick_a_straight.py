@@ -124,9 +124,9 @@ def read_pick(path,srow):
 
 def plot_plane_from_points(p1,p2,p3, plot=False):
     ''' 
-    a plane is a*x+b*y+c*z+d=0
-    We calculate [a,b,c] which is the normal. 
-    We have to calculate d and we're set'''
+    a plane is a*x+b*y+c*z+d=0 is calculated
+    [a,b,c] is calculated it is the normal. 
+    d is also obtained'''
     u = p2 - p1
     v = p3 - p1
     
@@ -319,18 +319,18 @@ plt.ylabel('Depth (m)')
 
 demig_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/input/046_37_35_degrees_sm8'
 
-df = pd.DataFrame(np.append(norm_inv,d_inv))
-df.to_csv(demig_path+'/norm_d_binv_sm8.csv',header=False,index=False)
+# df = pd.DataFrame(np.append(norm_inv,d_inv))
+# df.to_csv(demig_path+'/norm_d_binv_sm8.csv',header=False,index=False)
 
-df = pd.DataFrame(np.append(norm_adj,d_adj))
-df.to_csv(demig_path+'/norm_d_badj_sm8.csv',header=False,index=False)
+# df = pd.DataFrame(np.append(norm_adj,d_adj))
+# df.to_csv(demig_path+'/norm_d_badj_sm8.csv',header=False,index=False)
 
 
-df = pd.DataFrame([point1_adj,point2_adj])
-df.to_csv(demig_path+'/slope_badj_sm8.csv',header=False,index=False)
+# df = pd.DataFrame([point1_adj,point2_adj])
+# df.to_csv(demig_path+'/slope_badj_sm8.csv',header=False,index=False)
 
-df = pd.DataFrame([point1_inv,point2_inv])
-df.to_csv(demig_path+'/slope_binv_sm8.csv',header=False,index=False)
+# df = pd.DataFrame([point1_inv,point2_inv])
+# df.to_csv(demig_path+'/slope_binv_sm8.csv',header=False,index=False)
 
 
 
@@ -691,7 +691,6 @@ normales.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[0])
 d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
 dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1]))
 # write_json_file(json_file, dict_input[-1],'045_sm8_QTV_degree_'+str(i))
-
 
 base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_sm8_correction_new_solver'
 

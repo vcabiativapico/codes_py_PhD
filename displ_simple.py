@@ -194,13 +194,14 @@ if __name__ == "__main__":
     xmax_tr = 0.3
     nt =1501
     # title = 501
-    # title = 201
+    # title = 401
     title = 301
-    # title,no = 462,251
+    no = 251
+    title,no = 201,251
     # nomax = 201
     # no = (nomax)+101
     # no = 302 # for 101 & 501
-    # no = 402 # for 201 & 401
+    # no = 401 # for 201 & 401
     # no = 403  # for 301
     # no = 403-abs(301-title)
     fo = -(no-1)/2*do
@@ -222,7 +223,7 @@ if __name__ == "__main__":
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     # tr1 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
-    tr1 = '../output/43_deep_flat_ano/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/t1_obs_000'+str(title)+'.dat'
     # tr3 ='../output/t1_obs_000361.dat'
     # tr2 = '../output/t1_obs_000'+str(title)+'.dat'
     
@@ -254,8 +255,8 @@ if __name__ == "__main__":
     
    
     
-    hmin = -0.2
-    hmax = 0.2
+    hmin = np.max(inp1)/10
+    hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, -inp1, flout_gather)
  
@@ -371,14 +372,14 @@ if __name__ == "__main__":
         hmax = 2.05
         hmin = 2.0
         hmin = np.min(inp)
-        # hmax = -hmin
-        hmax = np.max(inp)
+        hmax = -hmin
+        # hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto')
+                              vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -420,8 +421,10 @@ if __name__ == "__main__":
 
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
+    
+    fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
     # fl1 = '../output/dbetap_exact.dat'
-    fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
+    # fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
     # fl1 = '../output/40_marm_ano/binv/abetap.dat'
     # fl1 =  '../input/vel_full.dat'
     # fl1 = '../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat'
@@ -432,7 +435,7 @@ if __name__ == "__main__":
     inp1 = gt.readbin(fl1,nz,nx)
    
     # flout = '../png/avp_exact.png'
-    flout = '../png/fwi_ano_114_percent.png'
+    flout = '../png/dbetap_exact.png'
     inp,fig_z = plot_model(inp1, flout)
     
     

@@ -471,27 +471,31 @@ plot_panel_att(binv_NRMS_total,badj_NRMS_total,p_inv,out_idx,-0.1,0.5,'NRMS')
 
 
 
+#%%
 
 
+off_id = 0 
 
-# off_id = 2 
+plt.figure(figsize=(6, 10), facecolor="white")
+plt.title('Time-shift')
+plt.plot(binv_SLD_TS_fwi_total[off_id],at,c='tab:orange')
+plt.plot(badj_SLD_TS_fwi_total[off_id],at,c='tab:blue')
+plt.axhline(p_inv.tt_[out_idx[off_id]],c='tab:orange',ls='--')
+plt.axhline(p_adj.tt_[out_idx[off_id]],c='tab:blue',ls='--')
+plt.xlim(-0.5,4)
+plt.ylim(at[-1],at[0])
 
-# plt.figure(figsize=(6, 10), facecolor="white")
-# plt.plot(binv_SLD_TS_fwi_total[off_id],at,c='tab:orange')
-# plt.plot(badj_SLD_TS_fwi_total[off_id],at,c='tab:blue')
-# plt.axhline(p_inv.tt_[out_idx[off_id]],c='tab:orange',ls='--')
-# plt.axhline(p_adj.tt_[out_idx[off_id]],c='tab:blue',ls='--')
-# plt.xlim(-0.5,4)
-# plt.ylim(at[-1],at[0])
+
+plt.plot(ts0,tt0)
 
 
-# tr_binv_fwi_org_off = trace_from_rt(off_id,gather_path_fwi_org,p_inv)
-# tr_binv_fwi_45_off = trace_from_rt(off_id,gather_path_fwi45,p_inv)
+tr_binv_fwi_org_off = trace_from_rt(off_id,gather_path_fwi_org,p_inv)
+tr_binv_fwi_45_off = trace_from_rt(off_id,gather_path_fwi45,p_inv)
 
-# visualisation.overlay(tr_binv_fwi_org_off,tr_binv_fwi_45_off,si=p_inv.dt_,
-#                   legend=["QTV", "STD"],
-#                   fontsize = 14,figsize=(5,10)) 
-# plt.axhline(p_inv.tt_[off_id]*1000,c='k')
-# plt.xlim(-0.05,0.05)
+visualisation.overlay(tr_binv_fwi_org_off,tr_binv_fwi_45_off,si=p_inv.dt_,
+                  legend=["QTV", "STD"],
+                  fontsize = 14,figsize=(5,10)) 
+plt.axhline(p_inv.tt_[off_id]*1000,c='k')
+plt.xlim(-0.05,0.05)
 
 

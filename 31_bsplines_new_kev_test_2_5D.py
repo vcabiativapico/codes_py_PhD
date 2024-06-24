@@ -1220,11 +1220,8 @@ def interp1d(Dataset,Param_Input,limite = 100):
 # %%
 
 # path = 'C:/Users/Kevin/SpotLight/SpotLighters - Documents/SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Demigration_SpotLight_Septembre2023/Demigration_Victor/'
-# file = '../input/27_marm/marm2_sm15.dat'
-
-# file = '../input/45_marm_ano_v3/fwi_sm.dat'
-file = '../input/50_ts_model/marmousi_ano_sm.dat'
-
+file = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
+file = '../input/45_marm_ano_v3/fwi_betap_ano.dat'
 
 INL_step = 200 
 XL_step = 12.00   
@@ -1270,7 +1267,7 @@ x_spline = np.arange(601)*12.00
 z_spline = np.arange(len(d_interp))*5
                     
 plt.figure(figsize=(16,8))
-plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
+plt.imshow(Vit_model1.T,vmin=1500,vmax=4500,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
 plt.colorbar()
 # plt.gca().invert_yaxis()
 
@@ -1308,9 +1305,9 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/050_Param_marm_smooth_ano.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_betap_marm_Param_marm_smooth_ano.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/050_Weights_marm_2p5D_smooth_ano.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_betap_marm_Weights_marm_2p5D_smooth_ano.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 
@@ -1321,7 +1318,9 @@ np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/0
 
 
 
-file_pick = '../input/40_marm_ano/badj_mig_pick_smooth.csv'
+file_pick = '../input/40_marm_ano/binv_mig_pick_smooth.csv'
+# file_pick = '../../../../Demigration_SpotLight_Septembre2023/input/041_marm2_slope/hz_inv.csv'
+
 
 data_horizon = [] 
 with open(file_pick, newline='') as csvfile:
@@ -1331,7 +1330,7 @@ with open(file_pick, newline='') as csvfile:
 data_horizon = np.array(data_horizon)
 
 
-Weights_hz = -interp1d(data_horizon, Param_Input)
+Weights_hz = interp1d(data_horizon, Param_Input)
 
 Weights_2D_mat_hz = Weights_hz[np.newaxis,:]*np.ones(M)[:,np.newaxis]*2/3
 
@@ -1340,9 +1339,9 @@ Weight_2D_inline = Weights_2D_mat_hz.reshape(M*N)
 plt.figure()
 plt.plot(Weight_2D_inline)
 
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/.csv', Param_Exit, fmt='%f',delimiter=",")   
+# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/test.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_weights_hz_marm_badj_smpick.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
+# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/042_weights_hz_pick_inv_slope.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
 
 
 # %% Visualisations 
@@ -1351,17 +1350,11 @@ plt.plot(Weight_2D_inline)
 import tqdm
 
 
-# Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
-# Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
-
-Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Param_marm_smooth.csv'
-Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Weights_marm_2p5D_smooth.csv'
-
+Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
+Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
 
 file = '../input/27_marm/marm2_sm15.dat'
 
-# file = '../input/45_marm_ano_v3/fwi_sm.dat'
-# 
 
 
 Parameters,Weights = load_weight_model(Param_File, Weight_File)
@@ -1437,27 +1430,22 @@ grad_x = []
 grad_y = []
 grad_z = []
 
-
 for y in y_line:
     
-    vitesse,grad = Vitesse(y,4000,-1000,Parameters,Weights)
+    vitesse,grad = Vitesse(4000,y,-1000,Parameters,Weights)
     
     test_y.append(vitesse)
     grad_x.append(grad[0])
     grad_y.append(grad[1])
     grad_z.append(grad[2])
     
-    
-plt.rcParams['font.size'] = 30
 plt.figure(figsize=(16,12))
-plt.plot(y_line,test_y,linewidth=4)
-plt.xlabel('Y (m)') 
-plt.ylabel('Vitesse (m/s)') 
+plt.plot(y_line,test_y)
+plt.xlabel('Y (m)',fontsize=25) 
+plt.ylabel('Vitesse (m/s)',fontsize=25) 
 plt.yticks(fontsize=25)
 plt.xticks(fontsize=25)
-plt.title('Test selon axe y')    
-plt.ylim(2540.060,2540.062)
-
+plt.title('Test selon axe y',fontsize=25)    
 
 # plt.figure(figsize=(16,12))
 # plt.plot(y_line,test_y)
@@ -1469,14 +1457,14 @@ plt.ylim(2540.060,2540.062)
 # plt.title('Test selon axe y (zoom)',fontsize=18)
 
 
-plt.rcParams['font.size'] = 30
-plt.figure(figsize=(16,12))
-plt.plot(y_line,grad_x,linewidth=4)
-plt.xlabel('Y (m)') 
-plt.ylabel('Gradient de vitesse') 
 
-plt.title('Test selon axe y (gradient en x)')
-plt.ylim(-4.22e-09,-4.245e-09)
+plt.figure(figsize=(16,12))
+plt.plot(y_line,grad_x)
+plt.xlabel('Y (m)',fontsize=18) 
+plt.ylabel('Gradient de vitesse',fontsize=18) 
+plt.xticks(fontsize=18)
+plt.xticks(fontsize=18)
+plt.title('Test selon axe y (gradient en x)',fontsize=18)
 
 plt.figure(figsize=(16,12))
 plt.plot(y_line,grad_y)
@@ -1600,3 +1588,7 @@ plt.ylabel('Gradient de vitesse',fontsize=18)
 plt.xticks(fontsize=18)
 plt.xticks(fontsize=18)
 plt.title('Test selon axe z (gradient en z)',fontsize=18)
+
+
+
+
