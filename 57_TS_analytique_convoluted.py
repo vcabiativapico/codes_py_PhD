@@ -454,10 +454,11 @@ plt.figure(figsize=(6,10))
 plt.plot(convol_time_org[:-nws+1],-ray_time_org[:half_idx])
 plt.plot(convol_time_ano[:-nws+1],-ray_time_ano[:half_idx])
 
+#%%
+oplen = 200
 
-SLD_TS = procs.sliding_TS(convol_time_org[:-nws+1],convol_time_ano[:-nws+1],oplen= 250,si=0.002, taper= 30)
+SLD_TS = procs.sliding_TS(convol_time_org[:-nws+1],convol_time_ano[:-nws+1],oplen= oplen,si=0.002, taper= 30)
 
-''''''
 
 file = '../time_shift_theorique.csv'
 ts_theorique = [np.array(read_pick(file,0)),np.array(read_pick(file,1))]
@@ -471,13 +472,20 @@ gather_path_fwi45 = '../output/45_marm_ano_v3/ano_114_perc_1801TL'
 tr_binv_fwi_org = trace_from_rt(0,gather_path_fwi_org,p_inv)
 tr_binv_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_inv)
 
-binv_SLD_TS_fwi = procs.sliding_TS(tr_binv_fwi_org,tr_binv_fwi_45,oplen= 250,si=p_inv.dt_, taper= 30)
+tr_badj_fwi_org = trace_from_rt(0,gather_path_fwi_org,p_adj)
+tr_badj_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_adj)
+
+
+badj_SLD_TS_fwi = procs.sliding_TS(tr_badj_fwi_org,tr_badj_fwi_45,oplen= oplen,si=p_adj.dt_, taper= 30)
+binv_SLD_TS_fwi = procs.sliding_TS(tr_binv_fwi_org,tr_binv_fwi_45,oplen= oplen,si=p_inv.dt_, taper= 30)
 
 plt.figure(figsize=(6,10))
-plt.plot(SLD_TS,ray_time_org[:half_idx]-ft,c='tab:blue')
+plt.plot(SLD_TS,ray_time_org[:half_idx]-ft,c='tab:purple')
 plt.plot(ts_theorique[0],ts_theorique[1],c='tab:green')
 plt.title('Sliding time-shift vs time')
-plt.plot(binv_SLD_TS_fwi,p_inv.at_,c='tab:orange',label='TS from traces')
+plt.plot(binv_SLD_TS_fwi,p_inv.at_,c='tab:orange',label='QTV')
+plt.plot(badj_SLD_TS_fwi,p_adj.at_,c='tab:blue',label='STD')
+plt.legend()
 plt.gca().invert_yaxis()
 
 
