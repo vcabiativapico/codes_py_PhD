@@ -47,7 +47,7 @@ ay = fy + np.arange(ny)*dy
 
 def plot_model(inp,hmin,hmax):
     plt.rcParams['font.size'] = 16
-    fig = plt.figure(figsize=(10,5), facecolor = "white")
+    fig = plt.figure(figsize=(16,4), facecolor = "white")
     av  = plt.subplot(1,1,1)
     hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
                       vmin=hmin,vmax=hmax,aspect=1\
@@ -227,7 +227,6 @@ def trace_from_rt(diff_ind_max,gather_path,p):
     fin_trace = interpolate_src_rec(nb_traces,nb_gathers,p.at_,p.ao_,inp3,p.off_x_,p.src_x_,p.do_,p.dx_,diff_ind_max)    
     return fin_trace
 
-#%%
 def vel_in_raypath(Param,Weight,ray_x,ray_z):
     
     
@@ -263,7 +262,7 @@ def defwsrc(fmax, dt, lent,nws):
     else: 
         print('Wavelet length is odd = ' + str(len(wsrc))+ '. No correction needed' )
     return wsrc
-
+#%%
 gen_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/'
 
 
@@ -315,6 +314,13 @@ p_inv = Param_class(path_inv)
 fl1 = '../input/45_marm_ano_v3/fwi_org.dat'
 fl2 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
 
+
+fl1='../input/45_marm_ano_v3/fwi_sm.dat'
+fl2 = '../input/50_ts_model/marmousi_ano_sm.dat'
+
+
+
+
 inp_org = gt.readbin(fl1,nz,nx)
 inp_ano = gt.readbin(fl2,nz,nx)
 
@@ -324,20 +330,44 @@ inp_ano = gt.readbin(fl2,nz,nx)
 path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/052_TS_deep/depth_demig_out/052_TS_analytique_deep_2024-06-20_12-02-07/rays/ray_0.csv'
 ray_x = np.array(read_results(path_ray, 0))
 ray_z = np.array(read_results(path_ray, 2))
+ray_tt = np.array(read_results(path_ray, 8))
 
+half_idx = len(ray_x)//2
 hmin = 1.5
 hmax = 4.5
 %matplotlib inline
-fig2 = plot_model(inp_org,hmin,hmax)
+# %matplotlib qt5
+
+spot_x = 3366.6
+spot_z = 1024.3
+
+spot_x = p_inv.spot_x_[0]
+spot_z = -p_inv.spot_z_[0]
+
+plot_model(inp_org,hmin,hmax)
+plt.scatter(spot_x/1000,spot_z/1000,c='w',s=1)
+
+
 fig1 = plot_model(inp_ano,hmin,hmax)
 plt.plot(ray_x/1000,-ray_z/1000,'-')
+plt.scatter(spot_x/1000,spot_z/1000,c='w',s=1)
+
+
+idx_tt_x = find_nearest(ray_x[:half_idx], spot_x)[1]
+idx_tt_z = find_nearest(ray_z[:half_idx], -spot_z)[1]
+
+idx_tt = (idx_tt_x + idx_tt_z)//2
+
+tt_at_spot = ray_tt[idx_tt]*2
+
+
 
 '''Read the bsplines'''
-Param_vel_org = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Param_marm_smooth.csv'
-Weight_vel_org = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Weights_marm_2p5D_smooth.csv'
+Param_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Param_marm_smooth.csv'
+Weight_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Weights_marm_2p5D_smooth.csv'
 
-Param_vel_ano = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Param_marm_smooth_ANO.csv'
-Weight_vel_ano = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Weights_marm_2p5D_smooth_ANO.csv'
+Param_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Param_marm_smooth_ANO.csv'
+Weight_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Weights_marm_2p5D_smooth_ANO.csv'
 
 Param_betap_org = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_betap_marm_Param_marm_smooth_org.csv'
 Weight_betap_org = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_betap_marm_Weights_marm_2p5D_smooth_org.csv'
@@ -347,8 +377,8 @@ Weight_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/Demigration_
 
 
 '''Extract velocity values from the full model'''
-vel_ray_org = vel_in_raypath(Param_vel_org, Weight_vel_org, ray_x, ray_z)
-vel_ray_ano = vel_in_raypath(Param_vel_ano, Weight_vel_ano, ray_x, ray_z)
+vel_ray_org = vel_in_raypath(Param_vel_org_sm, Weight_vel_org_sm, ray_x, ray_z)
+vel_ray_ano = vel_in_raypath(Param_vel_ano_sm, Weight_vel_ano_sm, ray_x, ray_z)
 
 betap_ray_org= vel_in_raypath(Param_betap_org, Weight_betap_org, ray_x, ray_z)
 betap_ray_ano= vel_in_raypath(Param_betap_ano, Weight_betap_ano, ray_x, ray_z)
@@ -356,15 +386,8 @@ betap_ray_ano= vel_in_raypath(Param_betap_ano, Weight_betap_ano, ray_x, ray_z)
 x_disc = np.arange(601)*12.00
 z_disc = np.arange(151)*12.00
 
-half_idx = len(ray_x)//2
 
-plt.figure(figsize=(6,10))
-plt.plot(vel_ray_org[:half_idx],ray_z[:half_idx]/1000)
-plt.plot(vel_ray_ano[:half_idx],ray_z[:half_idx]/1000)
-plt.title('velocity or amplitude value vs depth')
-
-
-
+''' Creation de l'ondelette source '''
 # Parameters of the analytical source wavelet
 nws = 143
 fmax = 25
@@ -373,118 +396,169 @@ nt_len = int((nt2+1) * 2)
 wsrc_org = defwsrc(fmax, dt,0,nws)
 nws2 = nws//2
 
-def depth_to_time(ray_z,ray_x,vel_ray):
-    ray_time = []
-    dz =[]
-    v0 =[]
-    time =[0]
+plt.figure(figsize=(6,10))
+plt.plot(wsrc_org)
+
+
+# def depth_to_time(ray_z,ray_x,vel_ray):
+#     '''Transform profile from depth to time using the velocity '''
+#     ray_time = []
+#     dz =[]
+#     v0 =[]
+#     time =[0]
+#     dz0 =[]
+#     for i in range(len(ray_x)//2-1):
+#         dz = np.sqrt((ray_z[i] - ray_z[i+1])**2 + (ray_x[i] - ray_x[i+1])**2)
+#         v0 = (vel_ray[i]+vel_ray[i+1])/2
+#         time.append(dz/v0)
+#         print('dz: ',dz,'v0: ',v0,'time: ',time[-1]*2)
+#     ray_time = np.cumsum(time) 
     
-    for i in range(len(ray_x)-1):
-        dz = np.sqrt((ray_z[i] - ray_z[i+1])**2 + (ray_x[i] - ray_x[i+1])**2)
-        v0 = (vel_ray[i]+vel_ray[i+1])/2
-        time.append(dz*2/v0)
-        
-    ray_time = np.cumsum(time) 
-    
-    ray_time = np.array(ray_time)
-    return ray_time
+#     ray_time = np.array(ray_time)*2
+#     return ray_time
 
-
-ray_time_org = depth_to_time(ray_z,ray_x,vel_ray_org)
-ray_time_ano = depth_to_time(ray_z,ray_x,vel_ray_ano)
-
-plt.figure(figsize=(6,10))
-plt.plot(vel_ray_org[:half_idx],-ray_time_org[:half_idx])
-plt.plot(vel_ray_ano[:half_idx],-ray_time_ano[:half_idx])
-plt.title('velocity or amplitude value vs depth')
-
-plt.figure(figsize=(6,10))
-plt.plot(vel_ray_org[:half_idx]-vel_ray_ano[:half_idx],-ray_time_ano[:half_idx])
-
-
-# '''Convolution padded'''
-# wsrc_padded = np.pad(wsrc_org, (0, len(betap_ray_org) - 1), 'constant')
-# betap_ray_org_padded = np.pad(betap_ray_org, (0, len(wsrc_org) - 1), 'constant')
-# betap_ray_ano_padded = np.pad(betap_ray_org, (0, len(wsrc_org) - 1), 'constant')
-
-# conv_pad_org = np.convolve(wsrc_padded, betap_ray_org_padded)
-# conv_pad_ano = np.convolve(wsrc_padded, betap_ray_ano_padded)
-# plt.figure(figsize=(6,10))
-# plt.plot(conv_pad_org)
-# plt.plot(conv_pad_ano)
-
-
-# '''fft convolution'''
-
-# N = len(betap_ray_org[:half_idx])
-# H = np.fft.fft(wsrc_org, N)
-# X = np.fft.fft(betap_ray_org[:half_idx])
-# Y_circular = np.fft.ifft(X * H)
-# plt.plot(Y_circular)
-
-# def fft_convolution(x,h):
-#     N = len(x)
-#     H = np.fft.fft(h, N)
-#     X = np.fft.fft(x)
-#     Y_circular = np.fft.ifft(X * H)
-#     return Y_circular
-
-# conv_fft_org = fft_convolution(betap_ray_org[:half_idx], wsrc_org)
-# conv_fft_ano = fft_convolution(betap_ray_ano[:half_idx], wsrc_org)
-
-# plt.plot(conv_fft_org)
-# plt.plot(conv_fft_ano)
-
-'''std convolution'''
-
-convol_time_org = np.convolve(betap_ray_org[:half_idx], wsrc_org)
-convol_time_ano = np.convolve(betap_ray_ano[:half_idx], wsrc_org)
-
-# plt.figure(figsize=(6,10))
-# plt.plot(convol_time_org)
-# plt.plot(convol_time_ano[:-nws+1])
-
-# # plt.plot(conv_fft_org)
-# # plt.plot(conv_fft_ano)
-# # plt.gca().invert_yaxis()
-# plt.title('velocity or amplitude value vs depth')
-
-
-plt.figure(figsize=(6,10))
-plt.plot(convol_time_org[:-nws+1],-ray_time_org[:half_idx])
-plt.plot(convol_time_ano[:-nws+1],-ray_time_ano[:half_idx])
-
-#%%
-oplen = 200
-
-SLD_TS = procs.sliding_TS(convol_time_org[:-nws+1],convol_time_ano[:-nws+1],oplen= oplen,si=0.002, taper= 30)
 
 
 file = '../time_shift_theorique.csv'
 ts_theorique = [np.array(read_pick(file,0)),np.array(read_pick(file,1))]
 
 
+plt.figure(figsize=(6,10))
+plt.plot(vel_ray_org[:half_idx],ray_z[:half_idx]/1000,'.')
+plt.plot(vel_ray_ano[:half_idx],ray_z[:half_idx]/1000,'.')
+plt.title('velocity or amplitude value vs depth')
+# plt.ylim(-0.9,-1.1)
+
+
+ray_time_org = depth_to_time(ray_z,ray_x,vel_ray_org)
+ray_time_ano = depth_to_time(ray_z,ray_x,vel_ray_ano)
+
+# ray_time_org = ray_tt[:half_idx]*2
+# ray_time_ano = ray_tt[:half_idx]*2
+
+
+'''Interpolation using betap'''
+
+f = interpolate.interp1d(ray_time_org,-betap_ray_org[:half_idx],kind='cubic')
+ray_time_org_int = np.arange(0, np.max(ray_time_org),dt)
+betap_ray_org_int = f(ray_time_org_int)
+
+
+
+f = interpolate.interp1d(ray_time_ano,-betap_ray_ano[:half_idx],kind='cubic')
+ray_time_ano_int = np.arange(0, np.max(ray_time_ano),dt)
+betap_ray_ano_int = f(ray_time_ano_int)
+
+plt.figure(figsize=(6,10))
+plt.plot(-betap_ray_org[:half_idx],ray_z[:half_idx]/1000)
+plt.plot(-betap_ray_ano[:half_idx],ray_z[:half_idx]/1000)
+
+plt.title('velocity or amplitude value vs depth')
+plt.ylabel('depth (s)')
+
+plt.figure(figsize=(6,10))
+plt.plot(betap_ray_org_int,-ray_time_org_int)
+plt.plot(betap_ray_ano_int,-ray_time_ano_int)
+plt.axhline(-tt_at_spot,c='tab:green')
+plt.title('velocity or amplitude value vs time ')
+plt.ylabel('time (s)')
+
+'''std convolution'''
+
+
+convol_time_ano = np.convolve(betap_ray_ano_int, wsrc_org,mode='same')
+convol_time_org = np.convolve(betap_ray_org_int, wsrc_org,mode='same')[:len(convol_time_ano)]
+
+plt.figure(figsize=(6,12))
+plt.plot(convol_time_org,-ray_time_org_int[:len(convol_time_ano)],label='org')
+plt.plot(convol_time_ano,-ray_time_ano_int,label='ano')
+# plt.axhline(-p_inv.tt_[0],c='tab:green')
+plt.axhline(-tt_at_spot,c='tab:green')
+plt.ylim(-ray_time_ano_int[-1],-ft)
+plt.title('Traces from theoretical migration')
+plt.ylabel('time (s)')
+plt.legend()
+
+
+# '''Using velocity'''
+# f = interpolate.interp1d(ray_time_org,vel_ray_org[:half_idx],kind='cubic')
+# ray_time_org_int = np.arange(0, np.max(ray_time_org),dt)
+# vel_ray_org_int = f(ray_time_org_int)
+
+# f = interpolate.interp1d(ray_time_org,vel_ray_ano[:half_idx],kind='cubic')
+# ray_time_ano_int = np.arange(0, np.max(ray_time_org),dt)
+# vel_ray_ano_int = f(ray_time_ano_int)
+
+
+# plt.figure(figsize=(6,10))
+# plt.plot(vel_ray_org_int,-ray_time_org_int)
+# plt.plot(vel_ray_ano_int,-ray_time_ano_int)
+# plt.title('velocity or amplitude value vs time')
+
+
+# plt.figure(figsize=(6,10))
+# plt.plot(vel_ray_org_int-vel_ray_ano_int,-ray_time_ano_int)
+
+
+
+
+#%%
+oplen = 500
+
+
+# SLD_TS = procs.sliding_TS(convol_time_org[:-nws+1],convol_time_ano[:-nws+1],oplen= oplen,si=0.002, taper= 30)
+SLD_TS = procs.sliding_TS(convol_time_org,convol_time_ano,oplen= oplen,si=dt, taper= 30)
+
+
 '''Read modelled traces time-shift'''
 
+
+gather_path_fwi_org = '../output/40_marm_ano/binv_ano'
+gather_path_fwi45 = '../output/40_marm_ano/binv_ano'
+
+nt = 1801
+at = ft + np.arange(nt)*dt
 gather_path_fwi_org = '../output/45_marm_ano_v3/org_1801TL'
 gather_path_fwi45 = '../output/45_marm_ano_v3/ano_114_perc_1801TL'
 
-tr_binv_fwi_org = trace_from_rt(0,gather_path_fwi_org,p_inv)
-tr_binv_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_inv)
 
-tr_badj_fwi_org = trace_from_rt(0,gather_path_fwi_org,p_adj)
-tr_badj_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_adj)
+idx_src = find_nearest(ax, p_inv.src_x_[0]/1000)[1]
 
 
-badj_SLD_TS_fwi = procs.sliding_TS(tr_badj_fwi_org,tr_badj_fwi_45,oplen= oplen,si=p_adj.dt_, taper= 30)
-binv_SLD_TS_fwi = procs.sliding_TS(tr_binv_fwi_org,tr_binv_fwi_45,oplen= oplen,si=p_inv.dt_, taper= 30)
+fl_org = gather_path_fwi_org+'/t1_obs_000'+str(idx_src)+'.dat'
+fl_ano = gather_path_fwi45+'/t1_obs_000'+str(idx_src)+'.dat'
 
-plt.figure(figsize=(6,10))
-plt.plot(SLD_TS,ray_time_org[:half_idx]-ft,c='tab:purple')
+tr_binv_fwi_org = -gt.readbin(fl_org, no, nt).transpose()[:,125]
+tr_binv_fwi_45  = -gt.readbin(fl_ano, no, nt).transpose()[:,125]
+  
+
+
+
+diff = tr_binv_fwi_org-tr_binv_fwi_45
+
+
+%matplotlib inline
+# %matplotlib qt5
+
+plt.figure(figsize=(6,12))
+plt.plot(tr_binv_fwi_org,at)
+plt.plot(tr_binv_fwi_45,at)
+# plt.plot(diff,p_inv.at_)
+plt.axhline(tt_at_spot,c='tab:green')
+plt.xlim(-0.05,0.05)
+plt.ylim(ft,ray_time_ano_int[-1])
+plt.gca().invert_yaxis()
+
+# badj_SLD_TS_fwi = procs.sliding_TS(tr_badj_fwi_org,tr_badj_fwi_45,oplen= oplen,si=p_adj.dt_, taper= 30)
+binv_SLD_TS_fwi = procs.sliding_TS(tr_binv_fwi_org,tr_binv_fwi_45,oplen= oplen,si=dt, taper= 30)
+
+
+plt.figure(figsize=(6,12))
+plt.plot(SLD_TS,ray_time_ano_int,c='tab:purple')
 plt.plot(ts_theorique[0],ts_theorique[1],c='tab:green')
 plt.title('Sliding time-shift vs time')
-plt.plot(binv_SLD_TS_fwi,p_inv.at_,c='tab:orange',label='QTV')
-plt.plot(badj_SLD_TS_fwi,p_adj.at_,c='tab:blue',label='STD')
+plt.plot(binv_SLD_TS_fwi,at,c='tab:orange',label='QTV')
+# plt.plot(badj_SLD_TS_fwi,at,c='tab:blue',label='STD')
 plt.legend()
 plt.gca().invert_yaxis()
 

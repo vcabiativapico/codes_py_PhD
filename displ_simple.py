@@ -372,14 +372,14 @@ if __name__ == "__main__":
         hmax = 2.05
         hmin = 2.0
         hmin = np.min(inp)
-        hmax = -hmin
-        # hmax = np.max(inp)
+        # hmax = -hmin
+        hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+                              vmin=hmin, vmax=hmax, aspect='auto')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -422,7 +422,11 @@ if __name__ == "__main__":
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     
-    fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
+    # fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
+    fl1='../input/45_marm_ano_v3/fwi_org.dat'
+    fl1='../input/45_marm_ano_v3/fwi_sm.dat'
+    fl1 = '../input/50_ts_model/marmousi_ano_sm.dat'
+
     # fl1 = '../output/dbetap_exact.dat'
     # fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
     # fl1 = '../output/40_marm_ano/binv/abetap.dat'
