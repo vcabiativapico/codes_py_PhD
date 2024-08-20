@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 import geophy_tools as gt
 from scipy.interpolate import interpolate
 import csv
-from wiggle.wiggle import wiggle
+# from wiggle.wiggle import wiggle
 from spotfunk.res import procs,visualisation
 import pandas as pd
 import os
-from shapely.geometry import Point, Polygon
+# from shapely.geometry import Point, Polygon
 import sympy as sp
 import sympy.plotting as syp
 import json
@@ -135,16 +135,53 @@ def write_json_file(json_file,out_path, input_val,z_value,table):
         json.dump(data, file, indent=4)
     return data
 
-path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/'
+
+def plot_mig_image(inp,ax,az):
+    hmax = np.max(inp)
+    hmin = np.min(inp)
+    fig = plt.figure(figsize=(15,7), facecolor = "white")
+    av  = plt.subplot(1,1,1)
+    # hfig = av.imshow(inp[50:100,200:350], vmin=hmin,vmax=hmax,extent=[ax[200], ax[350], az[100], az[50]],aspect='auto')
+    hfig = av.imshow(inp, vmin=hmin,vmax=hmax,extent=[ax[0], ax[-1], az[-1], az[0]],aspect='auto')
+    plt.colorbar(hfig)
+#%%   
+path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/056_correct_TS_deep/'
 # json_file = path+'050_TS_analytique/to_input'
 # out_path= path+'050_TS_analytique/050_TS_analytique'
 
-json_file = path+'050_TS_analytique_ano/to_input'
-out_path= path+'050_TS_analytique_ano/050_TS_analytique_ano'
+json_file = path+'to_input'
+out_path= path
 
-#%%
+
+
+# Global parameters
+labelsize = 16
+nt = 1801
+dt = 1.41e-3
+ft = -100.11e-3
+nz = 151
+fz = 0.0
+dz = 12.0/1000.
+nx = 601
+fx = 0.0
+dx = 12.0/1000.
+no = 251
+# no        = 2002
+do = dx
+fo = -(no-1)/2*do
+ao = fo + np.arange(no)*do
+at = ft + np.arange(nt)*dt
+az = fz + np.arange(nz)*dz
+ax = fx + np.arange(nx)*dx
+# ## Add y dimension    
+fy = -500 
+ny = 21
+dy = 50
+ay = fy + np.arange(ny)*dy
+
+
 '''Read the raypath'''
-path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/046_37_35_degrees_sm8/depth_demig_out/QTV/rays/ray_0.csv'
+path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/054_TS_deeper/depth_demig_out/050_TS_analytiquedeep_2024-07-02_15-30-30/rays/ray_0.csv'
 ray_x = np.array(read_results(path_ray, 0))
 ray_z = np.array(read_results(path_ray, 2))
 vp =  np.array(read_results(path_ray, 6))
@@ -165,41 +202,45 @@ d_values = []
 dict_input = []
 spot_x = []
 spot_z = []
-# for i in range(4,len(ray_z_in_poly[:5])):
-for i in range(1,17):
-    
-    pt_inv1, pt_inv2, pt_inv3 = calculate_slope(39, ray_x_in_poly[i],ray_z_in_poly[i], plot=True)
-    d_val = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1]
-    norm = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3,plot=True)[0]
-    normales.append(norm)
-    d_values.append(d_val)
-    dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,norm,d_val))
-    
-    table_input = [ray_x_in_poly[i],0,0,0.01]
-    spot_x.append(-(dict_input[-1]['c']*ray_z_in_poly[i]+dict_input[-1]['d'])/dict_input[-1]['a'])
-    spot_z.append(-(dict_input[-1]['a']*ray_x_in_poly[i]+dict_input[-1]['d'])/dict_input[-1]['c'])
-    print(ray_z_in_poly[i],spot_z[-1])
-    # df = pd.DataFrame(table_input).T
-    # df.to_csv(out_path+str(i)+'_table.csv',header=False,index=False)
-    
-    # write_json_file(json_file, out_path+str(i),dict_input[-1],ray_z_in_poly[0],'050_TS_analytique_ano'+str(i)+'_table.csv')
 
 
+# 3510.0	0.0	-980.966892484581
 
-ray_x_in_poly,ray_z_in_poly = 3510,-1210
+%matplotlib inline
+# %matplotlib qt5
 
-pt_inv1, pt_inv2, pt_inv3 = calculate_slope(39,ray_x_in_poly,ray_z_in_poly, plot=True)
+# ray_x_in_poly,ray_z_in_poly = 3370,-1072
+
+ray_x_in_poly,ray_z_in_poly = 3644,-1372
+
+degree = 37
+pt_inv1, pt_inv2, pt_inv3 = calculate_slope(degree,ray_x_in_poly,ray_z_in_poly, plot=True)
 d_val = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1]
-norm = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3,plot=True)[0]
+norm = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3,plot=False)[0]
 normales=norm
 d_values=d_val
 dict_input=print_input_values_rt(pt_inv1,pt_inv2,norm,d_val)
 
 table_input = [ray_x_in_poly,0,0,0.01]
+
+table_name = '057_table_offsets.csv'
 spot_x=(-(dict_input['c']*ray_z_in_poly+dict_input['d'])/dict_input['a'])
 spot_z=(-(dict_input['a']*ray_x_in_poly+dict_input['d'])/dict_input['c'])
 print(ray_z_in_poly,spot_z)
 df = pd.DataFrame(table_input).T
-df.to_csv(out_path+'deep_table.csv',header=False,index=False)
+# df.to_csv(out_path+table_name,header=False,index=False)
  
-write_json_file(json_file, out_path+'deep',dict_input,-1018.245073,'050_TS_analytique_ano_deep_table.csv')
+# write_json_file(json_file, out_path+'deeper2_'+str(degree),dict_input,-12,table_name)
+
+
+fl1='../input/45_marm_ano_v3/fwi_ano.dat'
+
+inp_org = gt.readbin(fl1,nz,nx)
+
+plt.figure()
+plot_mig_image(inp_org,ax,az)
+# plt.plot(ax,bspline_inv_hz[0:601]/1000)
+plt.scatter(ray_x_in_poly/1000,-ray_z_in_poly/1000)
+plt.plot(np.array([pt_inv1[0],pt_inv2[0]])/1000, np.array([-pt_inv1[2],-pt_inv2[2]])/1000, 'r')
+plt.legend()
+# plt.gca().invert_yaxis()

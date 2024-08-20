@@ -32,7 +32,7 @@ if __name__ == "__main__":
   
 ## Building simple vel and rho models to test modeling
     labelsize = 16
-    nt        = 1001
+    nt        = 1501
     dt        = 2.08e-3
     ft        = -100.11e-3
     nz        = 151

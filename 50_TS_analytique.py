@@ -27,7 +27,7 @@ if __name__ == "__main__":
 # Building simple vel and rho models to test modeling
     labelsize = 16
     nt = 1801
-    dt = 1.41e-3
+    dt = 1.14e-3
     ft = -100.11e-3
     nz = 151
     fz = 0.0
@@ -104,7 +104,7 @@ class Param_class:
         self.off_x_ = read_results(path,16)
         self.tt_ = read_results(path,17)
         self.nt_ = 1801
-        self.dt_ = 1.41e-3
+        self.dt_ = 1.14e-3
         self.ft_ = -100.11e-3
         self.nz_ = 151
         self.fz_ = 0.0
@@ -326,11 +326,16 @@ def interpolate_src_rec(nb_traces,nb_gathers,at,ao,inp3,off_x,src_x,do,dx,diff_i
 '''Read the velocity model '''
 fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
 fl2 = '../input/45_marm_ano_v3/fwi_org.dat'
+
+# 
+
 inp1 = gt.readbin(fl1,nz,nx)
 inp2 = gt.readbin(fl2,nz,nx)
 
 '''Read the raypath'''
-path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/046_37_35_degrees_sm8/depth_demig_out/QTV/rays/ray_0.csv'
+# path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/046_37_35_degrees_sm8/depth_demig_out/QTV/rays/ray_0.csv'
+path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_sm8_correction_new_solver/QTV/depth_demig_out/QTV/rays/ray_0.csv' 
+
 ray_x = np.array(read_results(path_ray, 0))
 ray_z = np.array(read_results(path_ray, 2))
 vp =  np.array(read_results(path_ray, 6))
@@ -382,22 +387,38 @@ plt.ylim(1.16,0.95)
 plt.xlim(3.2,3.5)
 
 
-idx_in_poly = []
+picked_start_depth = 1020 # selected from the polygon plot 
 
-for i,k in enumerate(ray_z):
-    if k < -1018:
-        idx_in_poly.append(i)
-ray_x_in_poly = ray_x[idx_in_poly]
-ray_z_in_poly = ray_z[idx_in_poly]
-tt_in_poly = tt[idx_in_poly]
 
-arg_deep_point_in_poly = np.argmin(ray_z_in_poly)
+def attr_in_poly(ray_z): 
+    idx_in_poly = []
+    for i,k in enumerate(ray_z):
+        if k < -picked_start_depth:
+            idx_in_poly.append(i)
+    ray_x_in_poly = ray_x[idx_in_poly]
+    ray_z_in_poly = ray_z[idx_in_poly]
+    tt_in_poly = tt[idx_in_poly]
+    return tt_in_poly, idx_in_poly,ray_x_in_poly,ray_z_in_poly
+
+# idx_in_poly = []
+
+# for i,k in enumerate(ray_z):
+#     if k < -picked_start_depth:
+#         idx_in_poly.append(i)
+# ray_x_in_poly = ray_x[idx_in_poly]
+# ray_z_in_poly = ray_z[idx_in_poly]
+# tt_in_poly = tt[idx_in_poly]
+
+tt_in_poly, idx_in_poly, ray_x_in_poly,ray_z_in_poly= attr_in_poly(ray_z)
+
+arg_deep_point_in_poly = np.argmin(tt_in_poly)
 
 
 # Plot the polygon
 plt.figure(figsize=(12, 12))
 plt.scatter(np.array(y)*0.012, np.array(x)*0.012)
 plt.scatter(ray_x_in_poly/1000,-ray_z_in_poly/1000, c='k',s=1.5)
+plt.scatter(p_inv.spot_x_[0]/1000,-p_inv.spot_z_[0]/1000)
 plt.axhline(1.018)
 plt.title("Polygon Plot")
 plt.xlabel("x")
@@ -406,54 +427,6 @@ plt.grid(True)
 plt.ylim(1.16,0.95)
 plt.xlim(3.2,3.5)
 
-
-
-'''Pick the anomaly values '''
-# pick_adj = pick_interface_model(inp_blank,ray_x,ray_z,pick_hz_badj,nx,nz)
-# %matplotlib inline
-# plt.plot(pick_adj[1]*12,pick_adj[0]*12,'.')
-
-# import pandas as pd
-# df = pd.DataFrame(pick_adj)
-# df.to_csv('../input/45_marm_ano_v3/pick_anomaly_crossing_with_ray.csv',header=False,index=False)
-
-
-
-# thickness = calculate_thickness(pick_adj)
-
-# plot_model(inp1-inp2)
-# plt.plot(pick_adj[1]*0.012,pick_adj[0]*0.012,'.')
-# plt.scatter(ray_x/1000,-ray_z/1000, c='k',s=0.1)
-
-# idx_half_thick = np.shape(inp_index)[1]//2
-
-# vel1 = procs.RMS_calculator(inp1[tuple(inp_index[:idx_half_thick])])*1000
-# vel2 = procs.RMS_calculator(inp2[tuple(inp_index)])*1000
-
-
-# t0_org = 2 * (thickness/2) / vel1
-# t0_ano = 2 * (thickness/2) / vel2
-
-# t1_org = 2 * thickness / vel1
-# t1_ano = 2 * thickness / vel2
-
-# ts0 = (t0_ano - t0_org)*1000
-# ts1 = (t1_ano - t1_org)*1000
-
-# tt0 = tt_in_poly[len(tt_in_poly)//2]
-# tt1 = max(tt_in_poly)
-
-# ts_table = [0,0,ts0,ts1]
-# tt_table = [0,tt0-1/1000,tt0,tt1]
-
-# plt.figure(figsize=(6,8))
-# plt.plot(ts_table,tt_table)
-# plt.gca().invert_yaxis()
-
-
-# arg_deep_point = np.argmin(ray_z)
-# vp_below =  vp[0:arg_deep_point]
-# vp_below_avg = procs.RMS_calculator(vp_below)
 
 #%%
 
@@ -476,7 +449,7 @@ class Param_class:
         self.off_x_ = read_results(path,16)
         self.tt_ = read_results(path,17)
         self.nt_ = 1801
-        self.dt_ = 1.41e-3
+        self.dt_ = 1.14e-3
         self.ft_ = -100.11e-3
         self.nz_ = 151
         self.fz_ = 0.0
@@ -503,15 +476,10 @@ p_inv = Param_class(path_inv)
 '''Read the velocity model '''
 fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
 fl2 = '../input/45_marm_ano_v3/fwi_org.dat'
+
 inp1 = gt.readbin(fl1,nz,nx)
 inp2 = gt.readbin(fl2,nz,nx)
 
-'''Read the raypath'''
-path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/output/046_37_35_degrees_sm8/depth_demig_out/QTV/rays/ray_0.csv'
-ray_x = np.array(read_results(path_ray, 0))
-ray_z = np.array(read_results(path_ray, 2))
-vp =  np.array(read_results(path_ray, 6))
-tt = np.array(read_results(path_ray, 8))
 
 '''Read velocity model'''
 fl3 = '../input/45_marm_ano_v3/fwi_sm.dat'
@@ -519,36 +487,37 @@ inp3 = gt.readbin(fl3,nz,nx)
 plot_model(inp3)
 plt.scatter(ray_x/1000,-ray_z/1000, c='k',s=0.1)
 
-def modify_velocity_profile(ray_z,arg_deep_point,vp,tt):
+def modify_velocity_profile(ray_z,arg_deep_point,vp,tt,half_idx_in_poly):
     arg_deep_point = np.argmin(ray_z)
     vp_to_spot = vp[:arg_deep_point]
     tt_to_spot = tt[:arg_deep_point]
     
-    vp_cut_org = vp_to_spot
-    vp_cut_ano = np.copy(vp_cut_org)
     
-    vp_cut_ano[idx_in_poly[0:np.size(idx_in_poly)//2]] = vp_cut_org[idx_in_poly[0:np.size(idx_in_poly)//2]]*1.14
+    vp_cut_ano = np.copy(vp_to_spot)
+    
+    vp_cut_ano[half_idx_in_poly] = vp_to_spot[half_idx_in_poly]*1.14
 
-    plt.plot(vp_cut_org,tt_to_spot,'.')
+    plt.plot(vp_to_spot,tt_to_spot,'.')
     plt.plot(vp_cut_ano,tt_to_spot,'.')
     plt.gca().invert_yaxis()
-    return vp_cut_ano, vp_cut_org
+    return vp_cut_ano, vp_to_spot
 
 arg_deep_point = np.argmin(ray_z)
-vp_cut_ano, vp_cut_org = modify_velocity_profile(ray_z,arg_deep_point,vp,tt)
+half_idx_in_poly = idx_in_poly[:len(idx_in_poly)//2-1]
+vp_cut_ano, vp_cut_org = modify_velocity_profile(ray_z,arg_deep_point,vp,tt,half_idx_in_poly)
 
 vel1 = procs.RMS_calculator(vp_cut_org)
 vel2 = procs.RMS_calculator(vp_cut_ano)
 
-vel1_ano = vp_cut_org[idx_in_poly[0:np.size(idx_in_poly)//2]]
-vel2_ano = vp_cut_org[idx_in_poly[0:np.size(idx_in_poly)//2]]*1.14
+vel1_ano = vp_cut_org[half_idx_in_poly]
+vel2_ano = vp_cut_org[half_idx_in_poly]*1.14
 
 plt.figure(figsize=(8, 8), facecolor="white")
 plt.rcParams['font.size'] = 20
 plt.title('Velocity (m/s)')
 plt.plot(vp_cut_org,ray_z[np.arange(len(vp_cut_org))])
-plt.plot(vel1_ano,ray_z[idx_in_poly[0:np.size(idx_in_poly)//2]],label='Original velocity')
-plt.plot(vel2_ano,ray_z[idx_in_poly[0:np.size(idx_in_poly)//2]],label='Modified velocity')
+plt.plot(vel1_ano,ray_z[half_idx_in_poly],label='Original velocity')
+plt.plot(vel2_ano,ray_z[half_idx_in_poly],label='Modified velocity')
 plt.legend()
 plt.ylabel('Depth (m)')
 plt.ylabel('Velocity (m/s)')
@@ -561,22 +530,17 @@ plt.xlim(2200,2900)
 %matplotlib inline
 
 
-distance = calculate_thickness(pick_dist)
+# distance = calculate_thickness(pick_dist)
 
 
-def attr_in_poly(ray_z): 
-    idx_in_poly = []
-    for i,k in enumerate(ray_z):
-        if k < -1018:
-            idx_in_poly.append(i)
-    ray_x_in_poly = ray_x[idx_in_poly]
-    ray_z_in_poly = ray_z[idx_in_poly]
-    tt_in_poly = tt[idx_in_poly]
-    return tt_in_poly, idx_in_poly
 
-tt_in_poly, idx_in_poly = attr_in_poly(ray_z)
-ray_z_ano = ray_z_in_poly[0:np.size(idx_in_poly)//2]
-ray_x_ano = ray_z_in_poly[0:np.size(idx_in_poly)//2]
+
+tt_in_poly, idx_in_poly, ray_x_in_poly,ray_z_in_poly= attr_in_poly(ray_z)
+
+ray_x_in_poly = ray_x[idx_in_poly]
+ray_z_in_poly = ray_z[idx_in_poly]
+ray_z_ano = ray_x[half_idx_in_poly]
+ray_x_ano = ray_z[half_idx_in_poly]
 
 
 thickness_ano =  np.sqrt((ray_z_ano[0]-ray_z_ano)**2 + (ray_x_ano[0]-ray_x_ano)**2)
@@ -585,15 +549,15 @@ t0_org = 2 * (thickness_ano) / vel1_ano
 t0_ano = 2 * (thickness_ano) / vel2_ano
 
 
-out_idx =0
+out_idx = 0
 
 ts0 = (t0_org - t0_ano) * 1000
-t_to_add = tt_in_poly[:len(tt_in_poly)//2]*2
+t_to_add = tt_in_poly[:len(tt_in_poly)//2-1]*2
 
 
 tt0_inv = (t_to_add - tt_in_poly[0]*2) + p_inv.tt_[out_idx] 
 
-
+tt0_inv = t_to_add 
 # tt0_adj = t_to_add + (p_adj.tt_[out_idx] - tt_in_poly[0]*2)
 
 
@@ -606,7 +570,11 @@ ts0 = np.append(ts0, ts0[-1])
 tt0_inv = np.append(tt0_inv, at[-1])
 # tt0_adj = np.append(tt0_adj, at[-1])
 
-
+# Plot the polygon
+plt.figure(figsize=(12, 12))
+plt.scatter(np.array(y)*0.012, np.array(x)*0.012)
+plt.plot(ray_x_in_poly/1000,-ray_z_in_poly/1000)
+plt.gca().invert_yaxis()
 
 
 def trace_from_rt(diff_ind_max,gather_path,p):
@@ -629,8 +597,11 @@ def trace_from_rt(diff_ind_max,gather_path,p):
     return fin_trace
 
 
+
 gather_path_fwi_org = '../output/45_marm_ano_v3/org_1801TL'
 gather_path_fwi45 = '../output/45_marm_ano_v3/ano_114_perc_1801TL'
+
+
 
 tr_binv_fwi_org = trace_from_rt(0,gather_path_fwi_org,p_inv)
 tr_binv_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_inv)
@@ -638,15 +609,15 @@ tr_binv_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_inv)
 tr_badj_fwi_org = trace_from_rt(0,gather_path_fwi_org,p_adj)
 tr_badj_fwi_45 = trace_from_rt(0,gather_path_fwi45,p_adj)
 
-
-binv_SLD_TS_fwi = procs.sliding_TS(tr_binv_fwi_org,tr_binv_fwi_45,oplen= 500,si=p_inv.dt_, taper= 30)
-badj_SLD_TS_fwi = procs.sliding_TS(tr_badj_fwi_org,tr_badj_fwi_45,oplen= 500,si=p_adj.dt_, taper= 30)
+oplen = 250
+binv_SLD_TS_fwi = procs.sliding_TS(tr_binv_fwi_org,tr_binv_fwi_45,oplen= oplen,si=p_inv.dt_, taper= 30)
+badj_SLD_TS_fwi = procs.sliding_TS(tr_badj_fwi_org,tr_badj_fwi_45,oplen= oplen,si=p_adj.dt_, taper= 30)
 
 
 out_idx = [0]
 plt.figure(figsize=(6, 10), facecolor="white")
 plt.title('Time-shift')
-plt.plot(binv_SLD_TS_fwi,at,c='tab:orange',label='TS from traces')
+plt.plot(binv_SLD_TS_fwi,at-ft,c='tab:orange',label='TS from traces')
 # plt.plot(badj_SLD_TS_fwi,at,c='tab:blue')
 plt.plot(ts0,tt0_inv,'tab:green',label='Theoretical TS')
 # plt.plot(ts0,tt0_adj,'y')
@@ -654,7 +625,7 @@ plt.gca().invert_yaxis()
 plt.axhline(p_inv.tt_[out_idx],c='tab:orange',ls='--')
 # plt.axhline(p_adj.tt_[out_idx],c='tab:blue',ls='--')
 plt.legend()
-plt.xlim(-0.5,5)
+plt.xlim(-0.5,7)
 plt.ylim(at[-1],at[0])
 
 df = pd.DataFrame([ts0,tt0_inv]).T

@@ -126,7 +126,9 @@ if __name__ == "__main__":
 
     
     #%% MODIFY MARMOUSI2 FOR DEMIGRATION
-    fl1       = '../input/org_full/marm2_full.dat'
+    
+    fl1       ='../input/45_marm_ano_v3/fwi_org.dat'
+    # fl1       = '../input/org_full/marm2_full.dat'
     # fl1       = '../input/45_marm_ano_v3/fwi_ano_45.dat'
     
     fl2       = '../input/marm2_sm15.dat'
@@ -166,10 +168,11 @@ if __name__ == "__main__":
         # new_vel    = nv
         inp1_before = inp1[index1]
         new_vel   = inp1[index1]*1.14
+       
         inp1[index1] = new_vel
         
-        print(new_vel - inp1_before)
-        print(np.mean(new_vel - inp1_before))
+        # print(new_vel - inp1_before)
+        # print(np.mean(new_vel - inp1_before))
         return inp1,index1
     
         
@@ -177,9 +180,28 @@ if __name__ == "__main__":
     
     inp_mod, ind_mod = modif_layer(inp_org, 2.5, 2.65, 5)
     
+    fig_mod = plot_model(inp_mod,hmin,hmax)
+    imout_mod = '../png/50_ts_model/full_mod.png'
+    flout_mod = '../input/50_ts_model/full_mod.dat'
+    export_model(np.array(inp_mod),fig_mod,imout_mod,flout_mod)
+    
+    
+    inp_mod_sm = gaussian_filter(inp_mod,8)
+    fig_mod_sm = plot_model(inp_mod_sm,hmin,hmax)
+    imout1 = '../png/50_ts_model/sm_ano.png'
+    flout1 = '../input/50_ts_model/sm_ano.dat'
+    # export_model(inp_mod_sm,fig_mod_sm,imout1,flout1)
+    
+    inp_sm8 = gaussian_filter(inp_org,8)
+    fig_sm8 = plot_model(inp_sm8,hmin,hmax)
+    imout_sm8 = '../png/50_ts_model/sm_org.png'
+    flout_sm8 = '../input/50_ts_model/sm_org.dat'
+    # export_model(inp_sm8,fig_sm8,imout_sm8,flout_sm8)
+    
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
-    inp_diff = inp_mod - inp_org
+    inp_diff = (inp_mod - inp_org)
+    inp_diff = (inp_mod - inp_org)*1.14
     plot_model(inp_cut,hmin,hmax)
     
     
@@ -191,20 +213,53 @@ if __name__ == "__main__":
     # az[ind_mod[0][63]]
     # ax[ind_mod[1][63]] 
     
-    
-    fig1 = plot_model(inp_mod,hmin,hmax)
-    # imout1 = '../png/45_marm_ano_v3/fwi_ano_full_114_percent.png'
-    # flout1 = '../input/45_marm_ano_v3/fwi_ano_fault_114_percent.dat'
-    # export_model(inp_mod,fig1,imout1,flout1)
-    
-    fig1 = plot_model(inp_org,hmin,hmax)
-    # imout1 = '../png/45_marm_ano_v3/fwi_ano_org.png'
-    # flout1 = '../input/45_marm_ano_v3/fwi_org.dat'
-    # export_model(inp_org,fig1,imout1,flout1)
+    hmax = np.max(inp_diff)
+    hmin = np.min(inp_diff)
+    fig1 = plot_model(inp_diff,hmin,hmax)
+    imout1 = '../png/45_marm_ano_v3/fwi_diff_ano.png'
+    flout1 = '../input/45_marm_ano_v3/fwi_diff_ano.dat'
+    # export_model(inp_diff,fig1,imout1,flout1)
     
     
-    inp_sm = gaussian_filter(inp_org,15)
-    fig1 = plot_model(inp_sm,hmin,hmax)
+    inp_diff_sm = inp_diff+inp_sm
+    
+    hmax = np.max(inp_diff_sm)
+    hmin = np.min(inp_diff_sm)
+    fig1 = plot_model(inp_diff_sm,hmin,hmax)
+    imout1 = '../png/45_marm_ano_v3/fwi_diff_sm_ano.png'
+    flout1 = '../input/45_marm_ano_v3/fwi_diff_sm_ano.dat'
+    # export_model(inp_diff_sm,fig1,imout1,flout1)
+    
+    adbetap_exact = np.copy(inp_diff)
+    
+    for i in range(nz):
+        for j in range(nx): 
+            if inp_diff[i,j] == 0: 
+                adbetap_exact[i,j] = 0
+            else:
+                adbetap_exact[i,j] = 1/inp_diff_sm[i,j]**2 - 1/inp_sm[i,j]**2
+    
+    hmin = np.min(adbetap_exact)
+    hmax = np.max(adbetap_exact)
+    fig1 = plot_model(adbetap_exact,hmin,hmax)
+    imout1 = '../png/45_marm_ano_v3/adbetap_diff_sm_ano.png'
+    flout1 = '../input/45_marm_ano_v3/adbetap_diff_sm_ano.dat'
+    # export_model(adbetap_exact,fig1,imout1,flout1)
+    
+    
+    # fig1 = plot_model(inp_mod,hmin,hmax)
+    # # imout1 = '../png/45_marm_ano_v3/fwi_ano_full_114_percent.png'
+    # # flout1 = '../input/45_marm_ano_v3/fwi_ano_fault_114_percent.dat'
+    # # export_model(inp_mod,fig1,imout1,flout1)
+    
+    # fig1 = plot_model(inp_org,hmin,hmax)
+    # # imout1 = '../png/45_marm_ano_v3/fwi_ano_org.png'
+    # # flout1 = '../input/45_marm_ano_v3/fwi_org.dat'
+    # # export_model(inp_org,fig1,imout1,flout1)
+    
+    
+    # inp_sm = gaussian_filter(inp_org,15)
+    # fig1 = plot_model(inp_sm,hmin,hmax)
     # imout1 = '../png/45_marm_ano_v3/fwi_sm.png'
     # flout1 = '../input/45_marm_ano_v3/fwi_sm.dat'
     # export_model(inp_sm,fig1,imout1,flout1)
@@ -212,7 +267,46 @@ if __name__ == "__main__":
     # import pandas as pd
     # df = pd.DataFrame(np.transpose(ind_mod))
     # df.to_csv('../input/45_marm_ano_v3/fwi_ano_114_percent.csv',header=False,index=False)
-
+    
+    def depth_to_time(ray_z, ray_x, vel_ray):
+        '''Transform profile from depth to time using the velocity '''
+        ray_time = []
+        dz = []
+        v0 = []
+        time = [0]
+        dz0 = []
+        for i in range(len(ray_x)//2-1):
+            dz = np.sqrt((ray_z[i] - ray_z[i+1])**2 + (ray_x[i] - ray_x[i+1])**2)
+            v0 = (vel_ray[i]+vel_ray[i+1])/2
+            time.append(dz/v0)
+            print('dz: ', dz, 'v0: ', v0, 'time: ', time[-1]*2)
+        ray_time = np.cumsum(time)
+    
+        ray_time = np.array(ray_time)*2
+        return ray_time
+    
+    
+    from spotfunk.res import procs, visualisation
+    
+    at_z = np.zeros_like(inp_sm)
+    nx = len(inp_sm[0])
+    nz = len(inp_sm[:,0])
+    
+    for i in range(nz): 
+        for j in range(nx): 
+            at_z[i] = az[i]/inp_sm[i,j]
+            
+    at_z = np.reshape(at_z,(nz,nx))
+    
+    
+    
+    hmin = np.min(inp_rms)
+    hmax = np.max(inp_rms)
+    plot_model(inp_rms,hmin,hmax)
+    
+    
+    
+    plot_model(inp_mod_sm, hmin, hmax)
  #%%   
     # az[ind_mod[0][63]]
     # ax[ind_mod[1][63]]
@@ -304,14 +398,18 @@ if __name__ == "__main__":
     # fl1 = '../input/27_marm/inp_flat.dat'
     fl1 = '../input/33_report_model/vel_full.dat'
     fl2 = '../input/marm2_sm15.dat'
-    
 
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_smooth= gt.readbin(fl2,nz,nx)
-    inp_flat  = inp_org * 0
+    inp_flat  = inp_org *0
+    
+  
+    
+ 
     
     # inp_flat[0:100] = 1.5
-    inp_flat[51:100] = 0.05
+    # inp_flat[51:100] = inp_flat[51:100]+0.05
+    inp_flat[51:100] = inp_flat[51:100]+0.05*1.14
     
     # inp_flat_corr   = inp_flat + 1/np.sqrt(inp_smooth)
     # inp_flat_tap = inp_flat 
@@ -363,12 +461,13 @@ if __name__ == "__main__":
         fig.savefig(flout, bbox_inches='tight')
     
     
-    # tap_x = taper(100,10,nx)
-    # tap_z = taper(15,5,nz)
-    # inp_taper_l = inp_flat * tap_x
-    # inp_taper_l_r = inp_taper_l * tap_x[::-1]
-    # inp_taper_l_r_top =  np.transpose(inp_taper_l_r.T *tap_z)
-    # inp_taper_all =  np.transpose(inp_taper_l_r_top.T *tap_z[::-1])  
+    tap_x = taper(100,10,nx)
+    tap_z = taper(15,5,nz)
+    
+    inp_taper_l = inp_flat * tap_x
+    inp_taper_l_r = inp_taper_l * tap_x[::-1]
+    inp_taper_l_r_top =  np.transpose(inp_taper_l_r.T *tap_z)
+    inp_taper_all =  np.transpose(inp_taper_l_r_top.T *tap_z[::-1])  
     
    
     
@@ -399,10 +498,28 @@ if __name__ == "__main__":
 
 
     '''Modification of the flat model of two interfaces with marm_smooth15'''
+    
     inp_corr = inp_org+inp_smooth-2
     plot_model_t(inp_corr)
     plot_model_t(inp_smooth)
     # gt.writebin(inp_corr,'../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat')
+    
+    ''' Creation of models for artificial traces'''
+    
+    plot_model(inp_flat, hmax, hmin)
+    
+    inp_taper_all = inp_taper_all+2.0
+    inp_taper_all[0:50] = 2.0
+    inp_taper_all[101:] = 2.0
+    
+    hmax  = np.max(inp_taper_all)
+    hmin  = np.min(inp_taper_all)
+    fig1   = plot_model(inp_taper_all, hmax, hmin)
+    imout1 = '../png/46_flat_simple_taper/inp_vel_taper_all_ano.png'
+    flout1 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+    export_model(inp_taper_all,fig1,imout1,flout1)
+    
+  
     
 #%%
     fl1       = '../input/30_marm_flat/inp_flat_taper_corr_org.dat'

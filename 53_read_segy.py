@@ -48,6 +48,7 @@ for i in range(1,602):
 #%%
 
 
+
 # out_path = '/home/vcabiativapico/local/src/victor/seisunix/velocity_model/fwi_sm.sgy'
 
 # segyio.tools.from_array2D(out_path, inp.T, dt=1)

@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
     # Global parameters
     labelsize = 16
-    nt = 1501
+    nt = 1801
     dt = 1.41e-3
     ft = -100.11e-3
     nz = 151
@@ -111,9 +111,9 @@ if __name__ == "__main__":
         
     
     tr   = [71,135,201]
-    tr1 = '../output/43_deep_flat_ano/t1_obs_000201.dat'
+    tr1 = '../output/48_const_2000_ano/ano/t1_obs_000209.dat'
     inp1 = gt.readbin(tr1,no,nt).transpose()
-    flout  = '../png/t1_obs_000201.png'
+    flout  = '../png/t1_obs_000209.png'
     hmax = np.max(inp1)
     plot_shot_gathers_traces(hmax,inp1,inp1,flout,tr)
     
@@ -192,7 +192,7 @@ if __name__ == "__main__":
         fig.savefig(flout, bbox_inches='tight')
 
     xmax_tr = 0.3
-    nt =1501
+    nt =1801
     # title = 501
     # title = 401
     title = 301
@@ -223,7 +223,7 @@ if __name__ == "__main__":
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     # tr1 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
-    tr1 = '../output/t1_obs_000'+str(title)+'.dat'
+    tr1 = '../output/48_const_2000_ano/t1_obs_000'+str(title)+'.dat'
     # tr3 ='../output/t1_obs_000361.dat'
     # tr2 = '../output/t1_obs_000'+str(title)+'.dat'
     
@@ -391,7 +391,7 @@ if __name__ == "__main__":
         # av.set_ylim([0.8,0.4])
         # plt.axvline(x=ax[tr], color='k',ls='--')
         # plt.axhline(0.606, color='w')
-        plt.colorbar(hfig1, format='%1.1f',label='m/s')
+        plt.colorbar(hfig1, format='%1.3f',label='m/s')
         # plt.colorbar(hfig1, format='%1.1f',label='m/s')
         fig.tight_layout()
 
@@ -422,11 +422,15 @@ if __name__ == "__main__":
 
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     
-    # fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
-    fl1='../input/45_marm_ano_v3/fwi_org.dat'
-    fl1='../input/45_marm_ano_v3/fwi_sm.dat'
-    fl1 = '../input/50_ts_model/marmousi_ano_sm.dat'
-
+    # # fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
+    # fl1='../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+    # # fl1='../input/45_marm_ano_v3/fwi_sm.dat'
+    # fl1 = '../input/vel_full.dat'
+    fl1 = '../output/48_const_2000_ano/flat_born_ano/adbetap.dat'
+    fl1 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+    fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
+    
+    # fl1 = '../input/vel_smooth.dat'
     # fl1 = '../output/dbetap_exact.dat'
     # fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
     # fl1 = '../output/40_marm_ano/binv/abetap.dat'
@@ -437,7 +441,8 @@ if __name__ == "__main__":
     # # # fl1 = './input/13_4_ano_smoo/4_ano_4p0_smoo5.dat'
     # # fl1 = '../input/10_onl_two_ano/1p5_two_ano_4p0.dat'
     inp1 = gt.readbin(fl1,nz,nx)
-   
+    print(np.max(inp1))
+    print(np.min(inp1))
     # flout = '../png/avp_exact.png'
     flout = '../png/dbetap_exact.png'
     inp,fig_z = plot_model(inp1, flout)
@@ -507,12 +512,33 @@ if __name__ == "__main__":
     # plot_model(-inp3, flout)
 
     # fl4 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
-    fl4 = '../output/inv_betap_x_s.dat'
+    fl4 = '../output/inv_betap_x.dat'
     # fl4 = '../output/inv_betap_x_s.dat'
     inp4= -gt.readbin(fl4,nz,nx)
     flout = '../png/inv_betap_x_s.png'
     plot_model(-inp4,flout)
-   
+    
+    
+    
+    fl3 ='../input/45_marm_ano_v3/fwi_ano.dat'
+    inp3= gt.readbin(fl3,nz,nx)
+    
+    diff = inp1-inp3
+    
+    hmax= np.max(inp4)
+    hmin= np.min(inp4)
+    plt.figure(figsize=(18,10))
+    # plt.imshow(inp4, extent=[ax[0], ax[-1], az[-1], az[0]],
+    #                   vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+    plt.imshow(inp4,extent=[1, 601, az[-1], az[0]], vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+    
+    
+    hmax= np.max(diff)
+    hmin= np.min(diff)
+    
+    plt.figure()
+    plt.imshow(diff, extent=[ax[0], ax[-1], az[-1], az[0]],
+                      vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic',alpha=1)
     
    # plt.axhline(50*dz,color='k')
     # plt.axhline(99*dz,color='k')

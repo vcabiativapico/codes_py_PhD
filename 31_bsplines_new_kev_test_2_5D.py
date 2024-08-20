@@ -1222,6 +1222,13 @@ def interp1d(Dataset,Param_Input,limite = 100):
 # path = 'C:/Users/Kevin/SpotLight/SpotLighters - Documents/SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Demigration_SpotLight_Septembre2023/Demigration_Victor/'
 file = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
 file = '../input/45_marm_ano_v3/fwi_betap_ano.dat'
+file = '../input/45_marm_ano_v3/fwi_diff_sm.dat'
+file = '../input/45_marm_ano_v3/fwi_diff_sm_ano.dat'
+file = '../input/45_marm_ano_v3/fwi_diff_ano.dat'
+file = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+
+file = '../input/50_ts_model/sm_ano.dat'
+# file = '../input/50_ts_model/sm_org.dat'
 
 INL_step = 200 
 XL_step = 12.00   
@@ -1253,6 +1260,8 @@ Param_Input1 = [start_x,start_y,start_z,
 
 
 Vit_model1 = readbin(file,151,601).T*1000
+
+Vit_model1 = Vit_model1
 
 # Vit_model = np.vstack([Vit_model1,Vit_model1,Vit_model1,
 #                       Vit_model1,Vit_model1])
@@ -1305,9 +1314,9 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_betap_marm_Param_marm_smooth_ano.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/060_Param_marm_sm_ano.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_betap_marm_Weights_marm_2p5D_smooth_ano.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/060_Weights_marm_sm_ano.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 
@@ -1349,9 +1358,17 @@ plt.plot(Weight_2D_inline)
 
 import tqdm
 
+Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Param_marm_smooth.csv'
+Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Weights_marm_2p5D_smooth.csv'
 
-Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
-Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
+
+# Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
+# Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
+
+# Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Param_marm_smooth.csv'
+# Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Weights_marm_2p5D_smooth.csv'
+
+
 
 file = '../input/27_marm/marm2_sm15.dat'
 
