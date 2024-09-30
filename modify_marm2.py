@@ -21,15 +21,15 @@ if __name__ == "__main__":
     
     # Global parameters
     labelsize = 16
-    nt        = 1001
+    nt        = 1801
     dt        = 2.08e-3
     ft        = -100.11e-3
     nz        = 151
     fz        = 0.0
-    dz        = 12.49/1000.
+    dz        = 12.00/1000.
     nx        = 601
     fx        = 0.0
-    dx        = 12.49/1000.
+    dx        = 12.00/1000.
     no        = 251
     do        = dx
     fo        = -(no-1)/2*do
@@ -46,11 +46,11 @@ if __name__ == "__main__":
     
         
     def plot_model(inp,hmin,hmax):
-        plt.rcParams['font.size'] = 16
-        fig = plt.figure(figsize=(10,5), facecolor = "white")
+        plt.rcParams['font.size'] = 20
+        fig = plt.figure(figsize=(16,8), facecolor = "white")
         av  = plt.subplot(1,1,1)
         hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
-                          vmin=hmin,vmax=hmax,aspect='auto'\
+                          vmin=hmin,vmax=hmax,aspect='auto'
                          )
         plt.colorbar(hfig)
         plt.xlabel('Distance (Km)')
@@ -183,20 +183,22 @@ if __name__ == "__main__":
     fig_mod = plot_model(inp_mod,hmin,hmax)
     imout_mod = '../png/50_ts_model/full_mod.png'
     flout_mod = '../input/50_ts_model/full_mod.dat'
-    export_model(np.array(inp_mod),fig_mod,imout_mod,flout_mod)
+    # export_model(np.array(inp_mod),fig_mod,imout_mod,flout_mod)
     
     
-    inp_mod_sm = gaussian_filter(inp_mod,8)
+    inp_mod_sm = gaussian_filter(inp_mod,3)
     fig_mod_sm = plot_model(inp_mod_sm,hmin,hmax)
-    imout1 = '../png/50_ts_model/sm_ano.png'
-    flout1 = '../input/50_ts_model/sm_ano.dat'
+    imout1 = '../png/50_ts_model/sm3_ano.png'
+    flout1 = '../input/50_ts_model/sm3_ano.dat'
     # export_model(inp_mod_sm,fig_mod_sm,imout1,flout1)
     
-    inp_sm8 = gaussian_filter(inp_org,8)
-    fig_sm8 = plot_model(inp_sm8,hmin,hmax)
-    imout_sm8 = '../png/50_ts_model/sm_org.png'
-    flout_sm8 = '../input/50_ts_model/sm_org.dat'
-    # export_model(inp_sm8,fig_sm8,imout_sm8,flout_sm8)
+    inp_sm5 = gaussian_filter(inp_org,3)
+    fig_sm5 = plot_model(inp_sm5,hmin,hmax)
+    imout_sm5 = '../png/50_ts_model/sm3_org.png'
+    flout_sm5 = '../input/50_ts_model/sm3_org.dat'
+    # export_model(inp_sm5,fig_sm5,imout_sm5,flout_sm5)
+    
+    plt.plot(inp_mod_sm[:,266]); plt.plot(inp_sm5[:,266])
     
     fl1       = '../input/org_full/marm2_full.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
@@ -230,20 +232,20 @@ if __name__ == "__main__":
     flout1 = '../input/45_marm_ano_v3/fwi_diff_sm_ano.dat'
     # export_model(inp_diff_sm,fig1,imout1,flout1)
     
-    adbetap_exact = np.copy(inp_diff)
+    # adbetap_exact = np.copy(inp_diff)
     
-    for i in range(nz):
-        for j in range(nx): 
-            if inp_diff[i,j] == 0: 
-                adbetap_exact[i,j] = 0
-            else:
-                adbetap_exact[i,j] = 1/inp_diff_sm[i,j]**2 - 1/inp_sm[i,j]**2
+    # for i in range(nz):
+    #     for j in range(nx): 
+    #         if inp_diff[i,j] == 0: 
+    #             adbetap_exact[i,j] = 0
+    #         else:
+    #             adbetap_exact[i,j] = 1/inp_diff_sm[i,j]**2 - 1/inp_sm[i,j]**2
     
-    hmin = np.min(adbetap_exact)
-    hmax = np.max(adbetap_exact)
-    fig1 = plot_model(adbetap_exact,hmin,hmax)
-    imout1 = '../png/45_marm_ano_v3/adbetap_diff_sm_ano.png'
-    flout1 = '../input/45_marm_ano_v3/adbetap_diff_sm_ano.dat'
+    # hmin = np.min(adbetap_exact)
+    # hmax = np.max(adbetap_exact)
+    # fig1 = plot_model(adbetap_exact,hmin,hmax)
+    # imout1 = '../png/45_marm_ano_v3/adbetap_diff_sm_ano.png'
+    # flout1 = '../input/45_marm_ano_v3/adbetap_diff_sm_ano.dat'
     # export_model(adbetap_exact,fig1,imout1,flout1)
     
     
@@ -288,25 +290,25 @@ if __name__ == "__main__":
     
     from spotfunk.res import procs, visualisation
     
-    at_z = np.zeros_like(inp_sm)
-    nx = len(inp_sm[0])
-    nz = len(inp_sm[:,0])
+    # at_z = np.zeros_like(inp_sm)
+    # nx = len(inp_sm[0])
+    # nz = len(inp_sm[:,0])
     
-    for i in range(nz): 
-        for j in range(nx): 
-            at_z[i] = az[i]/inp_sm[i,j]
+    # for i in range(nz): 
+    #     for j in range(nx): 
+    #         at_z[i] = az[i]/inp_sm[i,j]
             
-    at_z = np.reshape(at_z,(nz,nx))
+    # at_z = np.reshape(at_z,(nz,nx))
     
     
     
-    hmin = np.min(inp_rms)
-    hmax = np.max(inp_rms)
-    plot_model(inp_rms,hmin,hmax)
+    # hmin = np.min(inp_rms)
+    # hmax = np.max(inp_rms)
+    # plot_model(inp_rms,hmin,hmax)
     
     
     
-    plot_model(inp_mod_sm, hmin, hmax)
+    # plot_model(inp_mod_sm, hmin, hmax)
  #%%   
     # az[ind_mod[0][63]]
     # ax[ind_mod[1][63]]
@@ -361,10 +363,7 @@ if __name__ == "__main__":
         
         return V_model   
     
-    
-    
-    
-    
+      
     inp_anomaly = inp_org * 0 
     inp_anomaly[ind_mod] = 4.0
     inp_anomaly_sm = inp_anomaly + inp_sm
@@ -401,7 +400,7 @@ if __name__ == "__main__":
 
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_smooth= gt.readbin(fl2,nz,nx)
-    inp_flat  = inp_org *0
+    inp_flat  = inp_org * 0
     
   
     
@@ -409,7 +408,18 @@ if __name__ == "__main__":
     
     # inp_flat[0:100] = 1.5
     # inp_flat[51:100] = inp_flat[51:100]+0.05
-    inp_flat[51:100] = inp_flat[51:100]+0.05*1.14
+    
+    f_idx = 51
+    # l_idx = 100
+    l_idx = 52
+    
+    # for i in range(0,49,4): 
+    #     inp_flat[f_idx+i:l_idx+i] = inp_flat[f_idx+i:l_idx+i] + 0.015*(i+1)/4  *1.14
+    
+
+    inp_flat[f_idx:l_idx] = inp_flat[f_idx:l_idx] + 0.05 * 1.14
+        
+    thick = (l_idx - f_idx) * dz
     
     # inp_flat_corr   = inp_flat + 1/np.sqrt(inp_smooth)
     # inp_flat_tap = inp_flat 
@@ -488,7 +498,7 @@ if __name__ == "__main__":
     
     # inp_const = new_sm + inp_taper_all
     # inp_adbetap_const = 1/inp_const**2 - 1/new_sm**2
-    # # plot_model_t(inp_flat)
+    # plot_model_t(inp_flat)
     # plot_model_t(inp_const-2)
     # plot_model_t(inp_adbetap_const)
     
@@ -499,9 +509,9 @@ if __name__ == "__main__":
 
     '''Modification of the flat model of two interfaces with marm_smooth15'''
     
-    inp_corr = inp_org+inp_smooth-2
-    plot_model_t(inp_corr)
-    plot_model_t(inp_smooth)
+    # inp_corr = inp_org+inp_smooth-2
+    # plot_model_t(inp_corr)
+    # plot_model_t(inp_smooth)
     # gt.writebin(inp_corr,'../input/39_mig_marm_flat/vel_marm_plus_flat_corr.dat')
     
     ''' Creation of models for artificial traces'''
@@ -515,9 +525,11 @@ if __name__ == "__main__":
     hmax  = np.max(inp_taper_all)
     hmin  = np.min(inp_taper_all)
     fig1   = plot_model(inp_taper_all, hmax, hmin)
-    imout1 = '../png/46_flat_simple_taper/inp_vel_taper_all_ano.png'
-    flout1 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
-    export_model(inp_taper_all,fig1,imout1,flout1)
+    imout1 = '../png/63_evaluating_thickness/vel_'+str(int(thick*1000))+'_ano.png'
+    flout1 = '../input/63_evaluating_thickness/vel_'+str(int(thick*1000))+'_ano.dat'
+    # imout1 = '../png/63_evaluating_thickness/vel_degrade_ano.png'
+    # flout1 = '../input/63_evaluating_thickness/vel_degrade_ano.dat'
+    # export_model(inp_taper_all,fig1,imout1,flout1)
     
   
     

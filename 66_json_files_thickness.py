@@ -117,19 +117,17 @@ def print_input_values_rt(point1,point2,norm,d):
 
 
 
-def write_json_file(json_file,out_path, input_val,z_value,table):
+def write_json_file_flat(json_file, out_path, input_table,z_value,thickness,parameter_path,weights_path):
     # Step 1: Read the JSON file
     with open(json_file+'.json', 'r') as file:
         data = json.load(file)
     
-    data['paths_config']['input_file']= table
+    data['paths_config']['input_file']= input_table
     data['raytracing_config']['interfaces_data'][0]['depth'] = z_value
     # Step 2: Modify the dictionary
-    data['raytracing_config']['interfaces_data'][1]['a'] = input_val['a']
-    data['raytracing_config']['interfaces_data'][1]['b'] = input_val['b']
-    data['raytracing_config']['interfaces_data'][1]['c'] = input_val['c']
-    data['raytracing_config']['interfaces_data'][1]['d'] = input_val['d']
-    
+    data['raytracing_config']['interfaces_data'][1]['depth'] = -thickness
+    data['raytracing_config']['velocity_model_data'][0]['parameter_path'] = parameter_path
+    data['raytracing_config']['velocity_model_data'][0]['weights_path'] = weights_path
     # Step 3: Write the modified dictionary back to the JSON file
     with open(out_path+'.json', 'w') as file:
         json.dump(data, file, indent=4)
@@ -145,19 +143,12 @@ def plot_mig_image(inp,ax,az):
     hfig = av.imshow(inp, vmin=hmin,vmax=hmax,extent=[ax[0], ax[-1], az[-1], az[0]],aspect='auto')
     plt.colorbar(hfig)
 #%%   
-path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/056_correct_TS_deep/'
-# json_file = path+'050_TS_analytique/to_input'
-# out_path= path+'050_TS_analytique/050_TS_analytique'
-
-json_file = path+'to_input'
-out_path= path
-
 
 
 # Global parameters
 labelsize = 16
 nt = 1801
-dt = 1.41e-3
+dt = 1.14e-3
 ft = -100.11e-3
 nz = 151
 fz = 0.0
@@ -179,68 +170,29 @@ ny = 21
 dy = 50
 ay = fy + np.arange(ny)*dy
 
+base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/067_TS_graded_flat/'
 
-'''Read the raypath'''
-path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/054_TS_deeper/depth_demig_out/050_TS_analytiquedeep_2024-07-02_15-30-30/rays/ray_0.csv'
-ray_x = np.array(read_results(path_ray, 0))
-ray_z = np.array(read_results(path_ray, 2))
-vp =  np.array(read_results(path_ray, 6))
-tt = np.array(read_results(path_ray, 8))
-
-idx_in_poly = []
-
-for i,k in enumerate(ray_z):
-    if k < -1018:
-        idx_in_poly.append(i)
-ray_x_in_poly = ray_x[idx_in_poly]
-ray_z_in_poly = ray_z[idx_in_poly]
-tt_in_poly = tt[idx_in_poly]
+json_file = base_path+'input'
+input_table =  base_path+'060_TS_flat_table.csv'
 
 
-normales = []
-d_values = []
-dict_input = []
-spot_x = []
-spot_z = []
+z_value = -12
+
+for i in range(12,600,48):
+    parameter_path = "067_Param_vel_graded_"+str(i)+"_ano.csv"
+    weights_path = "067_Weights_vel_graded_"+str(i)+"_ano.csv"
+    out_path = base_path+ '_thickness_ano_'+str(i)
+    write_json_file_flat(json_file, out_path, input_table,z_value,-1750,parameter_path,weights_path)
 
 
-# 3510.0	0.0	-980.966892484581
+# fl1='../input/45_marm_ano_v3/fwi_ano.dat'
 
-%matplotlib inline
-# %matplotlib qt5
+# inp_org = gt.readbin(fl1,nz,nx)
 
-# ray_x_in_poly,ray_z_in_poly = 3370,-1072
-
-ray_x_in_poly,ray_z_in_poly = 3510,-1209
-
-degree = 37
-pt_inv1, pt_inv2, pt_inv3 = calculate_slope(degree,ray_x_in_poly,ray_z_in_poly, plot=True)
-d_val = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1]
-norm = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3,plot=False)[0]
-normales=norm
-d_values=d_val
-dict_input=print_input_values_rt(pt_inv1,pt_inv2,norm,d_val)
-
-table_input = [ray_x_in_poly,0,0,0.01]
-
-table_name = '057_table_offsets.csv'
-spot_x=(-(dict_input['c']*ray_z_in_poly+dict_input['d'])/dict_input['a'])
-spot_z=(-(dict_input['a']*ray_x_in_poly+dict_input['d'])/dict_input['c'])
-print(ray_z_in_poly,spot_z)
-df = pd.DataFrame(table_input).T
-# df.to_csv(out_path+table_name,header=False,index=False)
- 
-# write_json_file(json_file, out_path+'deeper2_'+str(degree),dict_input,-12,table_name)
-
-
-fl1='../input/45_marm_ano_v3/fwi_ano.dat'
-
-inp_org = gt.readbin(fl1,nz,nx)
-
-plt.figure()
-plot_mig_image(inp_org,ax,az)
-# plt.plot(ax,bspline_inv_hz[0:601]/1000)
-plt.scatter(ray_x_in_poly/1000,-ray_z_in_poly/1000)
-plt.plot(np.array([pt_inv1[0],pt_inv2[0]])/1000, np.array([-pt_inv1[2],-pt_inv2[2]])/1000, 'r')
-plt.legend()
+# plt.figure()
+# plot_mig_image(inp_org,ax,az)
+# # plt.plot(ax,bspline_inv_hz[0:601]/1000)
+# plt.scatter(ray_x_in_poly/1000,-ray_z_in_poly/1000)
+# plt.plot(np.array([pt_inv1[0],pt_inv2[0]])/1000, np.array([-pt_inv1[2],-pt_inv2[2]])/1000, 'r')
+# plt.legend()
 # plt.gca().invert_yaxis()

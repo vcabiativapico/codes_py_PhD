@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Jul 31 16:25:48 2023
+Created on Wed Aug 28 16:13:18 2024
 
-@author: spotkev
+@author: vcabiativapico
 """
 
 
@@ -1219,16 +1219,8 @@ def interp1d(Dataset,Param_Input,limite = 100):
 
 # %%
 
-# path = 'C:/Users/Kevin/SpotLight/SpotLighters - Documents/SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Demigration_SpotLight_Septembre2023/Demigration_Victor/'
-file = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
-file = '../input/45_marm_ano_v3/fwi_betap_ano.dat'
-file = '../input/45_marm_ano_v3/fwi_diff_sm.dat'
-file = '../input/45_marm_ano_v3/fwi_diff_sm_ano.dat'
-file = '../input/45_marm_ano_v3/fwi_diff_ano.dat'
-file = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
 
-# file = '../input/50_ts_model/sm3_ano.dat'
-file = '../input/50_ts_model/sm3_org.dat'
+
 
 INL_step = 200 
 XL_step = 12.00   
@@ -1258,65 +1250,67 @@ Param_Input1 = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
+for i in range(12,589,48):
+    file = '../input/67_TS_graded_flat/betap_graded_org_'+str(int(i))+'.dat'
 
-Vit_model1 = readbin(file,151,601).T*1000
-
-Vit_model1 = Vit_model1
-
-# Vit_model = np.vstack([Vit_model1,Vit_model1,Vit_model1,
-#                       Vit_model1,Vit_model1])
-
-x_disc = np.arange(601)*12.00
-z_disc = np.arange(151)*12.00
-
-d_max = 150*12.00
-d_interp = np.arange(0,d_max-1,5)
-
-x_spline = np.arange(601)*12.00
-z_spline = np.arange(len(d_interp))*5
-                    
-plt.figure(figsize=(16,8))
-plt.imshow(Vit_model1.T,vmin=1500,vmax=4500,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
-plt.colorbar()
-# plt.gca().invert_yaxis()
-
-# Vit_model1 = gaussian_filter(Vit_model1,5)
-# plt.figure(figsize=(16,8))
-# plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
-# plt.colorbar()
-# plt.gca().invert_yaxis()
-
-Param_Input = Param_Input_class(Param_Input1)
-
-Param_Input = [start_y,start_z,
-              delta_y,delta_z,
-              XL_step,1,
-              J,K]
-
-
-############################################################
-# Interpolation Bspline 2D puis extension des poids en 3D.
-
-Weights = interp2d(Vit_model1, Param_Input)
-
-
-Weights_2D_mat = Weights.reshape((N,L))
-
-Weights_3D_mat = Weights_2D_mat[np.newaxis,:,:]*np.ones(M)[:,np.newaxis,np.newaxis]*2/3
-
-Weight_3D_inline = Weights_3D_mat.reshape(M*N*L)
-
-############################################################
-
-
-Param_Exit = [start_x,start_y,start_z,
-              delta_x,delta_y,delta_z,
-              INL_step,XL_step,azimuth,
-              I,J,K,X_or,Y_or]
-
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/060_Param_marm_sm3_org.csv', Param_Exit, fmt='%f',delimiter=",")   
-
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/060_Weights_marm_sm3_org.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+    Vit_model1 = readbin(file,151,601).T*1000
+    
+    Vit_model1 = Vit_model1
+    
+    # Vit_model = np.vstack([Vit_model1,Vit_model1,Vit_model1,
+    #                       Vit_model1,Vit_model1])
+    
+    x_disc = np.arange(601)*12.00
+    z_disc = np.arange(151)*12.00
+    
+    d_max = 150*12.00
+    d_interp = np.arange(0,d_max-1,5)
+    
+    x_spline = np.arange(601)*12.00
+    z_spline = np.arange(len(d_interp))*5
+                        
+    plt.figure(figsize=(16,8))
+    plt.imshow(Vit_model1.T,vmin=1500,vmax=4500,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
+    plt.colorbar()
+    # plt.gca().invert_yaxis()
+    
+    # Vit_model1 = gaussian_filter(Vit_model1,5)
+    # plt.figure(figsize=(16,8))
+    # plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
+    # plt.colorbar()
+    # plt.gca().invert_yaxis()
+    
+    Param_Input = Param_Input_class(Param_Input1)
+    
+    Param_Input = [start_y,start_z,
+                  delta_y,delta_z,
+                  XL_step,1,
+                  J,K]
+    
+    
+    ############################################################
+    # Interpolation Bspline 2D puis extension des poids en 3D.
+    
+    Weights = interp2d(Vit_model1, Param_Input)
+    
+    
+    Weights_2D_mat = Weights.reshape((N,L))
+    
+    Weights_3D_mat = Weights_2D_mat[np.newaxis,:,:]*np.ones(M)[:,np.newaxis,np.newaxis]*2/3
+    
+    Weight_3D_inline = Weights_3D_mat.reshape(M*N*L)
+    
+    ############################################################
+    
+    
+    Param_Exit = [start_x,start_y,start_z,
+                  delta_x,delta_y,delta_z,
+                  INL_step,XL_step,azimuth,
+                  I,J,K,X_or,Y_or]
+    
+    np.savetxt('../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/067_Param_betap_graded_'+str(int(i))+'_org.csv', Param_Exit, fmt='%f',delimiter=",")   
+    
+    np.savetxt('../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/067_Weights_betap_graded_'+str(int(i))+'_org.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 
@@ -1324,288 +1318,3 @@ np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/06
 
 
 ################################################
-
-
-
-file_pick = '../input/40_marm_ano/binv_mig_pick_smooth.csv'
-# file_pick = '../../../../Demigration_SpotLight_Septembre2023/input/041_marm2_slope/hz_inv.csv'
-
-
-data_horizon = [] 
-with open(file_pick, newline='') as csvfile:
-    spamreader = csv.reader(csvfile, delimiter=',')
-    for row in spamreader:
-        data_horizon.append(float(row[0]))
-data_horizon = np.array(data_horizon)
-
-
-Weights_hz = interp1d(data_horizon, Param_Input)
-
-Weights_2D_mat_hz = Weights_hz[np.newaxis,:]*np.ones(M)[:,np.newaxis]*2/3
-
-Weight_2D_inline = Weights_2D_mat_hz.reshape(M*N)
-
-plt.figure()
-plt.plot(Weight_2D_inline)
-
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/test.csv', Param_Exit, fmt='%f',delimiter=",")   
-
-# np.savetxt('../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/042_weights_hz_pick_inv_slope.csv',Weight_2D_inline,fmt='%f',delimiter=',') 
-
-
-# %% Visualisations 
-
-
-import tqdm
-
-Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Param_marm_smooth.csv'
-Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/051_full_marm_Weights_marm_2p5D_smooth.csv'
-
-
-# Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Parametres_vel_marm_ext_bspline_90.csv'
-# Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/015_Weights_vel_marm_ext_bspline_90.csv'
-
-# Param_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Param_marm_smooth.csv'
-# Weight_File = '../../../../Demigration_SpotLight_Septembre2023/Demigration_Victor/046_Weights_marm_2p5D_smooth.csv'
-
-
-
-file = '../input/27_marm/marm2_sm15.dat'
-
-
-
-Parameters,Weights = load_weight_model(Param_File, Weight_File)
-
-
-Vit_model1 = readbin(file,151,601).T*1000
-
-Vit_model = np.vstack([Vit_model1,Vit_model1,Vit_model1,
-                      Vit_model1,Vit_model1])
-
-
-
-d_max = (151)*12.00
-
-d_interp = np.arange(0,d_max,12)
-
-# d_max = 151*12.00
-# d_interp = np.arange(-delta_z,d_max-1,5)
-
-
-Bspline_2D = []
-
-# for k in tqdm.tqdm(range(0,601,5)):
-for k in tqdm.tqdm(range(0,601,1)):
-    vitesse_list = []
-    for j in range(0,len(d_interp)):
-    # for j in range(0,len(d_interp),1):
-        vitesse_list.append(Vitesse(0,12.00*k,-d_interp[j],Parameters,Weights)[0])
-    
-    Bspline_2D.append(vitesse_list)
-
-Bspline_2D = np.array(Bspline_2D)
-
-x_disc = np.arange(601)*12.00
-z_disc = np.arange(151)*12.00
-
-x_spline = np.arange(601)*12.00
-z_spline = np.arange(0,len(d_interp))*12
-                    
-plt.figure(figsize=(16,8))
-plt.imshow(Vit_model1.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_disc[0],x_disc[-1],z_disc[-1],z_disc[0]))
-plt.colorbar()
-# plt.gca().invert_yaxis()
-
-plt.figure(figsize=(16,8))
-plt.imshow(Bspline_2D.T,vmin=1500,vmax=3000,aspect = 2, extent=(x_spline[0],x_spline[-1],z_spline[-1],z_spline[0]))
-plt.colorbar()
-# plt.gca().invert_yaxis()
-
-
-colors = ['b','g','r','k','m']
-plt.figure(figsize=(10,8))
-for i in range(0,151,35):
-    plt.plot(z_disc,Vit_model1.T[:,i],'-',color=colors[int(i/35)],label='bspline tr = '+str(i))
-    plt.plot(z_spline,Bspline_2D.T[:,i],'.',color=colors[int(i/35)],alpha=0.7,label='model tr = '+str(i))
-    
-    plt.title('Model Bspline vs original model trace')
-    plt.legend(fontsize = 'x-small')
-    plt.tight_layout()
-    plt.xlabel('Depth (km)')
-    plt.ylabel('Velocity (m/s)')
-
-
-
-#%%
-''''''
-
-y_line = np.arange(-390,390,1)
-
-
-test_y = []
-grad_x = []
-grad_y = []
-grad_z = []
-
-for y in y_line:
-    
-    vitesse,grad = Vitesse(4000,y,-1000,Parameters,Weights)
-    
-    test_y.append(vitesse)
-    grad_x.append(grad[0])
-    grad_y.append(grad[1])
-    grad_z.append(grad[2])
-    
-plt.figure(figsize=(16,12))
-plt.plot(y_line,test_y)
-plt.xlabel('Y (m)',fontsize=25) 
-plt.ylabel('Vitesse (m/s)',fontsize=25) 
-plt.yticks(fontsize=25)
-plt.xticks(fontsize=25)
-plt.title('Test selon axe y',fontsize=25)    
-
-# plt.figure(figsize=(16,12))
-# plt.plot(y_line,test_y)
-# plt.xlabel('Y (m)',fontsize=18) 
-# plt.ylabel('Vitesse (m/s)',fontsize=18) 
-# plt.xticks(fontsize=18)
-# plt.xticks(fontsize=18)
-# plt.ylim(2330,2340)
-# plt.title('Test selon axe y (zoom)',fontsize=18)
-
-
-
-plt.figure(figsize=(16,12))
-plt.plot(y_line,grad_x)
-plt.xlabel('Y (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe y (gradient en x)',fontsize=18)
-
-plt.figure(figsize=(16,12))
-plt.plot(y_line,grad_y)
-plt.xlabel('Y (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe y (gradient en y)',fontsize=18)
-
-plt.figure(figsize=(16,12))
-plt.plot(y_line,grad_z)
-plt.xlabel('Y (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe y (gradient en z)',fontsize=18)
-
-
-
-
-x_line = np.arange(10,7200,1)
-
-test_y = []
-grad_x = []
-grad_y = []
-grad_z = []
-
-for x in x_line:
-    
-    vitesse,grad = Vitesse(x,0,-1000,Parameters,Weights)
-    
-    test_y.append(vitesse)
-    grad_x.append(grad[0])
-    grad_y.append(grad[1])
-    grad_z.append(grad[2])
-    
-plt.figure(figsize=(16,12))
-plt.plot(x_line,test_y)
-plt.xlabel('X (m)',fontsize=18) 
-plt.ylabel('Vitesse (m/s)',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe x',fontsize=18)    
-
-plt.figure(figsize=(16,12))
-plt.plot(x_line,grad_x)
-plt.xlabel('X (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe x (gradient en x)',fontsize=18)
-
-plt.figure(figsize=(16,12))
-plt.plot(x_line,grad_y)
-plt.xlabel('X (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe x (gradient en y)',fontsize=18)
-
-plt.figure(figsize=(16,12))
-plt.plot(x_line,grad_z)
-plt.xlabel('X (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe x (gradient en z)',fontsize=18)
-
-
-
-
-z_line = np.arange(10,1800,1)
-
-
-test_y = []
-grad_x = []
-grad_y = []
-grad_z = []
-
-for z in z_line:
-    
-    vitesse,grad = Vitesse(4000,0,-z,Parameters,Weights)
-    
-    test_y.append(vitesse)
-    grad_x.append(grad[0])
-    grad_y.append(grad[1])
-    grad_z.append(grad[2])
-    
-
-plt.figure(figsize=(16,12))
-plt.plot(z_line,test_y)
-plt.xlabel('Z (m)',fontsize=18) 
-plt.ylabel('Vitesse (m/s)',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe z',fontsize=18)    
-
-
-plt.figure(figsize=(16,12))
-plt.plot(z_line,grad_x)
-plt.xlabel('Z (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe z (gradient en x)',fontsize=18)
-
-
-plt.figure(figsize=(16,12))
-plt.plot(z_line,grad_y)
-plt.xlabel('Z (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe z (gradient en y)',fontsize=18)
-
-
-plt.figure(figsize=(16,12))
-plt.plot(z_line,grad_z)
-plt.xlabel('Z (m)',fontsize=18) 
-plt.ylabel('Gradient de vitesse',fontsize=18) 
-plt.xticks(fontsize=18)
-plt.xticks(fontsize=18)
-plt.title('Test selon axe z (gradient en z)',fontsize=18)
-
-
-
-

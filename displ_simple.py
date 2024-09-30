@@ -181,10 +181,11 @@ if __name__ == "__main__":
         hfig = av.imshow(inp, extent=[ao[0], ao[-1], at[-1], at[0]],
                          vmin=hmin, vmax=hmax, aspect='auto',
                          cmap='seismic')
-        for i in range(np.size(tr)):
-            plt.axvline(x=ao[tr[i]], color='k', ls='--')
+        # for i in range(np.size(tr)):
+        #     plt.axvline(x=ao[tr[i]], color='k', ls='--')
         plt.colorbar(hfig, format='%2.2f')
-        plt.rcParams['font.size'] = 16
+        plt.rcParams['font.size'] = 22
+        plt.ylim(1.25,ft)
         plt.xlabel('Offset (km)')
         plt.ylabel('Time (s)')
         fig.tight_layout()
@@ -197,7 +198,7 @@ if __name__ == "__main__":
     # title = 401
     title = 301
     no = 251
-    title,no = 201,251
+    # title,no = 201,251
     # nomax = 201
     # no = (nomax)+101
     # no = 302 # for 101 & 501
@@ -224,6 +225,8 @@ if __name__ == "__main__":
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     # tr1 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     tr1 = '../output/48_const_2000_ano/t1_obs_000'+str(title)+'.dat'
+    
+    tr1 = '../output/63_evaluating_thickness/vel_thick_204/t1_obs_000'+str(title)+'.dat'
     # tr3 ='../output/t1_obs_000361.dat'
     # tr2 = '../output/t1_obs_000'+str(title)+'.dat'
     
@@ -258,7 +261,7 @@ if __name__ == "__main__":
     hmin = np.max(inp1)/10
     hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
-    plot_shot_gathers(hmin, hmax, -inp1, flout_gather)
+    plot_shot_gathers(hmin/15, hmax/15, -inp1, flout_gather)
  
     
     # hmin = np.max(inp1)
@@ -369,17 +372,17 @@ if __name__ == "__main__":
 
         # print(hmin,hmax)
         plt.rcParams['font.size'] = 20
-        hmax = 2.05
-        hmin = 2.0
+        # hmax = 5.0
+        # hmin = 1.5
         hmin = np.min(inp)
-        # hmax = -hmin
-        hmax = np.max(inp)
+        hmax = -hmin
+        # hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto')
+                              vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -391,7 +394,7 @@ if __name__ == "__main__":
         # av.set_ylim([0.8,0.4])
         # plt.axvline(x=ax[tr], color='k',ls='--')
         # plt.axhline(0.606, color='w')
-        plt.colorbar(hfig1, format='%1.3f',label='m/s')
+        plt.colorbar(hfig1, format='%1.1f',label='m/s')
         # plt.colorbar(hfig1, format='%1.1f',label='m/s')
         fig.tight_layout()
 
@@ -399,39 +402,27 @@ if __name__ == "__main__":
         fig.savefig(flout, bbox_inches='tight')
         return inp, fig
     
-    
-   #  labelsize = 16
-   #  nt = 1501
-   #  dt = 1.41e-3
-   #  ft = -100.11e-3
-   #  nz = 400
-   #  fz = 0.0
-   #  dz = 12.0/1000.
-   #  nx = 350
-   #  fx = 0.0
-   #  dx = 12.0/1000.
-   #  no = 251
-   # # no        = 2002
-   #  do = dx
-   #  fo = -(no-1)/2*do
-   #  ao = fo + np.arange(no)*do
-   #  at = ft + np.arange(nt)*dt
-   #  az = fz + np.arange(nz)*dz
-   #  ax = fx + np.arange(nx)*dx
-
-
+   
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     
     # # fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
     # fl1='../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
     # # fl1='../input/45_marm_ano_v3/fwi_sm.dat'
+    fl1 = '../input/marm2_full.dat'
     # fl1 = '../input/vel_full.dat'
-    fl1 = '../output/48_const_2000_ano/flat_born_ano/adbetap.dat'
-    fl1 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
-    fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
+    fl1 = '../input/vel_smooth.dat'
+    # fl1 = '../input/68_thick_marm_ano/marm_thick_ano.dat'
+    # fl1 = '../output/48_const_2000_ano/flat_born_ano/adbetap.dat'
+    # fl1 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+    # fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
+    # fl1 = '../output/63_evaluating_thickness/vel_thick_588/avp_init.dat'
+    # fl1 = '../input/68_thick_marm_ano/marm_thick_org_sm8.dat'
     
+    
+    # fl1 = '../input/63_evaluating_thickness/vel_492.dat'
+    # fl1= '../output/27_marm/binv'
     # fl1 = '../input/vel_smooth.dat'
-    # fl1 = '../output/dbetap_exact.dat'
+    # fl1 = '../output/abetap.dat'
     # fl1 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
     # fl1 = '../output/40_marm_ano/binv/abetap.dat'
     # fl1 =  '../input/vel_full.dat'
@@ -511,34 +502,59 @@ if __name__ == "__main__":
     # flout = '../png/27_marm/diff_marm_corr/adbetap.png'
     # plot_model(-inp3, flout)
 
-    # fl4 = '../output/27_marm/flat_marm/inv_betap_x_s.dat'
-    fl4 = '../output/inv_betap_x.dat'
+    # fl3 = '../output/27_marm/binv/inv_betap_x_s.dat'
+    # fl3 = '../output/27_marm/binv/inv_betap_x.dat'
+    fl3 = '../output/68_thick_marm_ano/org_thick/inv_betap_x.dat'
+    # fl4 = '../output/inv_betap_x_s.dat'
+    inp3 = -gt.readbin(fl3,nz,nx)
+    flout = '../png/inv_betap_x_s.png'
+    plot_model(inp3,flout)
+    
+    fl4 = '../output/68_thick_marm_ano/ano_thick/inv_betap_x.dat'
     # fl4 = '../output/inv_betap_x_s.dat'
     inp4= -gt.readbin(fl4,nz,nx)
     flout = '../png/inv_betap_x_s.png'
-    plot_model(-inp4,flout)
+    plot_model(inp4,flout)
+    
+    inp_diff = inp3-inp4
+    plot_model(inp_diff,flout)
     
     
+    fl3 = '../output/68_thick_marm_ano/thick_adj/org/inv_betap_x.dat'
+    inp3 = gt.readbin(fl3,nz,nx)
+    flout = '../png/inv_betap_x_s.png'
+    plot_model(inp3,flout)
     
-    fl3 ='../input/45_marm_ano_v3/fwi_ano.dat'
-    inp3= gt.readbin(fl3,nz,nx)
-    
-    diff = inp1-inp3
-    
-    hmax= np.max(inp4)
-    hmin= np.min(inp4)
-    plt.figure(figsize=(18,10))
-    # plt.imshow(inp4, extent=[ax[0], ax[-1], az[-1], az[0]],
-    #                   vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
-    plt.imshow(inp4,extent=[1, 601, az[-1], az[0]], vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+    fl4 = '../output/68_thick_marm_ano/thick_adj/ano/inv_betap_x.dat'
+    inp4= gt.readbin(fl4,nz,nx)
+    flout = '../png/inv_betap_x_s.png'
+    plot_model(inp4,flout)
     
     
-    hmax= np.max(diff)
-    hmin= np.min(diff)
+    inp_diff = inp3-inp4
+    plot_model(inp_diff,flout)
+   
     
-    plt.figure()
-    plt.imshow(diff, extent=[ax[0], ax[-1], az[-1], az[0]],
-                      vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic',alpha=1)
+    
+    # fl3 ='../input/45_marm_ano_v3/fwi_ano.dat'
+    # inp3= gt.readbin(fl3,nz,nx)
+    
+    # diff = inp1-inp3
+    
+    # hmax= np.max(inp4)
+    # hmin= np.min(inp4)
+    # plt.figure(figsize=(18,10))
+    # # plt.imshow(inp4, extent=[ax[0], ax[-1], az[-1], az[0]],
+    # #                   vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+    # plt.imshow(inp4,extent=[1, 601, az[-1], az[0]], vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+    
+    
+    # hmax= np.max(diff)
+    # hmin= np.min(diff)
+    
+    # plt.figure()
+    # plt.imshow(diff, extent=[ax[0], ax[-1], az[-1], az[0]],
+    #                   vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic',alpha=1)
     
    # plt.axhline(50*dz,color='k')
     # plt.axhline(99*dz,color='k')
@@ -776,6 +792,101 @@ if __name__ == "__main__":
         print(np.shape(inp1))
 
     plot_sim_wf(inp1, born)
+
+#%%
+
+# ######## INPUT FOR SIMPLE MODEL
+
+    # fl1 = './input/19_anomaly_4_layers/3_interfaces_org_smooth5.dat'
+    # fl1 = '../input/19_anomaly_4_layers/3_interfaces_anomaly_250.dat'
+    # fl1 = '../input/18_3_interface/3_interfaces_dp.dat'
+    fl1 = '../input/vel_full.dat'
+    
+    # fl1 = '../output/68_thick_marm_ano/org_thick/adbetap.dat'
+    inp1 = gt.readbin(fl1, nz, nx)  # model
+    
+    # fl2 = './output/12_wf_simple/sm10_2060/born/p2d_lsm_000004.dat'
+    # fl3 = './output/12_wf_simple/sm10_2060/fwi/p2d_fwi_000004.dat'
+    # fl5 = './output/12_wf_simple/sm15_4000/p0_fwi/p2d_fwi_000004.dat'
+
+    # fl2 = '../output/18_3_interfaces/org/born/p2d_lsm_000004.dat'
+    # fl3 = '../output/19_anomaly_4_layers/ano_190/fwi/p2d_fwi_000004.dat'
+    # fl5 = '../output/19_anomaly_4_layers/p0/fwi/p2d_fwi_000004.dat'
+
+    fl1   = '../output/68_thick_marm_ano/org_thick/p2d_fwi_000001.dat'
+    fl2   = '../output/68_thick_marm_ano/ano_thick/p2d_fwi_000001.dat'
+    nt    = 1801
+    # nxl = 443
+    nxl   = 291
+    h_nxl = int((nxl-1)/2)
+    
+    org =  -gt.readbin(fl1, nz, nxl*nt) 
+    ano  = -gt.readbin(fl2, nz, nxl*nt)   #
+    # fwi = gt.readbin(fl3, nz, nxl*nt)    #
+    # p0_fwi = gt.readbin(fl5, nz, nxl*nt)
+
+    # nxl = bites/4/nz/nt = bites/4/151/1501
+    # position central (301-1)*dx = 3600
+    # 291 = 1+2*145
+    # point à gauche = 3600-145*dx
+    # point à droite = 3600+145*dx
+
+    left_p  = 300-75 - h_nxl  # left point
+    right_p = 300-75 + h_nxl  # right point
+    # right_p = 471
+    # left_p2  = 300 - h_nxl  # left point
+    # right_p2 = 300 + h_nxl  # right point
+
+    # print("size",np.shape(born))
+
+    org = np.reshape(org, (nz, nt, nxl))
+    ano = np.reshape(ano, (nz, nt, nxl))
+    # fwi = np.reshape(fwi, (nz, nt, nxl))
+    # p0_fwi = np.reshape(p0_fwi, (nz, nt, nxl))
+
+    # # print("size",np.shape(born))
+
+    # dm_fwi = p0_fwi-fwi  # Reflected FWI wavefield
+
+    # diff = born-dm_fwi
+
+    # diff = born+fwi
+    # hmax = 10
+    # hmin = -10
+    # hmax = np.max(born)
+    # hmin = np.min(born)
+    # print(hmin,hmax)
+
+    # TO PRODUCE SIMULATIONS OF THE FULL WAVEFIELD OVERLAYING THE MODEL
+    #shot 221
+    
+    def plot_sim_wf(bg, inp1):
+        hmax = np.max(inp1)
+        print('hmax: ', hmax)
+        hmax = 1
+        hmin = -hmax
+        for i in range(500, 1800, 100):
+            fig = plt.figure(figsize=(13, 6), facecolor="white")
+            av = plt.subplot(1, 1, 1)
+            hfig = av.imshow(inp1[:, i, :]*100, extent=[ax[left_p], ax[right_p], az[-1], az[0]],
+                             vmin=hmin, vmax=hmax, aspect='auto', alpha=1,
+                             cmap='jet')
+            hfig1 = av.imshow(bg[:, left_p:right_p], extent=[ax[left_p], ax[right_p], az[-1], az[0]],
+                              aspect='auto', alpha=0.3,
+                              cmap='gray')
+           
+            av.scatter(2.7,0.012,marker='*')
+            av.set_title('t = '+str(i*dt*1000)+' s')
+            plt.colorbar(hfig)
+            fig.tight_layout()
+            flout2 = '../png/68_thick_marm_ano/sim_fwi_'+str(i)+'.png'
+            print("Export to file:", flout2)
+            fig.savefig(flout2, bbox_inches='tight')
+            plt.rcParams['font.size'] = 18
+        print(np.shape(bg))
+        print(np.shape(inp1))
+
+    plot_sim_wf(inp1, org-ano)
 
     def plot_sim_2wf(bg, inp1, inp2):
         hmax = np.max(inp1)

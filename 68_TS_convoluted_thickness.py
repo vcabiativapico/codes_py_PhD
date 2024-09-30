@@ -16,7 +16,9 @@ import sympy as sp
 import tqdm
 import functions_bsplines_new_kev_test_2_5D as kvbsp
 from scipy.ndimage import gaussian_filter
-
+from matplotlib.gridspec import GridSpec
+import matplotlib.patches as patches
+import pandas as pd
 # Global parameters
 labelsize = 16
 nt = 1801
@@ -43,8 +45,8 @@ dy = 50
 ay = fy + np.arange(ny)*dy
 
 def plot_model(inp,hmin,hmax):
-    plt.rcParams['font.size'] = 22
-    fig = plt.figure(figsize=(16,8), facecolor = "white")
+    plt.rcParams['font.size'] = 24
+    fig = plt.figure(figsize=(14,7), facecolor = "white")
     av  = plt.subplot(1,1,1)
     hfig = av.imshow(inp, extent=[ax[0],ax[-1],az[-1],az[0]], \
                       vmin=hmin,vmax=hmax,aspect='auto'\
@@ -287,6 +289,11 @@ def phase_rot(inp,fact):
     mod_ph = np.fft.irfft(wsrcf,axis=-1)
     return mod_ph
 #%%
+
+title = 60
+title = 108
+title = 588
+
 gen_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/'
 
 path_inv = gen_path + '061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_2024-07-09_16-43-24/results/depth_demig_output.csv'
@@ -295,6 +302,7 @@ path_adj  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_a
 path_inv = gen_path + '061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_org_1750/results/depth_demig_output.csv'
 path_adj  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/results/depth_demig_output.csv'
 
+path_inv = gen_path + '066_TS_thickness_flat/depth_demig_out_ano/'+str(title)+'/results/depth_demig_output.csv'
 
 class Param_class:
     "Class for the parameters definition"
@@ -334,11 +342,9 @@ p_inv = Param_class(path_inv)
 
 '''Read the velocity model '''
 
-# fl1 = '../input/45_marm_ano_v3/fwi_org.dat'
-# fl2 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
 
-fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
-fl2 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+fl1 = '../input/63_evaluating_thickness/vel_'+str(title)+'.dat'
+fl2 = '../input/63_evaluating_thickness/vel_ano_'+str(title)+'.dat'
 
 
 inp_org = gt.readbin(fl1,nz,nx)
@@ -347,26 +353,11 @@ inp_ano = gt.readbin(fl2,nz,nx)
 
 
 '''Read the raypath'''
-# spot lancé dans le modele 3510,-1210
-
-# path_ray2 = gen_path + '056_correct_TS_deep/depth_demig_out/050_TS_analytiquedeep_2024-07-05_11-53-25/rays/ray_0.csv'
-# path_ray = gen_path + '054_TS_deeper/depth_demig_out/050_TS_analytiquedeep_2024-07-02_15-30-30/rays/ray_0.csv'
-
-# path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/052_TS_deep/depth_demig_out/052_TS_analytique_deep_2024-06-20_12-02-07/rays/ray_0.csv'
-
-# path_ray2 = gen_path + '057_const_TS_deep/depth_demig_out/050_TS_constant_2024-07-08_10-10-47/rays/ray_0.csv'
-# path_ray = gen_path + '057_const_TS_deeper/depth_demig_out/050_TS_const_deeper_2024-07-08_11-08-01/rays/ray_0.csv'
 
 
-path_ray2 = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_2024-07-09_16-40-37/rays/ray_0.csv'
 
-path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_2024-07-09_16-43-24/rays/ray_0.csv'
-path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_2024-07-30_16-58-18/rays/ray_0.csv'
-
-
-path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_org_1750/rays/ray_0.csv'
-path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/rays/ray_0.csv'
-
+path_ray  = gen_path +'066_TS_thickness_flat/depth_demig_out_org/'+str(title)+'/rays/ray_0.csv'
+path_ray2  = gen_path +'066_TS_thickness_flat/depth_demig_out_ano/'+str(title)+'/rays/ray_0.csv'
 
 
 
@@ -387,12 +378,12 @@ half_idx2 = len(ray_tt2)//2
 
 # %matplotlib qt5
 plt.figure(figsize=(8,8))
-plt.plot(np.arange(len(ray_x)),ray_z,'.')
-plt.plot(np.arange(len(ray_x2)),ray_z2,'.')
+# plt.plot(np.arange(len(ray_x)),ray_z,'.')
+# plt.plot(np.arange(len(ray_x2)),ray_z2,'.')
 plt.plot(ray_x,ray_z,'.')
 plt.plot(ray_x2,ray_z2,'.')
-plt.axvline(half_idx)
-plt.axvline(half_idx2)
+# plt.axvline(half_idx)
+# plt.axvline(half_idx2)
 
 # plt.ylim(-1400,-1600)
 # plt.xlim(-1000,1000)
@@ -408,14 +399,15 @@ spot_z = 1024.3
 spot_x = p_inv.spot_x_[0]
 spot_z = -p_inv.spot_z_[0]
 
+plt.figure()
 plot_model(inp_org,hmin,hmax)
 plt.scatter(spot_x/1000,spot_z/1000,c='r',s=5)
 plt.plot(ray_x/1000,-ray_z/1000,'w')
 
+plt.figure()
 plot_model(inp_ano,hmin,hmax)
 plt.scatter(spot_x/1000,spot_z/1000,c='r',s=5)
 plt.plot(ray_x/1000,-ray_z/1000,'w')
-
 
 
 
@@ -424,7 +416,6 @@ idx_tt_z = find_nearest(ray_z[:half_idx], -spot_z)[1]
 idx_tt = (idx_tt_x + idx_tt_z)//2
 
 
-nb_to_idx = 45
 nb_to_idx = 0
 
 
@@ -441,11 +432,11 @@ Weight_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_ta
 Param_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_vel_flat_ano.csv'
 Weight_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_vel_flat_ano.csv'
 
-Param_betap_org = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_betap_flat_org.csv'
-Weight_betap_org = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_betap_flat_org.csv'
+Param_betap_org = '../../../../Demigration_SpotLight_Septembre2023/066_TS_thickness_flat/betap/066_Param_betap_'+str(title)+'_org.csv'
+Weight_betap_org = '../../../../Demigration_SpotLight_Septembre2023/066_TS_thickness_flat/betap/066_Weights_betap_'+str(title)+'_org.csv'
 
-Param_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_betap_flat_ano.csv'
-Weight_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_betap_flat_ano.csv'
+Param_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/066_TS_thickness_flat/betap/066_Param_betap_'+str(title)+'_ano.csv'
+Weight_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/066_TS_thickness_flat/betap/066_Weights_betap_'+str(title)+'_ano.csv'
 
 
 '''Extract velocity values from the full model'''
@@ -478,7 +469,7 @@ z_disc = np.arange(151)*12.00
 ''' Creation de l'ondelette source '''
 # Parameters of the analytical source wavelet
 nws = 177
-fmax = 80
+fmax = 25
 nt2 = nt - (nws-1) / 2
 nt_len = int((nt2+1) * 2)
 wsrc_org = defwsrc(fmax, dt,0,nws)
@@ -487,10 +478,10 @@ nws2 = nws//2
 # wsrc_rot = phase_rot(wsrc_org,np.pi/2)
 time_wsrc = np.arange(ft,-ft,dt)
 
-plt.figure(figsize=(6,10))
-plt.plot(wsrc_org,time_wsrc)
+plt.figure(figsize=(10,6))
+plt.plot(time_wsrc,wsrc_org)
 plt.title('Wavelet at 25 hz')
-
+plt.xlabel('time (s)')
 
 file = '../time_shift_theorique.csv'
 
@@ -505,8 +496,8 @@ ray_time_ano = ray_tt2[:half_idx2]*2
 
 plt.figure(figsize=(6,10))
 plt.rcParams['font.size'] = 20
-plt.plot(redef_betap_org[:half_idx],ray_time_org[:half_idx],'.',label='org')
-plt.plot(redef_betap_ano[:half_idx2],ray_time_ano[:half_idx2],'.',label='ano')
+plt.plot(redef_betap_org[:half_idx],ray_time_org[:half_idx],'-',label='org')
+plt.plot(redef_betap_ano[:half_idx2],ray_time_ano[:half_idx2],'-',label='ano')
 plt.legend()
 plt.title('Perturbation vs time')
 plt.xlim(-2,2)
@@ -515,15 +506,6 @@ plt.ylabel('time (s)')
 plt.gca().invert_yaxis()
 # plt.ylim(-0.9,-1.1)
 
-plt.figure(figsize=(6,12))
-plt.plot(vel_ray_org[:half_idx],ray_time_org[:half_idx],label='org')
-plt.plot(vel_ray_ano[:half_idx2],ray_time_ano[:half_idx2],label='ano')
-# plt.axhline(tt_at_spot,c='tab:green')
-plt.title('velocity vs time')
-plt.legend()
-plt.gca().invert_yaxis()
-plt.ylabel('time (s)')
-# plt.ylim(-0.9,-1.1)
 
 
 '''Interpolation using betap'''
@@ -541,24 +523,24 @@ convol_time_org_int = np.convolve(betap_ray_org_int, wsrc_org,mode='same')
 
 
 
-plt.figure(figsize=(6,12))
-plt.plot(betap_ray_org_int,-ray_time_int,'-',label='org')
-plt.plot(betap_ray_ano_int,-ray_time_int,'-',label='ano')
-plt.ylabel('time (s)')
-plt.title('Perturbation vs time')
-plt.legend()
+# plt.figure(figsize=(6,12))
+# plt.plot(betap_ray_org_int,-ray_time_int,'-',label='org')
+# plt.plot(betap_ray_ano_int,-ray_time_int,'-',label='ano')
+# plt.ylabel('time (s)')
+# plt.title('Perturbation vs time')
+# plt.legend()
 
 
-plt.rcParams['font.size'] = 20
-plt.figure(figsize=(6,10))
-plt.plot(convol_time_org_int,ray_time_int,label='org')
-plt.plot(convol_time_ano_int,ray_time_int,label='ano')
-plt.ylabel('time (s)')
-plt.title('Convoluted trace vs time')
-plt.xlim(-900,900)
-# plt.ylim(1.67,1.74)
-plt.legend()
-plt.gca().invert_yaxis()
+# plt.rcParams['font.size'] = 20
+# plt.figure(figsize=(6,10))
+# plt.plot(convol_time_org_int,ray_time_int,label='org')
+# plt.plot(convol_time_ano_int,ray_time_int,label='ano')
+# plt.ylabel('time (s)')
+# plt.title('Convoluted trace vs time')
+# plt.xlim(np.min(convol_time_org_int)-50,np.max(convol_time_org_int)+50)
+# # plt.ylim(1.67,1.74)
+# plt.legend()
+# plt.gca().invert_yaxis()
 
 
 solver_timestep =ray_time_int[51]-ray_time_int[50]
@@ -568,11 +550,11 @@ oplen = 300
 
 SLD_TS = procs.sliding_TS(convol_time_org_int, convol_time_ano_int, oplen=oplen, si=solver_timestep, taper=30)
 
-plt.figure(figsize=(6,10))
-plt.plot(SLD_TS,ray_time_int,'-')
-plt.title('time-shift vs time ')
-plt.ylabel('time (s)')
-plt.gca().invert_yaxis()
+# plt.figure(figsize=(6,10))
+# plt.plot(SLD_TS,ray_time_int,'-')
+# plt.title('time-shift vs time ')
+# plt.ylabel('time (s)')
+# plt.gca().invert_yaxis()
 
 
 
@@ -595,8 +577,8 @@ nt = 1801
 at = ft + np.arange(nt)*dt
 
 
-gather_path_fwi_org = '../output/48_const_2000_ano/flat_fwi_org'
-gather_path_fwi45 = '../output/48_const_2000_ano/flat_fwi_ano'
+gather_path_fwi_org = '../output/63_evaluating_thickness/vel_thick_'+str(title)
+gather_path_fwi45 = '../output/63_evaluating_thickness/vel_thick_ano_'+str(title)
 
 idx_src = find_nearest(p_inv.ax_, p_inv.src_x_[0]/1000)[1]
 idx_src_adj = find_nearest(p_adj.ax_, p_adj.src_x_[0]/1000)[1]
@@ -634,71 +616,83 @@ plt.plot(bruit_org)
 plt.plot(bruit_ano)
 
 
-SLD_TS = procs.sliding_TS(conv_t_org_norm_rand, conv_t_ano_norm_rand, oplen=oplen, si=solver_timestep, taper=30)
+# SLD_TS = procs.sliding_TS(conv_t_org_norm_rand, conv_t_ano_norm_rand, oplen=oplen, si=solver_timestep, taper=30)
 SLD_TS = procs.sliding_TS(conv_t_org_norm, conv_t_ano_norm, oplen=oplen, si=solver_timestep, taper=30)
 
 
 
-fl_org = '../input/46_flat_simple_taper/inp_vel_taper_all_org.dat'
+fl_org = '../input/63_evaluating_thickness/vel_'+str(title)+'.dat'
 inp_org = gt.readbin(fl_org,nz,nx)
 
-fl_ano = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+fl_ano = '../input/63_evaluating_thickness/vel_ano_'+str(title)+'.dat'
 inp_ano = gt.readbin(fl_ano,nz,nx)
 
 
 
+max_ts_theorique = (title) * 2 / 2.05 - (title) * 2 / 2.057 # maximum theoretical time-shift
+m = max_ts_theorique / (title / 2.050 * 2)
 
-max_ts_theorique = (612-12)*2/2.05- (600)*2/2.057 # maximum theoretical time-shift
-m = max_ts_theorique/(600/2.050 * 2)
-
-idx_max = int((612-12)*2//2 + 600*2//2.05) # The first layer is 612 m thick at 2km/s, but we start at 12m. The second is 600 thick at 2.05km/s
+idx_max = int((612 -12) * 2 // 2 + title * 2 // 2.05) # The first layer is 612 m thick at 2km/s, but we start at 12m. The second is 600 thick at 2.05km/s
 
 ts_theo_tr = np.zeros(2000)
 
 for i in range(600):
-    ts_theo_tr[i+600] = i*m
+    ts_theo_tr[i+600] = i * m
 ts_theo_tr[idx_max:] = max_ts_theorique     
     
-axt_for_theo = np.arange(0,2000)/1000
+axt_for_theo = np.arange(0,2000) / 1000
 
 plt.figure(figsize=(6,12))
 plt.plot(ts_theo_tr,axt_for_theo)
+plt.scatter(max_ts_theorique,0.798)
 plt.gca().invert_yaxis()
 
 
 
-plt.figure(figsize=(6,12))
+plt.figure(figsize=(7,12))
 plt.plot(conv_t_org_norm_rand,-ray_time_int-nws2*dt,label='org')
 plt.plot(conv_t_ano_norm_rand,-ray_time_int-nws2*dt,label='ano')
 plt.plot(conv_t_ano_norm_rand*0,-ray_time_int-nws2*dt,label='ano')
 plt.axhline(-1.19736)
 plt.xlim(-1,1)
 
-
-
-plt.figure(figsize=(6,12))
+plt.figure(figsize=(7,12))
 plt.plot(conv_t_org_norm,-ray_time_int-nws2*dt,label='org')
 plt.plot(conv_t_ano_norm,-ray_time_int-nws2*dt,label='ano')
 plt.axhline(-1.19736)
 plt.xlim(-1,1)
 
+plt.figure(figsize=(7,12))
+plt.plot(-tr_binv_fwi_org_norm,at)
+plt.plot(-tr_binv_fwi_45_norm,at)
+plt.title('modelled traces')
+plt.ylim(1.95, ft-0.1)
+plt.xlim(-2, 2)
+
+plt.rcParams['font.size'] = 22
 plt.figure(figsize=(6,12))
-plt.plot(-tr_binv_fwi_org_norm,at-ft)
-plt.plot(-tr_binv_fwi_45_norm,at-ft)
-# plt.plot(ts_theo_tr/5,at)
-plt.axhline(1.19736)
-plt.gca().invert_yaxis()
-plt.xlim(-1,1)
+plt.plot(binv_SLD_TS_fwi, at, c='tab:purple', label='FD')
+plt.plot(SLD_TS[:1700], ray_time_int[:1700], '-', label='Conv')
+plt.plot(ts_theo_tr, axt_for_theo, label='theo')
+# plt.scatter(max_ts_theorique,0.7598)
+plt.ylim(1.95-ft, ft-0.1)
+# plt.xlim(-0.1,0.9)
+plt.title('Sliding time-shift vs time')
+plt.legend()
+
 
 # plt.rcParams['font.size'] = 22
 # plt.figure(figsize=(6,12))
-# plt.plot(binv_SLD_TS_fwi,at,c='tab:purple',label='FD')
-# plt.plot(SLD_TS[:1700],ray_time_int[:1700],'-',label='RT')
-# plt.plot(ts_theo_tr,at,label='theo')
-# plt.xlim(-0.5,5)
+# # plt.plot(binv_SLD_TS_fwi, at, c='tab:purple', label='FD')
+# plt.plot(SLD_TS[:1700], ray_time_int[:1700], '-', label='Conv',linewidth=2)
+# plt.gca().invert_yaxis()
+# # plt.plot(ts_theo_tr, axt_for_theo, label='theo')
+# # plt.scatter(max_ts_theorique,0.7598)
+# # plt.ylim(1.95-ft, ft-0.1)
+# # plt.xlim(-0.1,0.9)
 # plt.title('Sliding time-shift vs time')
 # plt.legend()
-# plt.gca().invert_yaxis()
+
 
 #%%
 
@@ -706,8 +700,8 @@ tr_binv_fwi_org_norm = tr_binv_fwi_org/np.min(tr_binv_fwi_org[500:])
 tr_binv_fwi_45_norm = tr_binv_fwi_45/np.min(tr_binv_fwi_45[500:])
 
 
-tr_binv_fwi_org_sm = gaussian_filter(tr_binv_fwi_org_norm,8)
-tr_binv_fwi_45_sm = gaussian_filter(tr_binv_fwi_45_norm,8)
+tr_binv_fwi_org_sm = gaussian_filter(tr_binv_fwi_org_norm,5)
+tr_binv_fwi_45_sm = gaussian_filter(tr_binv_fwi_45_norm,5)
 
 tr_binv_fwi_org_sm_norm = tr_binv_fwi_org_sm/np.min(tr_binv_fwi_org_sm[500:])
 tr_binv_fwi_45_sm_norm = tr_binv_fwi_45_sm/np.min(tr_binv_fwi_45_sm[500:])
@@ -746,62 +740,106 @@ def find_max(tr,at,win1,win2,dt=dt):
 
 conv_dt =ray_time_int[11]-ray_time_int[10]
 
-win1_1 = 0.5
-win2_1 = 1.0
-at_point_org_inv1, val_roots_org_inv1  = find_max(convol_time_org_int,ray_time_int,win1_1,win2_1,conv_dt) 
-at_point_ano_inv1, val_roots_ano_inv1  = find_max(convol_time_ano_int,ray_time_int,win1_1,win2_1,conv_dt) 
+# win1_1 = 0.5
+# win2_1 = 1.0
+# at_point_org_inv1, val_roots_org_inv1  = find_max(convol_time_org_int,ray_time_int,win1_1,win2_1,conv_dt) 
+# at_point_ano_inv1, val_roots_ano_inv1  = find_max(convol_time_ano_int,ray_time_int,win1_1,win2_1,conv_dt) 
 
 
-win1_2 = 1.0
-win2_2 = 1.25
-at_point_org_inv2, val_roots_org_inv2 = find_max(convol_time_org_int,ray_time_int,win1_2,win2_2,conv_dt) 
-at_point_ano_inv2, val_roots_ano_inv2 =  find_max(convol_time_ano_int,ray_time_int,win1_2,win2_2,conv_dt)
+# win1_2 = 1.0
+# win2_2 = 1.25
+# at_point_org_inv2, val_roots_org_inv2 = find_max(convol_time_org_int,ray_time_int,win1_2,win2_2,conv_dt) 
+# at_point_ano_inv2, val_roots_ano_inv2 =  find_max(convol_time_ano_int,ray_time_int,win1_2,win2_2,conv_dt)
 
-diff_at_max_conv1 = at_point_org_inv1 - at_point_ano_inv1
-diff_at_max_conv2 = at_point_org_inv2 - at_point_ano_inv2
+# diff_at_max_conv1 = at_point_org_inv1 - at_point_ano_inv1
+# diff_at_max_conv2 = at_point_org_inv2 - at_point_ano_inv2
 
-diff_at_roots_conv = np.append(diff_at_max_conv1,diff_at_max_conv2)
+# diff_at_roots_conv = np.append(diff_at_max_conv1,diff_at_max_conv2)
 
-at_point_conv_org = np.append(at_point_org_inv1,at_point_org_inv2)
-at_point_conv_ano = np.append(at_point_ano_inv1,at_point_ano_inv2)
+# at_point_conv_org = np.append(at_point_org_inv1,at_point_org_inv2)
+# at_point_conv_ano = np.append(at_point_ano_inv1,at_point_ano_inv2)
 
-val_roots_org = np.append(val_roots_org_inv1,val_roots_org_inv2)
-val_roots_ano = np.append(val_roots_ano_inv1,val_roots_ano_inv2)
+# val_roots_org = np.append(val_roots_org_inv1,val_roots_org_inv2)
+# val_roots_ano = np.append(val_roots_ano_inv1,val_roots_ano_inv2)
 
+at_point_org_rt, val_roots_org_rt = find_roots(conv_t_org_norm,ray_time_int,0.2) 
+at_point_ano_rt, val_roots_ano_rt = find_roots(conv_t_ano_norm,ray_time_int,0.2) 
+diff_at_roots_conv = np.array(at_point_org_rt)-np.array(at_point_ano_rt)
 
-    
 at_point_org_inv, val_roots_org_inv = find_roots(tr_binv_fwi_org_sm_norm[500:1500],at[500:1500]) 
 at_point_ano_inv, val_roots_ano_inv = find_roots(tr_binv_fwi_45_sm_norm[500:1500],at[500:1500])
-
-
 
 plt.figure(figsize=(7, 12))
 plt.plot(tr_binv_fwi_org_sm_norm, at, label='org')
 plt.plot(tr_binv_fwi_45_sm_norm, at, label='ano')
 plt.plot(val_roots_org_inv,at_point_org_inv,'.')
 plt.plot(val_roots_ano_inv,at_point_ano_inv,'.')
-plt.title('modelled traces_inv')
-plt.ylim(1.95, ft-0.1)
+plt.title('modelled traces df')
+plt.legend()
+plt.ylim(1.75, ft-0.1)
 plt.xlim(-2, 2)
 diff = np.array(at_point_org_inv)-np.array(at_point_ano_inv)
 
-
 plt.figure(figsize=(7, 12))
-plt.plot(convol_time_org_int, ray_time_int, label='org')
-plt.plot(convol_time_ano_int, ray_time_int, label='ano')
-plt.plot(val_roots_org,at_point_conv_org,'.')
-plt.plot(val_roots_ano,at_point_conv_ano,'.')
-plt.title('convolved traces')
-plt.gca().invert_yaxis()
-
-
+plt.plot(conv_t_org_norm, ray_time_int, label='org')
+plt.plot(conv_t_ano_norm, ray_time_int, label='ano')
+plt.plot(val_roots_org_rt,at_point_org_rt,'.')
+plt.plot(val_roots_ano_rt,at_point_ano_rt,'.')
+plt.title('convolved traces rt')
+plt.legend()
+plt.xlim(-2, 2)
+plt.ylim(1.75, ft-0.1)
 
 plt.figure(figsize=(7, 12))
 plt.plot(diff*1000,np.array(at_point_org_inv),'-o', label='mod qtv')
-plt.plot(diff_at_roots_conv*1000,at_point_conv_org,'-o', label='mod rt')
+plt.plot(diff_at_roots_conv*1000,at_point_org_rt,'-o', label='mod rt')
 plt.plot(ts_theo_tr,axt_for_theo,'-',label='theo')
 plt.legend()
 plt.title('Time-shift for the simple model')
 plt.ylim(1.95-ft, ft-0.1)
-plt.xlim(-1, 2.5)
+plt.xlim(-0.1,0.3)
+
+print('max du modelisé par DF = ',np.max(diff*1000))
+print('max du modelisé par RT = ',np.max(diff_at_roots_conv*1000))
+print('max théorique          = ',max_ts_theorique)
+
+
+# plt.figure(figsize=(7, 12))
+
+# plt.plot(ts_theo_tr,axt_for_theo,'-',label='theo')
+# plt.legend()
+# plt.title('Time-shift for the simple model')
+# plt.gca().invert_yaxis()
+
+
+#%%
+
+sliding_df = [SLD_TS[:1700],ray_time_int[:1700],binv_SLD_TS_fwi[:1700],at[:1700],ts_theo_tr[:1700],axt_for_theo[:1700]]
+
+sld_df = pd.DataFrame(sliding_df).T
+out_nam = '../output/63_evaluating_thickness/sliding_TS_plot_'+str(title)+'.csv'
+sld_df.to_csv(out_nam,header=False,index=False)
+
+conv_df = [np.array(diff*1000),np.array(at_point_org_inv)]
+conv_df = pd.DataFrame(conv_df).T
+out_nam = '../output/63_evaluating_thickness/picked_TS_plot_df_'+str(title)+'.csv'
+conv_df.to_csv(out_nam,header=False,index=False)
+
+conv_df2 = [np.array(diff_at_roots_conv*1000),np.array(at_point_org_rt)]
+conv_df2 = pd.DataFrame(conv_df2).T
+out_nam = '../output/63_evaluating_thickness/picked_TS_plot_conv_'+str(title)+'.csv'
+conv_df2.to_csv(out_nam,header=False,index=False)
+
+
+conv_trace = [conv_t_org_norm,ray_time_int,conv_t_ano_norm, ray_time_int,val_roots_org_rt,val_roots_ano_rt,at_point_org_rt,at_point_ano_rt]
+conv_trace = pd.DataFrame(conv_trace).T
+out_nam = '../output/63_evaluating_thickness/conv_trace_'+str(title)+'.csv'
+conv_trace.to_csv(out_nam,header=False,index=False)
+
+fd_df = [tr_binv_fwi_org_sm_norm,at,tr_binv_fwi_45_sm_norm, at,val_roots_org_inv,val_roots_ano_inv,at_point_org_inv,at_point_ano_inv]
+fd_df = pd.DataFrame(fd_df).T
+out_nam = '../output/63_evaluating_thickness/FD_trace_'+str(title)+'.csv'
+fd_df.to_csv(out_nam,header=False,index=False)
+
+
 

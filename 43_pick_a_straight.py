@@ -56,7 +56,11 @@ def plot_mig_image(inp,ax,az):
     hmin = -hmax
     fig = plt.figure(figsize=(15,7), facecolor = "white")
     av  = plt.subplot(1,1,1)
-    hfig = av.imshow(inp[50:100,200:350], vmin=hmin,vmax=hmax,extent=[ax[200], ax[350], az[100], az[50]],aspect='auto', cmap='seismic')
+    ax0 = 200
+    ax1 = 350
+    az0 = 100
+    az1 = 50
+    hfig = av.imshow(inp[az1:az0,ax0:ax1], vmin=hmin,vmax=hmax,extent=[ax[ax0], ax[ax1], az[az0], az[az1]],aspect='auto', cmap='seismic')
     print('az',az.shape)
    
     
@@ -585,9 +589,9 @@ def calculate_slope(degrees, spot_x, spot_z,inp=inp3_adj, plot=False):
     
     if plot==True: 
         plt.figure(figsize=(10,8))
-        plot_mig_image(inp, ax, -az)
-        plt.plot(point_x/1000,point_z/1000,linewidth=3)
-        plt.scatter(spot_x/1000,spot_z/1000,c='k')
+        plot_mig_image(inp, ax, az)
+        plt.plot(point_x/1000,-point_z/1000,linewidth=3)
+        plt.scatter(spot_x/1000,-spot_z/1000,c='k')
         plt.xlabel('Distance (km)')
         plt.ylabel('Depth (km)')
     return p1, p2, p3
@@ -669,7 +673,25 @@ df.to_csv(base_path+'/slope_binv_37.csv',header=False,index=False)
 #%%
 
 # fl3_adj = '../output/40_marm_ano/badj/inv_betap_x.dat'
-
+def plot_mig_image(inp,ax,az):
+    hmax = np.max(inp)
+    hmin = -hmax
+    plt.rcParams['font.size'] = 22
+    fig = plt.figure(figsize=(7,7), facecolor = "white")
+    av  = plt.subplot(1,1,1)
+    ax0 = 200
+    ax1 = 360
+    az0 = 130
+    az1 = 40
+    
+    # ax0 = 0
+    # ax1 = -1
+    # az0 = -1
+    # az1 = 0
+    
+    hfig = av.imshow(inp[az1:az0,ax0:ax1], vmin=hmin,vmax=hmax,extent=[ax[ax0], ax[ax1], az[az0], az[az1]],aspect='auto', cmap='seismic')
+    print('az',az.shape)
+   
 
 # fl3_inv = '../output/40_marm_ano/binv/inv_betap_x.dat'
 

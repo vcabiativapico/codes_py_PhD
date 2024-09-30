@@ -117,12 +117,12 @@ def print_input_values_rt(point1,point2,norm,d):
 
 
 
-def write_json_file(json_file,out_path, input_val,z_value,table):
+def write_json_file(json_file,out_path, input_val,z_value,table_name):
     # Step 1: Read the JSON file
     with open(json_file+'.json', 'r') as file:
         data = json.load(file)
     
-    data['paths_config']['input_file']= table
+    data['paths_config']['input_file']= table_name
     data['raytracing_config']['interfaces_data'][0]['depth'] = z_value
     # Step 2: Modify the dictionary
     data['raytracing_config']['interfaces_data'][1]['a'] = input_val['a']
@@ -145,19 +145,12 @@ def plot_mig_image(inp,ax,az):
     hfig = av.imshow(inp, vmin=hmin,vmax=hmax,extent=[ax[0], ax[-1], az[-1], az[0]],aspect='auto')
     plt.colorbar(hfig)
 #%%   
-path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/056_correct_TS_deep/'
-# json_file = path+'050_TS_analytique/to_input'
-# out_path= path+'050_TS_analytique/050_TS_analytique'
-
-json_file = path+'to_input'
-out_path= path
-
 
 
 # Global parameters
 labelsize = 16
 nt = 1801
-dt = 1.41e-3
+dt = 1.14e-3
 ft = -100.11e-3
 nz = 151
 fz = 0.0
@@ -179,41 +172,16 @@ ny = 21
 dy = 50
 ay = fy + np.arange(ny)*dy
 
+base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/068_TS_marm_ano_thick/'
 
-'''Read the raypath'''
-path_ray = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/054_TS_deeper/depth_demig_out/050_TS_analytiquedeep_2024-07-02_15-30-30/rays/ray_0.csv'
-ray_x = np.array(read_results(path_ray, 0))
-ray_z = np.array(read_results(path_ray, 2))
-vp =  np.array(read_results(path_ray, 6))
-tt = np.array(read_results(path_ray, 8))
-
-idx_in_poly = []
-
-for i,k in enumerate(ray_z):
-    if k < -1018:
-        idx_in_poly.append(i)
-ray_x_in_poly = ray_x[idx_in_poly]
-ray_z_in_poly = ray_z[idx_in_poly]
-tt_in_poly = tt[idx_in_poly]
+ref_json_file = base_path+'068_input'
+in_table_name =  '068_table_marm_thick_ano_sm5.csv'
 
 
-normales = []
-d_values = []
-dict_input = []
-spot_x = []
-spot_z = []
-
-
-# 3510.0	0.0	-980.966892484581
-
-%matplotlib inline
-# %matplotlib qt5
-
-# ray_x_in_poly,ray_z_in_poly = 3370,-1072
-
-ray_x_in_poly,ray_z_in_poly = 3510,-1209
+ray_x_in_poly,ray_z_in_poly = 3396,-1149
 
 degree = 37
+z_init_val = -12
 pt_inv1, pt_inv2, pt_inv3 = calculate_slope(degree,ray_x_in_poly,ray_z_in_poly, plot=True)
 d_val = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1]
 norm = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3,plot=False)[0]
@@ -223,17 +191,18 @@ dict_input=print_input_values_rt(pt_inv1,pt_inv2,norm,d_val)
 
 table_input = [ray_x_in_poly,0,0,0.01]
 
-table_name = '057_table_offsets.csv'
+
 spot_x=(-(dict_input['c']*ray_z_in_poly+dict_input['d'])/dict_input['a'])
 spot_z=(-(dict_input['a']*ray_x_in_poly+dict_input['d'])/dict_input['c'])
 print(ray_z_in_poly,spot_z)
 df = pd.DataFrame(table_input).T
-# df.to_csv(out_path+table_name,header=False,index=False)
+df.to_csv(base_path+in_table_name,header=False,index=False)
  
-# write_json_file(json_file, out_path+'deeper2_'+str(degree),dict_input,-12,table_name)
+# write_json_file(ref_json_file, base_path+'069_marm_fine_org_badj',dict_input,z_init_val,in_table_name)
 
 
-fl1='../input/45_marm_ano_v3/fwi_ano.dat'
+
+fl1='../input/68_thick_marm_ano/marm_thick_org.dat'
 
 inp_org = gt.readbin(fl1,nz,nx)
 

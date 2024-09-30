@@ -287,6 +287,8 @@ def phase_rot(inp,fact):
     mod_ph = np.fft.irfft(wsrcf,axis=-1)
     return mod_ph
 #%%
+
+title = 588
 gen_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/'
 
 path_inv = gen_path + '061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_2024-07-09_16-43-24/results/depth_demig_output.csv'
@@ -295,6 +297,7 @@ path_adj  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_a
 path_inv = gen_path + '061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_org_1750/results/depth_demig_output.csv'
 path_adj  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/results/depth_demig_output.csv'
 
+path_inv = gen_path + '067_TS_graded_flat/depth_demig_out_org/'+str(title)+'/results/depth_demig_output.csv'
 
 class Param_class:
     "Class for the parameters definition"
@@ -337,8 +340,8 @@ p_inv = Param_class(path_inv)
 # fl1 = '../input/45_marm_ano_v3/fwi_org.dat'
 # fl2 = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
 
-fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
-fl2 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+fl1 = '../input/67_TS_graded_flat/vel_graded_org_'+str(title)+'.dat'
+fl2 = '../input/67_TS_graded_flat/vel_graded_ano_'+str(title)+'.dat'
 
 
 inp_org = gt.readbin(fl1,nz,nx)
@@ -358,15 +361,17 @@ inp_ano = gt.readbin(fl2,nz,nx)
 # path_ray = gen_path + '057_const_TS_deeper/depth_demig_out/050_TS_const_deeper_2024-07-08_11-08-01/rays/ray_0.csv'
 
 
-path_ray2 = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_2024-07-09_16-40-37/rays/ray_0.csv'
+# path_ray2 = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_2024-07-09_16-40-37/rays/ray_0.csv'
 
-path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_2024-07-09_16-43-24/rays/ray_0.csv'
-path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_2024-07-30_16-58-18/rays/ray_0.csv'
+# path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_2024-07-09_16-43-24/rays/ray_0.csv'
+# path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_2024-07-30_16-58-18/rays/ray_0.csv'
 
 
-path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_org_1750/rays/ray_0.csv'
-path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/rays/ray_0.csv'
+# path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_org_1750/rays/ray_0.csv'
+# path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/rays/ray_0.csv'
 
+path_ray  = gen_path +'067_TS_graded_flat/depth_demig_out_org/'+str(title)+'/rays/ray_0.csv'
+path_ray2  = gen_path +'067_TS_graded_flat/depth_demig_out_ano/'+str(title)+'/rays/ray_0.csv'
 
 
 
@@ -387,12 +392,12 @@ half_idx2 = len(ray_tt2)//2
 
 # %matplotlib qt5
 plt.figure(figsize=(8,8))
-plt.plot(np.arange(len(ray_x)),ray_z,'.')
-plt.plot(np.arange(len(ray_x2)),ray_z2,'.')
+# plt.plot(np.arange(len(ray_x)),ray_z,'.')
+# plt.plot(np.arange(len(ray_x2)),ray_z2,'.')
 plt.plot(ray_x,ray_z,'.')
 plt.plot(ray_x2,ray_z2,'.')
-plt.axvline(half_idx)
-plt.axvline(half_idx2)
+# plt.axvline(half_idx)
+# plt.axvline(half_idx2)
 
 # plt.ylim(-1400,-1600)
 # plt.xlim(-1000,1000)
@@ -435,17 +440,17 @@ tt_at_spot = ray_tt[idx_tt+nb_to_idx]*2
 
 ## Values from pertubation model in 2000 m/s model
 
-Param_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_vel_flat_org.csv'
-Weight_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_vel_flat_org.csv'
+Param_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/067_Param_vel_graded_'+str(title)+'_org.csv'
+Weight_vel_org_sm = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/067_Weights_vel_graded_'+str(title)+'_org.csv'
 
-Param_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_vel_flat_ano.csv'
-Weight_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_vel_flat_ano.csv'
+Param_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/067_Param_vel_graded_'+str(title)+'_ano.csv'
+Weight_vel_ano_sm = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/067_Weights_vel_graded_'+str(title)+'_ano.csv'
 
-Param_betap_org = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_betap_flat_org.csv'
-Weight_betap_org = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_betap_flat_org.csv'
+Param_betap_org = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/betap/067_Param_betap_graded_'+str(title)+'_org.csv'
+Weight_betap_org = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/betap/067_Weights_betap_graded_'+str(title)+'_org.csv'
 
-Param_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Param_betap_flat_ano.csv'
-Weight_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/061_flat_taper_const/060_Weights_betap_flat_ano.csv'
+Param_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/betap/067_Param_betap_graded_'+str(title)+'_ano.csv'
+Weight_betap_ano = '../../../../Demigration_SpotLight_Septembre2023/067_TS_graded_flat/betap/067_Weights_betap_graded_'+str(title)+'_ano.csv'
 
 
 '''Extract velocity values from the full model'''
@@ -478,7 +483,7 @@ z_disc = np.arange(151)*12.00
 ''' Creation de l'ondelette source '''
 # Parameters of the analytical source wavelet
 nws = 177
-fmax = 80
+fmax = 25
 nt2 = nt - (nws-1) / 2
 nt_len = int((nt2+1) * 2)
 wsrc_org = defwsrc(fmax, dt,0,nws)
@@ -505,8 +510,8 @@ ray_time_ano = ray_tt2[:half_idx2]*2
 
 plt.figure(figsize=(6,10))
 plt.rcParams['font.size'] = 20
-plt.plot(redef_betap_org[:half_idx],ray_time_org[:half_idx],'.',label='org')
-plt.plot(redef_betap_ano[:half_idx2],ray_time_ano[:half_idx2],'.',label='ano')
+plt.plot(redef_betap_org[:half_idx],ray_time_org[:half_idx],'-',label='org')
+plt.plot(redef_betap_ano[:half_idx2],ray_time_ano[:half_idx2],'-',label='ano')
 plt.legend()
 plt.title('Perturbation vs time')
 plt.xlim(-2,2)
@@ -515,15 +520,6 @@ plt.ylabel('time (s)')
 plt.gca().invert_yaxis()
 # plt.ylim(-0.9,-1.1)
 
-plt.figure(figsize=(6,12))
-plt.plot(vel_ray_org[:half_idx],ray_time_org[:half_idx],label='org')
-plt.plot(vel_ray_ano[:half_idx2],ray_time_ano[:half_idx2],label='ano')
-# plt.axhline(tt_at_spot,c='tab:green')
-plt.title('velocity vs time')
-plt.legend()
-plt.gca().invert_yaxis()
-plt.ylabel('time (s)')
-# plt.ylim(-0.9,-1.1)
 
 
 '''Interpolation using betap'''
@@ -555,7 +551,7 @@ plt.plot(convol_time_org_int,ray_time_int,label='org')
 plt.plot(convol_time_ano_int,ray_time_int,label='ano')
 plt.ylabel('time (s)')
 plt.title('Convoluted trace vs time')
-plt.xlim(-900,900)
+plt.xlim(np.min(convol_time_org_int)-50,np.max(convol_time_org_int)+50)
 # plt.ylim(1.67,1.74)
 plt.legend()
 plt.gca().invert_yaxis()
@@ -595,8 +591,8 @@ nt = 1801
 at = ft + np.arange(nt)*dt
 
 
-gather_path_fwi_org = '../output/48_const_2000_ano/flat_fwi_org'
-gather_path_fwi45 = '../output/48_const_2000_ano/flat_fwi_ano'
+gather_path_fwi_org = '../output/67_TS_graded_flat/nopt5/vel_graded_org_'+str(title)
+gather_path_fwi45   = '../output/67_TS_graded_flat/nopt5/vel_graded_ano_'+str(title)
 
 idx_src = find_nearest(p_inv.ax_, p_inv.src_x_[0]/1000)[1]
 idx_src_adj = find_nearest(p_adj.ax_, p_adj.src_x_[0]/1000)[1]
@@ -639,19 +635,11 @@ SLD_TS = procs.sliding_TS(conv_t_org_norm, conv_t_ano_norm, oplen=oplen, si=solv
 
 
 
-fl_org = '../input/46_flat_simple_taper/inp_vel_taper_all_org.dat'
-inp_org = gt.readbin(fl_org,nz,nx)
 
-fl_ano = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
-inp_ano = gt.readbin(fl_ano,nz,nx)
+max_ts_theorique = (title)*2/2.05 - (title)*2/2.057 # maximum theoretical time-shift
+m = max_ts_theorique/(title/2.050 * 2)
 
-
-
-
-max_ts_theorique = (612-12)*2/2.05- (600)*2/2.057 # maximum theoretical time-shift
-m = max_ts_theorique/(600/2.050 * 2)
-
-idx_max = int((612-12)*2//2 + 600*2//2.05) # The first layer is 612 m thick at 2km/s, but we start at 12m. The second is 600 thick at 2.05km/s
+idx_max = int((612-12)*2//2 + title*2//2.05) # The first layer is 612 m thick at 2km/s, but we start at 12m. The second is 600 thick at 2.05km/s
 
 ts_theo_tr = np.zeros(2000)
 
@@ -667,7 +655,7 @@ plt.gca().invert_yaxis()
 
 
 
-plt.figure(figsize=(6,12))
+plt.figure(figsize=(7,12))
 plt.plot(conv_t_org_norm_rand,-ray_time_int-nws2*dt,label='org')
 plt.plot(conv_t_ano_norm_rand,-ray_time_int-nws2*dt,label='ano')
 plt.plot(conv_t_ano_norm_rand*0,-ray_time_int-nws2*dt,label='ano')
@@ -676,20 +664,19 @@ plt.xlim(-1,1)
 
 
 
-plt.figure(figsize=(6,12))
+plt.figure(figsize=(7,12))
 plt.plot(conv_t_org_norm,-ray_time_int-nws2*dt,label='org')
 plt.plot(conv_t_ano_norm,-ray_time_int-nws2*dt,label='ano')
 plt.axhline(-1.19736)
 plt.xlim(-1,1)
 
-plt.figure(figsize=(6,12))
-plt.plot(-tr_binv_fwi_org_norm,at-ft)
-plt.plot(-tr_binv_fwi_45_norm,at-ft)
-# plt.plot(ts_theo_tr/5,at)
-plt.axhline(1.19736)
+plt.figure(figsize=(7,12))
+plt.plot(-tr_binv_fwi_org_norm,at)
+plt.plot(-tr_binv_fwi_45_norm,at)
+plt.title('modelled traces')
 plt.gca().invert_yaxis()
-plt.xlim(-1,1)
-
+plt.ylim(1.95, ft-0.1)
+plt.xlim(-2, 2)
 # plt.rcParams['font.size'] = 22
 # plt.figure(figsize=(6,12))
 # plt.plot(binv_SLD_TS_fwi,at,c='tab:purple',label='FD')
@@ -706,8 +693,8 @@ tr_binv_fwi_org_norm = tr_binv_fwi_org/np.min(tr_binv_fwi_org[500:])
 tr_binv_fwi_45_norm = tr_binv_fwi_45/np.min(tr_binv_fwi_45[500:])
 
 
-tr_binv_fwi_org_sm = gaussian_filter(tr_binv_fwi_org_norm,8)
-tr_binv_fwi_45_sm = gaussian_filter(tr_binv_fwi_45_norm,8)
+tr_binv_fwi_org_sm = gaussian_filter(tr_binv_fwi_org_norm,7)
+tr_binv_fwi_45_sm = gaussian_filter(tr_binv_fwi_45_norm,7)
 
 tr_binv_fwi_org_sm_norm = tr_binv_fwi_org_sm/np.min(tr_binv_fwi_org_sm[500:])
 tr_binv_fwi_45_sm_norm = tr_binv_fwi_45_sm/np.min(tr_binv_fwi_45_sm[500:])
@@ -769,9 +756,15 @@ val_roots_org = np.append(val_roots_org_inv1,val_roots_org_inv2)
 val_roots_ano = np.append(val_roots_ano_inv1,val_roots_ano_inv2)
 
 
-    
-at_point_org_inv, val_roots_org_inv = find_roots(tr_binv_fwi_org_sm_norm[500:1500],at[500:1500]) 
-at_point_ano_inv, val_roots_ano_inv = find_roots(tr_binv_fwi_45_sm_norm[500:1500],at[500:1500])
+
+
+at_point_org_rt, val_roots_org_rt = find_roots(convol_time_org_int,ray_time_int,5) 
+at_point_ano_rt, val_roots_ano_rt = find_roots(convol_time_ano_int,ray_time_int,5) 
+
+at_point_org_inv, val_roots_org_inv = find_roots(tr_binv_fwi_org_sm_norm[500:1500],at[500:1500],0.006) 
+at_point_ano_inv, val_roots_ano_inv = find_roots(tr_binv_fwi_45_sm_norm[500:1500],at[500:1500],0.006)
+
+
 
 
 
@@ -789,19 +782,24 @@ diff = np.array(at_point_org_inv)-np.array(at_point_ano_inv)
 plt.figure(figsize=(7, 12))
 plt.plot(convol_time_org_int, ray_time_int, label='org')
 plt.plot(convol_time_ano_int, ray_time_int, label='ano')
-plt.plot(val_roots_org,at_point_conv_org,'.')
-plt.plot(val_roots_ano,at_point_conv_ano,'.')
+plt.plot(val_roots_org_rt,at_point_org_rt,'.')
+plt.plot(val_roots_ano_rt,at_point_ano_rt,'.')
 plt.title('convolved traces')
-plt.gca().invert_yaxis()
+plt.ylim(1.95, ft-0.1)
+# plt.gca().invert_yaxis()
+diff_at_roots_conv = np.array(at_point_org_rt)-np.array(at_point_ano_rt)
 
 
 
 plt.figure(figsize=(7, 12))
 plt.plot(diff*1000,np.array(at_point_org_inv),'-o', label='mod qtv')
-plt.plot(diff_at_roots_conv*1000,at_point_conv_org,'-o', label='mod rt')
+plt.plot(diff_at_roots_conv*1000,at_point_org_rt,'-o', label='mod rt')
 plt.plot(ts_theo_tr,axt_for_theo,'-',label='theo')
 plt.legend()
 plt.title('Time-shift for the simple model')
 plt.ylim(1.95-ft, ft-0.1)
-plt.xlim(-1, 2.5)
+plt.xlim(-0.1,3.8)
 
+print('max du modelisé par DF = ',np.max(diff*1000))
+print('max du modelisé par RT = ',np.max(diff_at_roots_conv*1000))
+print('max théorique          = ',max_ts_theorique)

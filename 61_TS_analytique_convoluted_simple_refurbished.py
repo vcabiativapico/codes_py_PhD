@@ -340,6 +340,9 @@ p_inv = Param_class(path_inv)
 fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
 fl2 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
 
+fl1 = '../input/63_evaluating_thickness/vel_108.dat'
+fl2 = '../input/63_evaluating_thickness/vel_108_ano.dat'
+
 
 inp_org = gt.readbin(fl1,nz,nx)
 inp_ano = gt.readbin(fl2,nz,nx)
@@ -359,7 +362,6 @@ inp_ano = gt.readbin(fl2,nz,nx)
 
 
 path_ray2 = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_2024-07-09_16-40-37/rays/ray_0.csv'
-
 path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_2024-07-09_16-43-24/rays/ray_0.csv'
 path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_2024-07-30_16-58-18/rays/ray_0.csv'
 
@@ -368,7 +370,8 @@ path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_o
 path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/rays/ray_0.csv'
 
 
-
+path_ray  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_org_1750/rays/ray_0.csv'
+path_ray2  = gen_path +'061_flat_taper_const/depth_demig_out/061_TS_flat_deeper_ano_1750/rays/ray_0.csv'
 
 
 ray_x = np.array(read_results(path_ray, 0))
@@ -383,19 +386,6 @@ ray_tt2 = np.array(read_results(path_ray2, 8))
 
 half_idx  = len(ray_tt)//2
 half_idx2 = len(ray_tt2)//2 
-
-
-# %matplotlib qt5
-plt.figure(figsize=(8,8))
-plt.plot(np.arange(len(ray_x)),ray_z,'.')
-plt.plot(np.arange(len(ray_x2)),ray_z2,'.')
-plt.plot(ray_x,ray_z,'.')
-plt.plot(ray_x2,ray_z2,'.')
-plt.axvline(half_idx)
-plt.axvline(half_idx2)
-
-# plt.ylim(-1400,-1600)
-# plt.xlim(-1000,1000)
 
 
 hmin = 2.0
@@ -755,7 +745,7 @@ at_point_ano_inv1, val_roots_ano_inv1  = find_max(convol_time_ano_int,ray_time_i
 win1_2 = 1.0
 win2_2 = 1.25
 at_point_org_inv2, val_roots_org_inv2 = find_max(convol_time_org_int,ray_time_int,win1_2,win2_2,conv_dt) 
-at_point_ano_inv2, val_roots_ano_inv2 =  find_max(convol_time_ano_int,ray_time_int,win1_2,win2_2,conv_dt)
+at_point_ano_inv2, val_roots_ano_inv2 = find_max(convol_time_ano_int,ray_time_int,win1_2,win2_2,conv_dt)
 
 diff_at_max_conv1 = at_point_org_inv1 - at_point_ano_inv1
 diff_at_max_conv2 = at_point_org_inv2 - at_point_ano_inv2
@@ -774,7 +764,6 @@ at_point_org_inv, val_roots_org_inv = find_roots(tr_binv_fwi_org_sm_norm[500:150
 at_point_ano_inv, val_roots_ano_inv = find_roots(tr_binv_fwi_45_sm_norm[500:1500],at[500:1500])
 
 
-
 plt.figure(figsize=(7, 12))
 plt.plot(tr_binv_fwi_org_sm_norm, at, label='org')
 plt.plot(tr_binv_fwi_45_sm_norm, at, label='ano')
@@ -783,7 +772,8 @@ plt.plot(val_roots_ano_inv,at_point_ano_inv,'.')
 plt.title('modelled traces_inv')
 plt.ylim(1.95, ft-0.1)
 plt.xlim(-2, 2)
-diff = np.array(at_point_org_inv)-np.array(at_point_ano_inv)
+
+diff = np.array(at_point_org_inv) - np.array(at_point_ano_inv)
 
 
 plt.figure(figsize=(7, 12))
