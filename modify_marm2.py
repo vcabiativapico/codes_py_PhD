@@ -132,8 +132,16 @@ if __name__ == "__main__":
     # fl1       = '../input/45_marm_ano_v3/fwi_ano_45.dat'
     
     fl2       = '../input/marm2_sm15.dat'
+    
+    fl2 = '../input/vel_smooth.dat'
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_sm    = gt.readbin(fl2,nz,nx)
+    plot_model(inp_sm,hmin,hmax)
+    
+    inp_sm15 = gaussian_filter(inp_org,15)
+    plot_model(inp_org,hmin,hmax)
+    plot_model(inp_sm15,hmin,hmax)
+    
     
     x1 = 220
     x2 = 300
@@ -410,14 +418,14 @@ if __name__ == "__main__":
     # inp_flat[51:100] = inp_flat[51:100]+0.05
     
     f_idx = 51
-    # l_idx = 100
-    l_idx = 52
+    l_idx = 100
+    # l_idx = 52
     
     # for i in range(0,49,4): 
     #     inp_flat[f_idx+i:l_idx+i] = inp_flat[f_idx+i:l_idx+i] + 0.015*(i+1)/4  *1.14
     
 
-    inp_flat[f_idx:l_idx] = inp_flat[f_idx:l_idx] + 0.05 * 1.14
+    inp_flat[f_idx:l_idx] = inp_flat[f_idx:l_idx] + 0.1*1.14
         
     thick = (l_idx - f_idx) * dz
     
@@ -522,16 +530,32 @@ if __name__ == "__main__":
     inp_taper_all[0:50] = 2.0
     inp_taper_all[101:] = 2.0
     
+    rho_f     = 0.31 * (inp_taper_all * 1000) ** 0.25
+    rho_sm = np.zeros_like(rho_f) +  np.min(rho_f)
+    
     hmax  = np.max(inp_taper_all)
     hmin  = np.min(inp_taper_all)
     fig1   = plot_model(inp_taper_all, hmax, hmin)
-    imout1 = '../png/63_evaluating_thickness/vel_'+str(int(thick*1000))+'_ano.png'
-    flout1 = '../input/63_evaluating_thickness/vel_'+str(int(thick*1000))+'_ano.dat'
+    imout1 = '../png/73_new_flat_sm/vel_'+str(int(thick*1000))+'_ano.png'
+    flout1 = '../input/73_new_flat_sm/vel_'+str(int(thick*1000))+'_ano.dat'
     # imout1 = '../png/63_evaluating_thickness/vel_degrade_ano.png'
     # flout1 = '../input/63_evaluating_thickness/vel_degrade_ano.dat'
     # export_model(inp_taper_all,fig1,imout1,flout1)
     
-  
+    hmax  = np.max(rho_f)
+    hmin  = np.min(rho_f)
+    fig1   = plot_model(rho_f, hmax, hmin)
+    imout1 = '../png/73_new_flat_sm/rho_'+str(int(thick*1000))+'_ano.png'
+    flout1 = '../input/73_new_flat_sm/rho_'+str(int(thick*1000))+'_ano.dat'
+    export_model(rho_f,fig1,imout1,flout1)
+    
+    
+    hmax  = np.max(rho_sm)
+    hmin  = np.min(rho_sm)
+    fig1   = plot_model(rho_sm, hmax, hmin)
+    imout1 = '../png/73_new_flat_sm/rho_sm_'+str(int(thick*1000))+'_ano.png'
+    flout1 = '../input/73_new_flat_sm/rho_sm_'+str(int(thick*1000))+'_ano.dat'
+    export_model(rho_sm,fig1,imout1,flout1)
     
 #%%
     fl1       = '../input/30_marm_flat/inp_flat_taper_corr_org.dat'

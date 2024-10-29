@@ -15,7 +15,6 @@ from matplotlib import gridspec
 from matplotlib.ticker import (MultipleLocator,
                                FormatStrFormatter,
                                AutoMinorLocator)
-from scipy.ndimage import gaussian_filter
 from scipy.signal import hilbert
 if __name__ == "__main__":
 
@@ -23,8 +22,8 @@ if __name__ == "__main__":
 
     # Global parameters
     labelsize = 16
-    nt = 1801
-    dt = 1.41e-3
+    nt = 1501
+    dt = 1.14e-3
     ft = -100.11e-3
     nz = 151
     fz = 0.0
@@ -144,7 +143,7 @@ if __name__ == "__main__":
         for i in range(np.size(tr)):
             # xmin = np.min(inp1[:,tr[i]]) + np.min(inp1[:,tr[i]])/1.5
             # xmin = 1.0
-            xmax = 1.2
+            xmax = 1801*0.0012
             xmin = -xmax
             ratio[i] = np.max(inp2[:, tr[i]])/np.max(inp1[:, tr[i]])
             inp1[:, tr[i]] = (inp1[:, tr[i]]/np.max(inp1[:, tr[i]]))
@@ -183,9 +182,10 @@ if __name__ == "__main__":
                          cmap='seismic')
         # for i in range(np.size(tr)):
         #     plt.axvline(x=ao[tr[i]], color='k', ls='--')
+        plt.title('x= '+str(title*12))
         plt.colorbar(hfig, format='%2.2f')
         plt.rcParams['font.size'] = 22
-        plt.ylim(1.25,ft)
+        plt.ylim(at[-1],ft)
         plt.xlabel('Offset (km)')
         plt.ylabel('Time (s)')
         fig.tight_layout()
@@ -224,44 +224,58 @@ if __name__ == "__main__":
     # tr2 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
     # tr3 = '../output/27_marm/diff_marm_corr/t1_obs_000'+str(title)+'.dat'
     # tr1 = '../output/27_marm/binv/t1_obs_000'+str(title)+'.dat'
-    tr1 = '../output/48_const_2000_ano/t1_obs_000'+str(title)+'.dat'
-    
-    tr1 = '../output/63_evaluating_thickness/vel_thick_204/t1_obs_000'+str(title)+'.dat'
-    # tr3 ='../output/t1_obs_000361.dat'
-    # tr2 = '../output/t1_obs_000'+str(title)+'.dat'
-    
-    inp1 = -gt.readbin(tr1, no, nt).transpose()
-    # inp2 = -gt.readbin(tr2, no, nt).transpose()
-    # inp3 = -gt.readbin(tr3, no, nt).transpose()
-    
-    # inp_hilb1 = np.zeros_like(inp1,dtype = 'complex_')   
-    # inp_hilb2 = np.zeros_like(inp2,dtype = 'complex_')  
-    # inp_hilb3 = np.zeros_like(inp3,dtype = 'complex_')  
-    
-    # for i in range(no):
-    #     inp_hilb1[:,i] = hilbert(inp1[:,i])    
-        # inp_hilb2[:,i] = hilbert(inp2[:,i])    
-        # inp_hilb3[:,i] = hilbert(inp3[:,i]) 
-        
-    # inp_hilb1 = inp_hilb1.imag
-    # inp_hilb2 = inp_hilb2.imag
-    # inp_hilb3 = inp_hilb3.imag
-    
-    tr = [63,126,189]
-    # tr = [71, 135, 201, 260, 333]
-    # tr   = [260,268]
-    # tr   = [71,135,201,267]
-    # diff = inp1-inp2
-
-    # flout  = './png/22_extend_anomaly/born_trace_'+str(title)+'.png'
-    # plot_trace(xmax_tr,inp2,inp2,flout,tr)
-    
    
+    # tr1 = '../output/68_thick_marm_ano/org_thick/t1_obs_000'+str(title)+'.dat'
+    # tr2 = '../output/68_thick_marm_ano/ano_thick/t1_obs_000'+str(title)+'.dat'
     
-    hmin = np.max(inp1)/10
+    # tr1 = '../output/71_thick_marm_ano_born_mig/simulations/new_pert_mig_sm_org/t1_obs_000'+str(title)+'.dat'
+    # tr2 = '../output/71_thick_marm_ano_born_mig/simulations/new_pert_mig_sm_ano/t1_obs_000'+str(title)+'.dat'
+    
+    tr1 = '../output/72_thick_marm_ano_born_mig_flat/org/t1_obs_000'+str(title)+'.dat'
+    
+    # tr1 = '../output/63_evaluating_thickness/vel_thick_204/t1_obs_000'+str(title)+'.dat'
+    tr1 ='../output/73_new_flat_sm/born_org_rho/t1_obs_000361.dat'
+    tr2 ='../output/73_new_flat_sm/born_ano_rho/t1_obs_000361.dat'
+
+
+    tr1 ='../output/74_test_flat/op_inv_lsm_aco/t1_obs_000361.dat'
+    tr2 ='../output/74_test_flat/op_inv_lsm_aco/t1_syn_000361.dat'
+    
+    
+    tr1 ='../output/75_marm_sum_pert/org/t1_obs_000361.dat'
+    
+    # tr1 ='../output/74_test_flat/new_vop8/org_full/t1_obs_000302.dat'
+    # tr2 ='../output/74_test_flat/new_vop8/ano_full/t1_obs_000302.dat'
+    
+    
+    # tr1 ='../output/73_new_flat_sm/org/t1_obs_000361.dat'
+    # tr2 ='../output/73_new_flat_sm/org/t1_syn_000361.dat'
+
+    inp1 = -gt.readbin(tr1, no, nt).transpose()
+    inp2 = -gt.readbin(tr2, no, nt).transpose()
+    
+    
+    
+    src_nm = '../output/74_test_flat/op_inv_lsm_aco/wsrc.dat'
+    wsrc = gt.readbin(src_nm,177,1)
+    plt.plot(wsrc)
+    
+    src_nm = '../output/74_test_flat/op_inv_lsm_aco/winvsrc.dat'
+    wsrc = gt.readbin(src_nm,nt,1)
+    plt.plot(wsrc)
+     
+
+    
+    # from spotfunk.res import procs
+    # tr_rms = [] 
+    # for i in range(no):
+    #     tr_rms.append(procs.RMS_calculator(inp1[:,i]))
+
+    
+    hmin = np.min(inp1)
     hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
-    plot_shot_gathers(hmin/15, hmax/15, -inp1, flout_gather)
+    plot_shot_gathers(hmin, hmax, -inp1, flout_gather)
  
     
     # hmin = np.max(inp1)
@@ -271,10 +285,11 @@ if __name__ == "__main__":
    
     
     diff = inp1 - inp2
-    hmin = np.max(diff)
-    hmax = -hmin
+    # hmin = np.min(diff)*10
+    # hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, diff, flout_gather)
+    
     # plt.plot(ao[idx_nr_off]+ao[idx_nr_off],at)
     
     # plt.figure(figsize=(3, 8))
@@ -296,7 +311,20 @@ if __name__ == "__main__":
     # flout = '../png/26_mig_4_interfaces/badj_rc_norm_2979/traces_'+str(title)+'.png'
     # r, i1, i2 = plot_trace(xmax, inp1, inp2, flout, tr)
 
-
+   
+    # fl_ref = '../output/74_test_flat/op_inv_lsm_aco/inv_betap_x_s.dat'
+    # inp_ref = gt.readbin(fl_ref,nz,nx)
+    # flout = '../png/inv_betap_x_s.png'
+    # plot_mig(inp_ref,flout)
+    
+    
+        
+    # fl_ref = '../output/74_test_flat/voption8_true/inv_betap_x_s.dat'
+    # inp_ref = gt.readbin(fl_ref,nz,nx)
+    # flout = '../png/inv_betap_x_s.png'
+    # plot_mig(inp_ref,flout)
+    
+ 
 
 
     # flout_gather = './png/19_anomaly_4_layers/190_ano/gather_fwi_190_ano.png'
@@ -375,14 +403,14 @@ if __name__ == "__main__":
         # hmax = 5.0
         # hmin = 1.5
         hmin = np.min(inp)
-        hmax = -hmin
-        # hmax = np.max(inp)
+        # hmax = -hmin
+        hmax = np.max(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+                              vmin=hmin, vmax=hmax, aspect='auto')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -402,15 +430,55 @@ if __name__ == "__main__":
         fig.savefig(flout, bbox_inches='tight')
         return inp, fig
     
+    def plot_mig(inp, flout):
+        # hmax = np.max(np.abs(inp2))
+        # hmin = -hmax
+
+        # print(hmin,hmax)
+        plt.rcParams['font.size'] = 20
+        # hmax = 5.0
+        # hmin = 1.5
+        hmin = np.min(inp)
+        hmax = -hmin
+        # hmax = np.max(inp)
+        # hmin = 0
+        if np.shape(inp)[1] > 60:
+            fig = plt.figure(figsize=(14, 7), facecolor="white")
+            av = plt.subplot(1, 1, 1)
+            hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
+                              vmin=hmin, vmax=hmax, aspect='auto')
+            plt.xlabel('Distance (km)')
+            plt.ylabel('Depth (km)')
+        else:
+            fig = plt.figure(figsize=(5, 5), facecolor="white")
+            av = plt.subplot(1, 1, 1)
+            hfig1 = av.imshow(inp, extent=[-nh, nh, az[-1], az[0]],
+                              vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+        # av.set_xlim([2.5,4.5])
+        # av.set_ylim([0.8,0.4])
+        # plt.axvline(x=ax[tr], color='k',ls='--')
+        # plt.axhline(0.606, color='w')
+        plt.colorbar(hfig1, format='%1.2f',label='m/s')
+        # plt.colorbar(hfig1, format='%1.1f',label='m/s')
+        fig.tight_layout()
+
+        print("Export to file:", flout)
+        fig.savefig(flout, bbox_inches='tight')
+        return inp, fig
+    
    
     # fl1 = './output/smooth_test/smooth'+str(name)+'/abetap.dat'
     
     # # fl1 = '../output/45_marm_ano_v3/mig_binv_sm8_TL1801/dbetap_exact.dat'
     # fl1='../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
     # # fl1='../input/45_marm_ano_v3/fwi_sm.dat'
-    fl1 = '../input/marm2_full.dat'
+    # fl1 = '../input/vel_smooth.dat'
+    
+    # fl1 = '../input/smooth_input/marm2_smooth_s15.dat'
+    
     # fl1 = '../input/vel_full.dat'
-    fl1 = '../input/vel_smooth.dat'
+    # fl1 = '../input/marm2_sm15.dat'
+    # fl1 ='../input/vel_smooth.dat'
     # fl1 = '../input/68_thick_marm_ano/marm_thick_ano.dat'
     # fl1 = '../output/48_const_2000_ano/flat_born_ano/adbetap.dat'
     # fl1 = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
@@ -431,108 +499,98 @@ if __name__ == "__main__":
     # fl1 = '../input/31_const_flat_tap/inp_flat_2050_const.dat'
     # # # fl1 = './input/13_4_ano_smoo/4_ano_4p0_smoo5.dat'
     # # fl1 = '../input/10_onl_two_ano/1p5_two_ano_4p0.dat'
+    
+    # fl_full = '../input/org_full/marm2_full.dat'
+    # inp_full = gt.readbin(fl_full,nz,nx)
+    # plot_model(inp_full, flout)
+    
+    # fl_sm = '../input/org_full/marm2_sm15.dat'
+    
+        # # fl_sm = '../input/vel_full.dat'
+        # inp_sm = gt.readbin(fl_sm,nz,nx)
+        # plot_model(inp_sm, flout)
+        
+        # inp_betap = 1/inp_full**2 - 1/inp_sm**2
+        # plot_mig(inp_betap, flout)
+        
+        # fl = '../output/68_thick_marm_ano/ano_thick/avp_exact.dat'
+        # inp = gt.readbin(fl,nz,nx)
+        # plot_mig(inp, flout)
+        
+        # fl1 = '../output/68_thick_marm_ano/ano_thick/abetap.dat'
+        # fl1 ='../input/org_full/marm2_full.dat'
+        # inp1 = gt.readbin(fl1,nz,nx)
+        # print(np.max(inp1))
+        # print(np.min(inp1))
+        # # flout = '../png/avp_exact.png'
+        # flout = '../png/dbetap_exact.png'
+        # plot_model(inp1, flout)
+        
+    
+    # plot_mig(1 / sqrt(inp1 - 1/(inp**2)), flout)
+    fl1 = '../input/vel_smooth.dat'    
     inp1 = gt.readbin(fl1,nz,nx)
-    print(np.max(inp1))
-    print(np.min(inp1))
-    # flout = '../png/avp_exact.png'
-    flout = '../png/dbetap_exact.png'
-    inp,fig_z = plot_model(inp1, flout)
+    flout = '../png/adbetap.png'
+    plot_model(inp1,flout)
     
-    
-    # plt.figure()
-    # plt.plot(inp1[:,100],np.arange(151),'.')
-    # plt.plot([7,1],[1.2/12*1000,1.2/12*1000],'-r')
-    # plt.ylim(110,90)
-    # # # fl1 ='./output/avp_exact.dat'
-    # nh = 10
-    # nh2 = 2*nh+1
-    
-    # fl4 = '../output/inv_betap_x_s.dat'
-    # inp4= -gt.readbin(fl4,nz,nx)
-    # flout = '../png/inv_betap_x_s.png'
-    # plot_model(-inp4,flout)
-
-    
-    # marm2_smooth = gaussian_filter(inp1,15)
-    # flout2 = '../png/marm2_sm.png'
-    # plot_model(marm2_smooth,flout2)
-    # gt.writebin(marm2_smooth,'../input/org_full/marm2_sm15.dat') 
-
-    # fls = '../input/25_v2_4_layers/4_interfaces_smooth_rc_norm.dat'
-    # inps = gt.readbin(fls, nz, nx)
-    # flout = '../png/25_v2_4_layers/4_interfaces_smooth_rc_norm.png'
-    # plot_model(inps, flout)
-
-    # fl1 = '../input/25_v2_4_layers/4_interfaces_smooth_05.dat'
-    # inp1 = gt.readbin(fl1, nz, nx)
-    # flout = '../png/25_v2_4_layers/4_interfaces_smooth_05.png'
-    # plot_model(inp1, flout)
-
- 
     
 
-    # betap = inp1-inps
-    # flout = '../png/25_v2_4_layers/4_interfaces_betap_ano_05.png'
-    # plot_model(betap, flout)
-
-    # fl1 ='../output/24_mig_stack/binv/avp_init.dat'
-    # inp1 = -gt.readbin(fl1,nz,nx)
-    # flout = '../png/24_mig_stack/binv/avp_init.png'
-    # plot_model(inp1, flout)
-
-    # fl2 ='../output/26_mig_4_interfaces/org/nh'+str(nh)+'_is4/dens_corr/rho_init.dat'
-    # fl2 = '../input/vel_smooth.dat'
-    # inp2 = gt.readbin(fl2,nz,nx)
-    # flout = '../png/26_mig_4_interfaces/ano/171/nh'+str(nh)+'_is4/drteest.png'
-    # plot_model(inp2, flout)
+    fl1 = '../output/72_thick_marm_ano_born_mig_flat/org_full/avp_exact.dat'    
+    inp1 = gt.readbin(fl1,nz,nx)
+    flout = '../png/adbetap.png'
+    plot_model(inp1,flout)
+    
+    fl2 = '../output/72_thick_marm_ano_born_mig_flat/ano_full/avp_exact.dat'    
+    inp2 = gt.readbin(fl2,nz,nx)
+    flout = '../png/adbetap.png'
+    plot_model(inp2,flout)
+    
+    inp_diff = inp1-inp2
+    plot_mig(inp_diff,flout)
     
     
-    # fl3 ='../output/26_mig_4_interfaces/badj_rc_norm/adbetap.dat'
-    # inp3 = gt.readbin(fl3,nz,nx)
-    # flout = '../png/26_mig_4_interfaces/badj_rc_norm/adbetap.png'
-    # plot_model(-inp3, flout)
-
-    # fl3 ='../output/26_mig_4_interfaces/badj_rc_norm/inv_betap.dat'
-    # inp3 = gt.readbin(fl3,nz,nx*21)
-    # flout = '../png/26_mig_4_interfaces/badj_rc_norm/inv_abetap.png'
-    # plot_model(-inp3, flout)
-
-    # fl3 ='../output/27_marm/diff_marm_corr/adbetap.dat'
-    # inp3 = gt.readbin(fl3,nz,nx)
-    # flout = '../png/27_marm/diff_marm_corr/adbetap.png'
-    # plot_model(-inp3, flout)
-
-    # fl3 = '../output/27_marm/binv/inv_betap_x_s.dat'
-    # fl3 = '../output/27_marm/binv/inv_betap_x.dat'
-    fl3 = '../output/68_thick_marm_ano/org_thick/inv_betap_x.dat'
-    # fl4 = '../output/inv_betap_x_s.dat'
-    inp3 = -gt.readbin(fl3,nz,nx)
-    flout = '../png/inv_betap_x_s.png'
-    plot_model(inp3,flout)
+    # fl3 = '../output/32_2050_flat_tap/binv/dbetap_exact.dat'
+    fl3 = '../output/72_thick_marm_ano_born_mig_flat/org/inv_betap_x.dat'
+   
     
-    fl4 = '../output/68_thick_marm_ano/ano_thick/inv_betap_x.dat'
-    # fl4 = '../output/inv_betap_x_s.dat'
-    inp4= -gt.readbin(fl4,nz,nx)
-    flout = '../png/inv_betap_x_s.png'
-    plot_model(inp4,flout)
-    
-    inp_diff = inp3-inp4
-    plot_model(inp_diff,flout)
-    
-    
-    fl3 = '../output/68_thick_marm_ano/thick_adj/org/inv_betap_x.dat'
+   
+    fl3 = '../output/73_new_flat_sm/org/abetap.dat'
     inp3 = gt.readbin(fl3,nz,nx)
     flout = '../png/inv_betap_x_s.png'
     plot_model(inp3,flout)
     
-    fl4 = '../output/68_thick_marm_ano/thick_adj/ano/inv_betap_x.dat'
-    inp4= gt.readbin(fl4,nz,nx)
+    fl4 = '../output/73_new_flat_sm/org/adbetap.dat'
+    inp4 = gt.readbin(fl4,nz,nx)
     flout = '../png/inv_betap_x_s.png'
     plot_model(inp4,flout)
     
     
+    somme = 1/np.sqrt(inp3+inp4)
+    plot_model(somme,flout)
+    
+    
+    
+    fl_ref = '../output/74_test_flat/op_inv_lsm_aco/inv_betap_x_s.dat'
+    inp_ref = gt.readbin(fl_ref,nz,nx)
+    flout = '../png/inv_betap_x_s.png'
+    plot_mig(inp_ref,flout)
+    
+    
+        
+    fl_ref = '../output/73_new_flat_sm/org/inv_betap_x_s.dat'
+    inp_ref = gt.readbin(fl_ref,nz,nx)
+    flout = '../png/inv_betap_x_s.png'
+    plot_mig(inp_ref,flout)
+    
+    
+    fl4 = '../output/73_new_flat_sm/born_ano_rho/inv_betap_x_s.dat'
+    inp4= gt.readbin(fl4,nz,nx)
+    flout = '../png/inv_betap_x_s.png'
+    plot_mig(inp4,flout)
+    
+    
     inp_diff = inp3-inp4
-    plot_model(inp_diff,flout)
+    plot_mig(inp_diff,flout)
    
     
     

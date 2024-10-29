@@ -1220,15 +1220,15 @@ def interp1d(Dataset,Param_Input,limite = 100):
 # %%
 
 # path = 'C:/Users/Kevin/SpotLight/SpotLighters - Documents/SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Demigration_SpotLight_Septembre2023/Demigration_Victor/'
-file = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
-file = '../input/45_marm_ano_v3/fwi_betap_ano.dat'
-file = '../input/45_marm_ano_v3/fwi_diff_sm.dat'
-file = '../input/45_marm_ano_v3/fwi_diff_sm_ano.dat'
-file = '../input/45_marm_ano_v3/fwi_diff_ano.dat'
-file = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
+# file = '../input/45_marm_ano_v3/fwi_ano_114_percent.dat'
+# file = '../input/45_marm_ano_v3/fwi_betap_ano.dat'
+# file = '../input/45_marm_ano_v3/fwi_diff_sm.dat'
+# file = '../input/45_marm_ano_v3/fwi_diff_sm_ano.dat'
+# file = '../input/45_marm_ano_v3/fwi_diff_ano.dat'
+# file = '../input/46_flat_simple_taper/inp_vel_taper_all_ano.dat'
 
 # file = '../input/50_ts_model/sm3_ano.dat'
-file = '../input/50_ts_model/sm3_org.dat'
+file = '../input/72_thick_marm_ano_born_mig_flat/marm_sm_ext_flat.dat'
 
 INL_step = 200 
 XL_step = 12.00   
@@ -1314,9 +1314,9 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/060_Param_marm_sm3_org.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/072_thick_ano_compare_FW_flat/072_Param_marm_sm15_org.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/063_TS_analytique/060_Weights_marm_sm3_org.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/072_thick_ano_compare_FW_flat/072_Weights_marm_sm15_org.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 

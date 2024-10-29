@@ -653,7 +653,7 @@ dict_input.append(print_input_values_rt(pt_inv1,pt_inv2,normales[-1],d_values[-1
 base_path = '/home/vcabiativapico/local/src/victor/out2dcourse/input/45_marm_ano_v3'
 
 df = pd.DataFrame([pt_inv1, pt_inv2])
-df.to_csv(base_path+'/slope_binv_35.csv',header=False,index=False)
+# df.to_csv(base_path+'/slope_binv_35.csv',header=False,index=False)
 
 
 p_inv.spot_x_[0] = 3360.
@@ -668,7 +668,7 @@ d_values.append(plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1])
 
 
 df = pd.DataFrame([pt_inv1, pt_inv2])
-df.to_csv(base_path+'/slope_binv_37.csv',header=False,index=False)
+# df.to_csv(base_path+'/slope_binv_37.csv',header=False,index=False)
 
 #%%
 
@@ -718,7 +718,7 @@ base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_
 
 
 df = pd.DataFrame([pt_inv1, pt_inv2])
-df.to_csv(base_path+'/slope_QTV_sm8.csv',header=False,index=False)
+# df.to_csv(base_path+'/slope_QTV_sm8.csv',header=False,index=False)
 
 
 normales = []
@@ -736,5 +736,5 @@ base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/048_
 
 
 df = pd.DataFrame([pt_inv1, pt_inv2])
-df.to_csv(base_path+'/slope_STD_sm8.csv',header=False,index=False)
+# df.to_csv(base_path+'/slope_STD_sm8.csv',header=False,index=False)
 

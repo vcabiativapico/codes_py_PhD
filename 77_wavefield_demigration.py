@@ -216,7 +216,7 @@ if __name__ == "__main__":
                 # hfig1 = av.imshow(bg[:, left_p-10:right_p-10], extent=[ax[left_p-10], ax[right_p-10], az[-1], az[0]],
                 #                   aspect='auto', alpha=0.3,
                 #                   cmap='gray')
-                hfig = av.imshow(inp1[:, i, :]*10, extent=[ax[left_p], ax[right_p], az[-1], az[0]],
+                hfig = av.imshow(inp1[:, i, :]*100, extent=[ax[left_p], ax[right_p], az[-1], az[0]],
                                   vmin=hmin, vmax=hmax, aspect='auto', alpha=1,
                                   cmap='jet')
                 hfig1 = av.imshow(bg[:, left_p:right_p], extent=[ax[left_p], ax[right_p], az[-1], az[0]],
@@ -233,7 +233,7 @@ if __name__ == "__main__":
                 plt.ylabel('Depth (km)')
                 plt.colorbar(hfig)
                 fig.tight_layout()
-                flout2 = '../png/68_thick_marm_ano/sim_fwi_org_'+str(i)+'_shot_'+str(idx)+'.png'
+                flout2 = '../png/68_thick_marm_ano/sim_fwi_diff_'+str(i)+'_shot_'+str(idx)+'.png'
                 print("Export to file:", flout2)
                 fig.savefig(flout2, bbox_inches='tight')
             
@@ -243,7 +243,7 @@ if __name__ == "__main__":
             print('hmax: ', hmax)
             hmax = 1
             hmin = -hmax
-            for i in range(100, 1800, 550):
+            for i in range(100, 1800, 100):
                 fig = plt.figure(figsize=(13, 6), facecolor="white")
                 av = plt.subplot(1, 1, 1)
                 hfig = av.imshow(inp1[:, i, :]*100, extent=[ax[left_p], ax[right_p], az[-1], az[0]],
@@ -266,6 +266,36 @@ if __name__ == "__main__":
                 flout2 = '../png/68_thick_marm_ano/sim_fwi_'+str(i)+'_shot_'+str(idx)+'.png'
                 print("Export to file:", flout2)
                 fig.savefig(flout2, bbox_inches='tight')
+        else:
+            plt.rcParams['font.size'] = 22
+            hmax = np.max(inp1)
+            print('hmax: ', hmax)
+            hmax = 1
+            hmin = -hmax
+            for i in range(100, 1800, 100):
+                fig = plt.figure(figsize=(13, 6), facecolor="white")
+                av = plt.subplot(1, 1, 1)
+                hfig = av.imshow(inp1[:, i, :]*500, extent=[ax[left_p], ax[right_p], az[-1], az[0]],
+                                  vmin=hmin, vmax=hmax, aspect='auto', alpha=1,
+                                  cmap='jet')
+                hfig1 = av.imshow(bg[:, left_p:right_p], extent=[ax[left_p], ax[right_p], az[-1], az[0]],
+                                  aspect='auto', alpha=0.3,
+                                  cmap='gray')
+                plt.xlabel('Distance (km)')
+                plt.ylabel('Depth (km)')
+                # arrow1 = patches.Arrow(3.6, 0.2, -0.15, 0.18, width=0.1,color='black')
+                # arrow2 = patches.Arrow(4.45, 0.6, -0.15, 0.2, width=0.1,color='white')
+                # av.add_patch(arrow1)
+                # av.add_patch(arrow2)
+                av.plot(ray_x,ray_z)
+                # av.scatter(2.640,0.012,marker='*')
+                av.set_title('t = '+str(i*dt*1000)+' s')
+                plt.colorbar(hfig)
+                fig.tight_layout()
+                flout2 = '../png/72_thick_marm_ano_born_mig_flat/sim_fwi_'+str(i)+'_shot_'+str(idx)+'.png'
+                print("Export to file:", flout2)
+                fig.savefig(flout2, bbox_inches='tight')    
+            
                 
                 
             print(np.shape(bg))
@@ -297,8 +327,11 @@ if __name__ == "__main__":
     path_inv = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_org_sm6_2024-09-03_15-26-45/results/depth_demig_output.csv'
     path_adj = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_org_sm6_badj_2024-09-05_12-09-21/results/depth_demig_output.csv'
     
+    # path_inv = gen_path + '072_thick_ano_compare_FW_flat/depth_demig_out/deeper2_8_2024-10-14_11-37-56/results/depth_demig_output.csv'
+    
+    
     gather_path_fwi_org = '../output/68_thick_marm_ano/org_thick'
-    gather_path_fwi_ano   = '../output/68_thick_marm_ano/ano_thick'
+    gather_path_fwi_ano = '../output/68_thick_marm_ano/ano_thick'
 
     
     p_adj = Param_class(path_adj)
@@ -308,10 +341,19 @@ if __name__ == "__main__":
     fl3 = '../input/vel_full.dat'
     inp1 = gt.readbin(fl3, nz, nx)
     
+    # shot_mod_idx = 402
     shot_mod_idx = 221
-    # shot_mod_idx = 231
     fl1   = '../output/68_thick_marm_ano/org_thick/p2d_fwi_000'+str(shot_mod_idx)+'.dat'
     fl2   = '../output/68_thick_marm_ano/ano_thick/p2d_fwi_000'+str(shot_mod_idx)+'.dat'
+    
+    # fl1 = '../output/72_thick_marm_ano_born_mig_flat/org_full/sim/p2d_fwi_000'+str(shot_mod_idx)+'.dat'
+    # fl2 = '../output/72_thick_marm_ano_born_mig_flat/ano_full/sim/p2d_fwi_000'+str(shot_mod_idx)+'.dat'
+      
+
+    
+    fl_org = gather_path_fwi_org+'/t1_obs_000'+str(shot_mod_idx)+'.dat'
+    fl_ano = gather_path_fwi_ano+'/t1_obs_000'+str(shot_mod_idx)+'.dat'
+    
     nt    = 1801
   
     nxl   = 291
@@ -340,23 +382,27 @@ if __name__ == "__main__":
     # TO PRODUCE SIMULATIONS OF THE FULL WAVEFIELD OVERLAYING THE MODEL
     #shot 221
     
+    # path_ray_org = gen_path + '072_thick_ano_compare_FW_flat/depth_demig_out/deeper2_8_2024-10-14_11-37-56/rays/ray_90.csv'
+    
     
     path_ray_org = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_org_sm6_2024-09-03_15-26-45/rays/ray_0.csv'
-    path_ray_ano = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_ano_sm6_2024-09-03_15-26-51/rays/ray_0.csv'
+    path_ray_ano = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_ano_sm6_2024-09-03_15-26-51/rays/ray0.csv'
+    
+    
     
     ray_x  = np.array(read_results(path_ray_org, 0))
     ray_z  = np.array(read_results(path_ray_org, 2))
     ray_tt = np.array(read_results(path_ray_org, 8))
     
-    trace_from_rt(0, gather_path_fwi_org, p_inv)
-    trace_from_rt(0, gather_path_fwi_ano, p_inv)
+    # trace_from_rt(0, gather_path_fwi_org, p_inv)
+    # trace_from_rt(0, gather_path_fwi_ano, p_inv)
 
     
-    fl_org = gather_path_fwi_org+'/t1_obs_000'+str(shot_mod_idx)+'.dat'
-    fl_ano = gather_path_fwi_ano+'/t1_obs_000'+str(shot_mod_idx)+'.dat'
+    # fl_org = gather_path_fwi_org+'/t1_obs_000'+str(shot_mod_idx)+'.dat'
+    # fl_ano = gather_path_fwi_ano+'/t1_obs_000'+str(shot_mod_idx)+'.dat'
     
-    inp_org = -gt.readbin(fl_org, p_inv.no_, p_inv.nt_).transpose()
-    inp_ano = -gt.readbin(fl_ano, p_inv.no_, p_inv.nt_).transpose()
+    # inp_org = -gt.readbin(fl_org, p_inv.no_, p_inv.nt_).transpose()
+    # inp_ano = -gt.readbin(fl_ano, p_inv.no_, p_inv.nt_).transpose()
     
     
     def plot_shot_gathers(hmin, hmax, inp,idx):
@@ -376,8 +422,8 @@ if __name__ == "__main__":
         # print("Export to file:", flout)
         # fig.savefig(flout, bbox_inches='tight')
 
-    hmin = np.min(inp_org-inp_ano)
-    hmax = -hmin
-    plot_shot_gathers(hmin, hmax, inp_org-inp_ano,shot_mod_idx)
+    # hmin = np.min(inp_org-inp_ano)
+    # hmax = -hmin
+    # plot_shot_gathers(hmin, hmax, inp_org-inp_ano,shot_mod_idx)
     
-    plot_sim_wf(inp1, org,ray_x/1000,-ray_z/1000,shot_mod_idx)
+    plot_sim_wf(inp1, org-ano,ray_x/1000,-ray_z/1000,shot_mod_idx)
