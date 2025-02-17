@@ -127,20 +127,25 @@ if __name__ == "__main__":
     
     #%% MODIFY MARMOUSI2 FOR DEMIGRATION
     
-    fl1       ='../input/45_marm_ano_v3/fwi_org.dat'
-    # fl1       = '../input/org_full/marm2_full.dat'
+    # fl1       ='../input/45_marm_ano_v3/fwi_org.dat'
+    fl1       = '../input/org_full/marm2_full.dat'
     # fl1       = '../input/45_marm_ano_v3/fwi_ano_45.dat'
-    
+    fl1       = '../input/68_thick_marm_ano/marm_thick_ano_sm8.dat'
     fl2       = '../input/marm2_sm15.dat'
     
-    fl2 = '../input/vel_smooth.dat'
+    
     inp_org   = gt.readbin(fl1,nz,nx)
     inp_sm    = gt.readbin(fl2,nz,nx)
     plot_model(inp_sm,hmin,hmax)
     
-    inp_sm15 = gaussian_filter(inp_org,15)
+    inp_sm8 = gaussian_filter(inp_org,8)
     plot_model(inp_org,hmin,hmax)
-    plot_model(inp_sm15,hmin,hmax)
+    fig = plot_model(inp_sm8,hmin,hmax)
+    
+    imout = '../png/full_sm8.png'
+    flout = '../input/78_marm_sm8_thick_sum_pert/full_sm8.dat'
+    export_model(inp_sm8,fig,imout,flout)
+    
     
     
     x1 = 220

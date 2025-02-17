@@ -47,7 +47,7 @@ def resize_model(new_nz,new_nx,model):
 
 fl_ano = '../input/org_full/marm2_full.dat'
 inp_ano = gt.readbin(fl_ano,nz,nx)
-inp_ano = inp_ano[:,:255]
+# inp_ano = inp_ano[:,:255]
 
 def plot_model(inp):
     hmin = np.min(inp)
@@ -78,12 +78,11 @@ plot_model(resize_ref_model_sm)
 
 #%%
 fl_full = '../input/org_full/marm2_full.dat'
-inp_full = gt.readbin(fl_full,nz,nx)[:,:255]
-
-x1 = 144
-x2 = 200
-z1 = 120
-z2 = 135
+inp_full = gt.readbin(fl_full,nz,nx)
+x1 = 165
+x2 = 215
+z1 = 115
+z2 = 127
 
 # x1 = 295
 # x2 = 317
@@ -113,11 +112,12 @@ def modif_layer(inp1,r1,r2,nv):
     new_vel   = inp1[index1]*1.14
     print(np.mean(inp1_before))
     new_vel = nv
-    inp1[index1] = new_vel
+    inp_copy = np.copy(inp1)
+    inp_copy[index1] = new_vel
     
     # print(new_vel - inp1_before)
     # print(np.mean(new_vel - inp1_before))
-    return inp1,index1
+    return inp_copy,index1
 
     
 # inp_mod, ind_mod = modif_layer(inp_org, 2.55, 2.649, 4.5)
@@ -126,15 +126,28 @@ inp_mod_org, ind_mod = modif_layer(inp_full, 3.5, 4.1, 3.8280766)
 plot_model(inp_mod_org)
 resize_mod_org = resize_model(nz,nx,inp_mod_org)
 
-flnam_out = '../input/72_thick_marm_ano_born_mig_flat/inp_mig_flat_extent_org.dat'
-gt.writebin(resize_mod_org, flnam_out)z
-  
+flnam_out = '../input/81_new_anomaly_marm/marm_new_org.dat'
+# gt.writebin(resize_mod_org, flnam_out)
+
+
+
 
 
 inp_mod_ano, ind_mod = modif_layer(inp_full, 3.5, 4.1, 3.8280766*1.14)
 plot_model(inp_mod_ano)
 resize_mod_ano = resize_model(nz,nx,inp_mod_ano)
 
-flnam_out = '../input/72_thick_marm_ano_born_mig_flat/inp_mig_flat_extent_ano.dat'
+flnam_out = '../input/81_new_anomaly_marm/marm_new_ano.dat'
 gt.writebin(resize_mod_ano, flnam_out)
-  
+
+
+anomaly = inp_mod_org - inp_mod_ano
+anomaly_sm = gaussian_filter(anomaly,5)
+
+plot_model(anomaly_sm)
+
+inp_mod_ano_sm = inp_mod_org + anomaly_sm
+plot_model(inp_mod_ano_sm)
+
+flnam_out_sm = '../input/81_new_anomaly_marm/marm_new_ano_sm.dat'
+gt.writebin(inp_mod_ano_sm, flnam_out_sm)

@@ -677,17 +677,17 @@ def plot_mig_image(inp,ax,az):
     hmax = np.max(inp)
     hmin = -hmax
     plt.rcParams['font.size'] = 22
-    fig = plt.figure(figsize=(7,7), facecolor = "white")
+    fig = plt.figure(figsize=(14,7), facecolor = "white")
     av  = plt.subplot(1,1,1)
     ax0 = 200
     ax1 = 360
     az0 = 130
     az1 = 40
     
-    # ax0 = 0
-    # ax1 = -1
-    # az0 = -1
-    # az1 = 0
+    ax0 = 0
+    ax1 = -1
+    az0 = -1
+    az1 = 0
     
     hfig = av.imshow(inp[az1:az0,ax0:ax1], vmin=hmin,vmax=hmax,extent=[ax[ax0], ax[ax1], az[az0], az[az1]],aspect='auto', cmap='seismic')
     print('az',az.shape)

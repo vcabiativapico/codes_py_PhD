@@ -325,7 +325,7 @@ if __name__ == "__main__":
     gen_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/'
     
     path_inv = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_org_sm6_2024-09-03_15-26-45/results/depth_demig_output.csv'
-    path_adj = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_org_sm6_badj_2024-09-05_12-09-21/results/depth_demig_output.csv'
+    # path_adj = gen_path + '068_TS_marm_ano_thick/depth_demig_out/068_thick_marm_org_sm6_badj_2024-09-05_12-09-21/results/depth_demig_output.csv'
     
     # path_inv = gen_path + '072_thick_ano_compare_FW_flat/depth_demig_out/deeper2_8_2024-10-14_11-37-56/results/depth_demig_output.csv'
     
@@ -334,7 +334,7 @@ if __name__ == "__main__":
     gather_path_fwi_ano = '../output/68_thick_marm_ano/ano_thick'
 
     
-    p_adj = Param_class(path_adj)
+    # p_adj = Param_class(path_adj)
     p_inv = Param_class(path_inv)
     
     

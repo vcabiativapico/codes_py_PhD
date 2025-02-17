@@ -40,6 +40,7 @@ def read_results(path,srow):
     attr = np.array(attr)
     attr = np.nan_to_num(attr)
     return attr
+
 def calculate_slope(degrees, spot_x, spot_z, plot=False):
     m = np.tan(degrees * np.pi/180) 
     b = spot_z - m * spot_x
@@ -170,6 +171,8 @@ def plot_model(inp, flout):
     print("Export to file:", flout)
     fig.savefig(flout, bbox_inches='tight')
     return inp, fig
+
+
 def plot_mig_image(inp,ax,az):
     hmax = np.max(inp)
     hmin = np.min(inp)
@@ -178,6 +181,10 @@ def plot_mig_image(inp,ax,az):
     # hfig = av.imshow(inp[50:100,200:350], vmin=hmin,vmax=hmax,extent=[ax[200], ax[350], az[100], az[50]],aspect='auto')
     hfig = av.imshow(inp, vmin=hmin,vmax=hmax,extent=[ax[0], ax[-1], az[-1], az[0]],aspect='auto')
     plt.colorbar(hfig)
+    
+    
+
+
 #%%   
 path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/072_thick_ano_compare_FW_flat/'
 # json_file = path+'050_TS_analytique/to_input'

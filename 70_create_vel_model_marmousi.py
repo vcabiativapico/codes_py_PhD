@@ -15,6 +15,7 @@ import geophy_tools as gt
 from scipy.ndimage import gaussian_filter, sobel
 import pickle as pk
 from scipy import interpolate
+import pandas as pd
 
 
 if __name__ == "__main__":
@@ -112,7 +113,6 @@ if __name__ == "__main__":
     
     
     
-#%% FLAT INTERFACE
 
     def taper(ntap, sh,nx):
         # nx =50
@@ -242,22 +242,83 @@ if __name__ == "__main__":
         inp_mod, idx_mod = modif_layer(inp_org, 2.5, 2.65, 5, new_vel)
         
         
-        # new_idx = (idx_mod[0]+2,idx_mod[1]+7)
-        # inp_ano_thick = np.copy(inp_mod)
-        # inp_ano_thick[new_idx] = new_vel
+        new_idx1 = (idx_mod[0]+2,idx_mod[1]+7)
+        inp_ano_thick = np.copy(inp_mod)
+        inp_ano_thick[new_idx1] = new_vel
         
-        # new_idx = (idx_mod[0]+1,idx_mod[1]+3)
-        # inp_ano_thick[new_idx] = new_vel
+        new_idx = (idx_mod[0]+1,idx_mod[1]+3)
+        inp_ano_thick[new_idx] = new_vel
         
-        inp_ano_thick =np.copy(inp_mod)
-        return inp_ano_thick
+        # inp_ano_thick =np.copy(inp_mod)
+        return inp_ano_thick, new_idx1, new_idx,idx_mod
 
     new_vel_org = 2.6585832
     new_vel_ano = 2.6585832*1.03
     
-    inp_org_thick = create_ano(inp_org,new_vel_org) 
-    inp_ano_thick = create_ano(inp_org,new_vel_ano)    
+    inp_org_thick,new_idx2,new_idx,idx_mod = create_ano(inp_org, new_vel_org) 
+    inp_ano_thick,new_idx2,new_idx, idx_mod= create_ano(inp_org, new_vel_ano)    
     
+    
+    
+    def plot_model2(inp,hmin,hmax):
+        plt.rcParams['font.size'] = 20
+        fig = plt.figure(figsize=(16,8), facecolor = "white")
+        av  = plt.subplot(1,1,1)
+        hfig = av.imshow(inp, 
+                          vmin=hmin,vmax=hmax,aspect='auto'
+                         )
+        plt.colorbar(hfig)
+        plt.xlabel('Distance (Km)')
+        plt.ylabel('Profondeur (Km)')
+        fig.tight_layout()
+        return fig
+  
+    
+    inp_two_ano = np.copy(inp_ano_thick)
+    
+    
+    vel_to_org = new_vel_org
+    for i in range(7):
+        inp_two_ano[86,279+i] =vel_to_org
+    for i in range(12):    
+        inp_two_ano[87,279+i-1] = vel_to_org
+    for i in range(16):
+        
+        
+        inp_two_ano[88,279+i-2] = vel_to_org
+        inp_two_ano[89,279+i-4] = vel_to_org
+        inp_two_ano[90,279+i-5] = vel_to_org
+        inp_two_ano[91,279+i-6] = vel_to_org
+        inp_two_ano[91,279+i-7] = vel_to_org
+    for i in range(14):   
+        inp_two_ano[92,279+i-5] = vel_to_org
+    for i in range(7):
+        inp_two_ano[93,279+i] = vel_to_org
+    
+    
+    
+    
+    fig_org_thick = plot_model2(inp_org_thick,hmin,hmax)
+    
+    fig_two_ano = plot_model2(inp_two_ano,hmin,hmax)
+    imout_two_ano = '../png/68_thick_marm_ano/marm_thick_two_ano.png'
+    flout_two_ano = '../input/68_thick_marm_ano/marm_thick_two_ano.dat'
+    # export_model(inp_two_ano,fig_org_thick,imout_two_ano,flout_two_ano)
+    
+    
+    # flnam2 = '../input/68_thick_marm_ano/new_idx.dat'
+    # df = pd.DataFrame(new_idx).T
+    # df.to_csv(flnam2, header=False, index=False)
+
+    # flnam2 = '../input/68_thick_marm_ano/new_idx2.dat'
+    # df = pd.DataFrame(new_idx2).T
+    # df.to_csv(flnam2, header=False, index=False)
+
+    # flnam2 = '../input/68_thick_marm_ano/idx_mod.dat'
+    # df = pd.DataFrame(idx_mod).T
+    # df.to_csv(flnam2, header=False, index=False)
+
+
     # plot_model( -inp_org_thick+inp_ano_thick ,0,0.08)
     
     
@@ -279,14 +340,14 @@ if __name__ == "__main__":
     fig_ano_thick_sm = plot_model(inp_ano_thick_sm,hmin,hmax)
     imout_ano_thick_sm = '../png/69_thin_marm_ano/marm_thick_ano_sm7.png'
     flout_ano_thick_sm = '../input/69_thin_marm_ano/marm_thick_ano_sm7.dat'
-    export_model(inp_ano_thick_sm,fig_ano_thick_sm,imout_ano_thick_sm,flout_ano_thick_sm)
+    # export_model(inp_ano_thick_sm,fig_ano_thick_sm,imout_ano_thick_sm,flout_ano_thick_sm)
     
     # ## Original smooth 5
     inp_org_thick_sm = gaussian_filter(inp_org_thick,7)
     fig_org_thick_sm = plot_model(inp_org_thick_sm,hmin,hmax)
     imout_org_thick_sm = '../png/69_thin_marm_ano/marm_thick_org_sm7.png'
     flout_org_thick_sm = '../input/69_thin_marm_ano/marm_thick_org_sm7.dat'
-    export_model(inp_org_thick_sm,fig_org_thick_sm,imout_org_thick_sm,flout_org_thick_sm)
+    # export_model(inp_org_thick_sm,fig_org_thick_sm,imout_org_thick_sm,flout_org_thick_sm)
     
     plt.figure()
     plt.plot(inp_org_thick_sm[:,266])
