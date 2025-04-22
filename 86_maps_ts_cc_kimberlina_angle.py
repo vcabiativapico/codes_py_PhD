@@ -183,7 +183,8 @@ def truncate_float(float_number, decimal_places):
     multiplier = 10 ** decimal_places
     return int(float_number * multiplier) / multiplier
 
-def plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,name):
+
+def plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,angle):
     
     plt.rcParams['font.size'] = 22
     fig = plt.figure(figsize=(5, 10))
@@ -202,15 +203,14 @@ def plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,name):
     ax1.grid()
     plt.gca().invert_yaxis()
     fig.tight_layout()
-    flout = '../png/92_kimberlina_corr_amp/trace_points/'+name+'_src_'+str(title*12)+'_off'+str(int(off*1000))+'.png'
+    flout = '../png/93_kimberlina_angle_corr/trace_points/angle_'+str(angle)+'_src_'+str(title*12)+'_off'+str(int(off*1000))+'.png'
     print("Export to file:", flout)
     fig.savefig(flout, bbox_inches='tight')
 
 #%%
 
-year = 10
-part = '_p2_v1'
-name = str(year)+part
+
+angle = 90
 
 
 xmax_tr = 0.3
@@ -221,7 +221,7 @@ nt = 1801
 # shot_nb = np.arange(152,321)
 # shot_nb = np.arange(291,450)
 shot_nb = np.arange(152,350)
-shot_nb = [166,208,250,291]
+
 # shot_nb = [302]
 # shot_nb  = [402,519]
 
@@ -231,9 +231,7 @@ dict_shot_nb =  {item: {x:{} for x in attr} for item in shot_nb}
 total_rms = []
 total_off = []
 max_total_cc = []
-max_total = []
 fb_all =  []
-
 
 for title in tqdm(shot_nb): 
 # if title = 218:
@@ -243,24 +241,8 @@ for title in tqdm(shot_nb):
     ao = fo + np.arange(no)*do
     
     
-    # tr1 = '../output/85_mix_kim_overthrust/full_sum/org/t1_obs_000'+str(title).zfill(3)+'.dat'
-    # tr2 = '../output/85_mix_kim_overthrust/full_sum/'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
-    
-    # tr1 = '../output/86_new_mix_kim_overthrust/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    # tr2 = '../output/86_new_mix_kim_overthrust/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
-    
-    # tr1 = '../output/88_kimberlina_mod_v3/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    # tr2 = '../output/88_kimberlina_mod_v3/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
-   
-    
-    # tr1 = '../output/89_kim_mix_overthrust_vhigh/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    # tr2 = '../output/89_kim_mix_overthrust_vhigh/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
-   
     tr1 = '../output/90_kimberlina_mod_v3_high/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/92_kimberlina_corr_amp/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
- 
-    tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr2 = '../output/93_kimberlina_angle_corr/full_sum/f_'+str(angle)+'/t1_obs_000'+str(title).zfill(3)+'.dat'
  
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
@@ -312,7 +294,7 @@ for title in tqdm(shot_nb):
     for i in range(no):
         perc = 0.05
         fb_idx.append(find_first_index_greater_than(diff[:,i], np.max(diff[:,i])*perc))
-        fb_t = np.array(fb_idx)*dt -0.1
+        fb_t = np.array(fb_idx)*dt
     
     
        
@@ -322,12 +304,12 @@ for title in tqdm(shot_nb):
     inp2 = inp2 * window  
     
     SLD_TS = []
-    max_sld = []
+    
     max_cross_corr = []
     
     
     win1_add = 0.25
-    win2_add = win1_add+0.14
+    win2_add = 0.35
     # win1_array = ao_s*1000
     win1_array = (fb_t+win1_add)*1000
     
@@ -343,26 +325,26 @@ for title in tqdm(shot_nb):
                 
             if win2 > at[-1]*1000: 
                 win2 = at[-1]*1000
-            
+                
             max_cross_corr.append(procs.max_cross_corr(inp1[:,i],inp2[:,i],win1=win1,win2=win2,thresh=None,si=dt,taper=25))
         else: 
             max_cross_corr.append(0)
-    max_total_cc.append(max_cross_corr)
-    max_total.append(max_sld)    
-    
+   
+    max_total_cc.append(max_cross_corr)   
     fb_all.append(fb_t)      
-    if title == 166 or title == 208 or title == 250 or title == 291:
-        hmin= np.min(diff)/100
-        hmax= -hmin
+    
+ 
+    if title%250 == 0:
+        hmin= np.min(diff)
+        hmax= -np.min(diff)
         plt.rcParams['font.size'] = 27
         fig = plt.figure(figsize=(10, 12), facecolor="white")
         av1 = plt.subplot2grid((6, 1), (0, 0),rowspan=4)
         hfig = av1.imshow(diff, extent=[ao[0], ao[-1], at[-1], at[0]],
                           vmin=hmin, vmax=hmax, aspect='auto',
                           cmap='seismic')
-        av1.plot(ao,fb_t,'blue',linewidth=2)
-        av1.plot(ao,win1_array/1000,'yellowgreen',linewidth=2)
-        av1.plot(ao,win2_array/1000,'yellowgreen',linewidth=2)
+        av1.plot(ao,win1_array/1000,'yellowgreen',linewidth=3)
+        av1.plot(ao,win2_array/1000)
         av1.plot(diff[:,dict_shot_nb[title]['idx_max_rms']]+ao[dict_shot_nb[title]['idx_max_rms']],at)
         # av1.plot(diff[:,dict_shot_nb[title]['idx_sel_max_rms']]+ao[dict_shot_nb[title]['idx_sel_max_rms'] ],at,'gray')
         av1.set_title('x= '+str(title*12))
@@ -379,7 +361,7 @@ for title in tqdm(shot_nb):
         av.set_ylim(np.min(tr_rms),np.max(tr_rms))
         
         av2 = plt.subplot2grid((6, 1), (5, 0),rowspan=1)
-        av2.plot(ao,-np.array(max_cross_corr))
+        av2.plot(ao,np.array(max_cross_corr))
         plt.setp(av.get_xticklabels(), visible=False)
         av2.set_xlim(ao[0],ao[-1])
         av2.set_ylabel('TS (ms)')
@@ -432,16 +414,13 @@ idx_to_choose = np.unravel_index(np.argmax(sum_cc_rms_norm, axis=None), sum_cc_r
   
 #%%
 
-  
-
 points_x = []
 points_y = []
 
 off = 570 /1000
-off = 0
 delta = 0
 
-for j in range(2000,4001,250):
+for j in range(2000,4001,500):
     nb_src  = 2.6
     nb_src = j/1000
 # off = 0.36
@@ -459,10 +438,10 @@ for j in range(2000,4001,250):
     fb2 = np.array(fb_all[title-shot_nb[0]][j]) + win2_add
     
      
-    tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
-
-    
+    tr1 = '../output/90_kimberlina_mod_v3_high/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr2 = '../output/93_kimberlina_angle_corr/full_sum/f_'+str(angle)+'/t1_obs_000'+str(title).zfill(3)+'.dat'
+     
+     
        
     inp1 = -gt.readbin(tr1, no, nt).transpose()
     inp2 = -gt.readbin(tr2, no, nt).transpose()
@@ -470,7 +449,7 @@ for j in range(2000,4001,250):
     
     CC_TS = max_total_cc[title-shot_nb[0]][j]
 
-    plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,name)
+    plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,angle)
     
     
     
@@ -494,8 +473,8 @@ if 1==1:
     #                   total_off, max_total_cc, levels=levels,
     #                   cmap=palette)
     im = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
-                            vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
-                          # vmin=-3.8,vmax=3.8,
+                           # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
+                          vmin=-2.5,vmax=2.5,
                           cmap=palette3,alpha=1)
     # ax0.plot(source,off, 'ko')
     # ax0.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
@@ -509,16 +488,16 @@ if 1==1:
     cbar= fig.colorbar(im, ax=ax0, format='%1.1f',label='TS (ms)',orientation='horizontal')
     plt.gca().set_aspect('equal')
     fig.tight_layout()
-    # flout = '../png/92_kimberlina_corr_amp/maps/'+name+'_TS_MAP.png'
-    # print("Export to file:", flout)
-    # fig.savefig(flout, bbox_inches='tight')
+    flout = '../png/93_kimberlina_angle_corr/maps/'+str(angle)+'_TS_MAP.png'
+    print("Export to file:", flout)
+    fig.savefig(flout, bbox_inches='tight')
     
     
     
     fig, (ax0) = plt.subplots(figsize=(10,14),nrows=1) 
     im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                    vmin=np.min(total_rms),vmax=np.max(total_rms), 
-                    # vmin=0,vmax=0.0021,
+                    # vmin=np.min(total_rms),vmax=np.max(total_rms), 
+                    vmin=0,vmax=0.0021,
                     cmap=palette)
       
     ax0.scatter(points_x,points_y,c='white',marker='o',s=180,edgecolors='black',label='PP')
@@ -530,20 +509,20 @@ if 1==1:
     cbar.set_label('Amplitude')
     plt.gca().set_aspect('equal')
     fig.tight_layout()
-    # flout = '../png/92_kimberlina_corr_amp/maps/'+name+'_AMP_MAP.png'
-    # print("Export to file:", flout)
-    # fig.savefig(flout, bbox_inches='tight')
+    flout = '../png/93_kimberlina_angle_corr/maps/'+str(angle)+'_AMP_MAP.png'
+    print("Export to file:", flout)
+    fig.savefig(flout, bbox_inches='tight')
     
     
     
     fig, (ax0) = plt.subplots(figsize=(8,14),nrows=1)
     im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                    vmin= np.min(total_rms),vmax=np.max(total_rms), 
-                    # vmin=0,vmax=0.0021,
+                    # vmin= np.min(total_rms),vmax=np.max(total_rms), 
+                    vmin=0,vmax=0.0021,
                     cmap=palette2)
     im2 = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
                            # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
-                           vmin=-3.8,vmax=3.8,
+                           vmin=-2.5,vmax=2.5,
                           cmap=palette3,alpha=0.5) 
     # ax0.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
     # ax0.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
@@ -556,9 +535,9 @@ if 1==1:
     ax0.legend()
     fig.tight_layout()
     plt.gca().set_aspect('equal')
-    # flout = '../png/92_kimberlina_corr_amp/maps/'+name+'_OVER_MAP.png'
-    # print("Export to file:", flout)
-    # fig.savefig(flout, bbox_inches='tight')
+    flout = '../png/93_kimberlina_angle_corr/maps/'+str(angle)+'_OVER_MAP.png'
+    print("Export to file:", flout)
+    fig.savefig(flout, bbox_inches='tight')
 
 
 
@@ -571,8 +550,8 @@ fig, (ax1,ax2,ax0) = plt.subplots(figsize=(
 plt.suptitle('Attribute maps compared to ray-tracing values')
 
 im1 = ax1.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                vmin= np.min(total_rms),vmax=np.max(total_rms), 
-                # vmin=0,vmax=0.0021,
+                # vmin= np.min(total_rms),vmax=np.max(total_rms), 
+                vmin=0,vmax=0.0021,
                 cmap='viridis')
 # ax1.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
 # ax1.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
@@ -587,8 +566,8 @@ fig.tight_layout()
 
 
 im2 = ax2.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
-                        vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
-                       # vmin=-3.8,vmax=3.8,
+                       # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
+                       vmin=-2.5,vmax=2.5,
                       cmap=palette3,alpha=1) 
 # ax2.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
 # ax2.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
@@ -607,8 +586,8 @@ im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
                 vmin=0,vmax=0.0021,
                 cmap=palette2)
 im2 = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
-                       vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc),
-                      # vmin=-3.8,vmax=3.8,
+                      # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc),
+                      vmin=-2.5,vmax=2.5,
                       cmap=palette3,alpha=0.5) 
 # ax0.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
 # ax0.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
@@ -621,24 +600,25 @@ ax0.legend()
 plt.gca().set_aspect('equal')
 fig.tight_layout()
 
-# flout = '../png/92_kimberlina_corr_amp/maps/'+name+'_TS_all_maps_off.png' 
-# print("Export to file:", flout)
-# fig.savefig(flout, bbox_inches='tight')
+flout = '../png/93_kimberlina_angle_corr/maps/'+str(angle)+'_TS_all_maps_off.png' 
+print("Export to file:", flout)
+fig.savefig(flout, bbox_inches='tight')
 
 
 #%%
 
-file = '../output/92_kimberlina_corr_amp/'+part+'_attr_max.csv'
+
+file = '../output/93_kimberlina_angle_corr/new_attr_max.csv'
 
 if os.path.isfile(file)==True: 
     data = pd.read_csv(file)
     max_rms = data['max_rms'].tolist()
     max_cc = data['max_cc'].tolist()
     year_number = data['year_number'].tolist()
-    if year_number[-1] != year:
+    if year_number[-1] != angle:
         max_rms.append(np.max(total_rms))
         max_cc.append(np.min(max_total_cc))
-        year_number.append(year)
+        year_number.append(angle)
     else: 
         print('This has already been written')
 else: 
@@ -648,10 +628,10 @@ else:
     
     max_cc.append(np.min(max_total_cc))
     max_rms.append(np.max(total_rms))
-    year_number.append(year)
+    year_number.append(angle)
     
 
     
-df = pd.DataFrame({'year_number':year_number,'max_rms':max_rms,'max_cc':max_cc})
-df.to_csv(file,index=None)
+# df = pd.DataFrame({'year_number':year_number,'max_rms':max_rms,'max_cc':max_cc})
+# df.to_csv(file,index=None)
     

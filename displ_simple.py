@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # Global parameters
     labelsize = 16
-    nt = 1501
+    nt = 1801
     dt = 1.14e-3
     ft = -100.11e-3
     nz = 151
@@ -219,25 +219,25 @@ if __name__ == "__main__":
     # tr1 = '../output/71_thick_marm_ano_born_mig/simulations/new_pert_mig_sm_org/t1_obs_000'+str(title)+'.dat'
     # tr2 = '../output/71_thick_marm_ano_born_mig/simulations/new_pert_mig_sm_ano/t1_obs_000'+str(title)+'.dat'
     
-    tr1 = '../output/72_thick_marm_ano_born_mig_flat/org/t1_obs_000'+str(title)+'.dat'
+    # tr1 = '../output/72_thick_marm_ano_born_mig_flat/org/t1_obs_000'+str(title)+'.dat'
     
-    # tr1 = '../output/63_evaluating_thickness/vel_thick_204/t1_obs_000'+str(title)+'.dat'
+    # # tr1 = '../output/63_evaluating_thickness/vel_thick_204/t1_obs_000'+str(title)+'.dat'
     
-    tr1 ='../output/73_new_flat_sm/born_org_rho/t1_obs_000361.dat'
-    tr2 ='../output/73_new_flat_sm/born_ano_rho/t1_obs_000361.dat'
+    # tr1 ='../output/73_new_flat_sm/born_org_rho/t1_obs_000361.dat'
+    # tr2 ='../output/73_new_flat_sm/born_ano_rho/t1_obs_000361.dat'
 
 
-    tr1 ='../output/74_test_flat/op_inv_lsm_aco/t1_obs_000361.dat'
-    tr2 ='../output/74_test_flat/op_inv_lsm_aco/t1_syn_000361.dat'
+    # tr1 ='../output/74_test_flat/op_inv_lsm_aco/t1_obs_000361.dat'
+    # tr2 ='../output/74_test_flat/op_inv_lsm_aco/t1_syn_000361.dat'
     
     
-    tr1_wsrc ='../output/76_marm_sum_pert_wsrc2/t1_obs_000361.dat'
-    tr2_wsrc ='../output/76_marm_sum_pert_wsrc2/t1_syn_000361.dat'
+    # tr1_wsrc ='../output/76_marm_sum_pert_wsrc2/t1_obs_000361.dat'
+    # tr2_wsrc ='../output/76_marm_sum_pert_wsrc2/t1_syn_000361.dat'
     
     
     
-    tr1 ='../output/77_flat_fw_focus/org_full/t1_obs_000361.dat'
-    tr2 ='../output/77_flat_fw_focus/ano_full/t1_obs_000361.dat'
+    # tr1 ='../output/77_flat_fw_focus/org_full/t1_obs_000361.dat'
+    # tr2 ='../output/77_flat_fw_focus/ano_full/t1_obs_000361.dat'
     
  
     # tr1_wsrc ='../output/t1_obs_000361.dat'
@@ -250,24 +250,38 @@ if __name__ == "__main__":
     # tr1 ='../output/73_new_flat_sm/org/t1_obs_000361.dat'
     # tr2 ='../output/73_new_flat_sm/org/t1_syn_000361.dat'
 
-    inp1 = -gt.readbin(tr1, no, nt).transpose()
-    inp2 = -gt.readbin(tr2, no, nt).transpose()
+    # inp1 = -gt.readbin(tr1, no, nt).transpose()
+    # inp2 = -gt.readbin(tr2, no, nt).transpose()
     
-    inp1_wsrc = -gt.readbin(tr1_wsrc, no, nt).transpose()
-    inp2_wsrc = -gt.readbin(tr2_wsrc, no, nt).transpose()
+    # inp1_wsrc = -gt.readbin(tr1_wsrc, no, nt).transpose()
+    # inp2_wsrc = -gt.readbin(tr2_wsrc, no, nt).transpose()
     
-    plt.figure(figsize=(8,6))
-    plt.title('short wsrc')
-    plt.plot(inp1[:,125])
-    plt.plot(inp2[:,125])
+    # plt.figure(figsize=(8,6))
+    # plt.title('short wsrc')
+    # plt.plot(inp1[:,125])
+    # plt.plot(inp2[:,125])
  
     
     
-    plt.figure(figsize=(8,6))
-    plt.title('padded wsrc')
-    plt.plot(inp1_wsrc[:,125])
-    plt.plot(inp2_wsrc[:,125])
+    # plt.figure(figsize=(8,6))
+    # plt.title('padded wsrc')
+    # plt.plot(inp1_wsrc[:,125])
+    # plt.plot(inp2_wsrc[:,125])
     
+    
+    title = 350
+    
+    tr1 = '../output/94_kimberlina_v4/t1_obs_000249.dat'
+    
+    tr1 = '../output/90_kimberlina_mod_v3_high/full_sum/f_y0/t1_obs_000190.dat'
+    tr2 = '../output/92_kimberlina_corr_amp/full_sum/f_30_p2_v1/t1_obs_000190.dat'
+
+    
+    tr1 = '../output/94_kimberlina_v4/y0/t1_obs_000249.dat'
+    tr2 = '../output/94_kimberlina_v4/y30/t1_obs_000249.dat'
+    
+    inp1 = -gt.readbin(tr1, no, nt).transpose()
+    inp2 = -gt.readbin(tr2, no, nt).transpose()
     
     # plt.figure()
     # src_nm = '../output/74_test_flat/op_inv_lsm_aco/wsrc.dat'
@@ -307,35 +321,35 @@ if __name__ == "__main__":
    
     
     diff = inp1 - inp2
-    hmin = np.min(diff)*10
+    hmin = np.min(diff)*2
     hmax = -hmin
     flout_gather = '../png/obs_'+str(title)+'.png'
     plot_shot_gathers(hmin, hmax, diff, flout_gather)
     
-    from spotfunk.res import procs
-    tr_rms = [] 
-    for i in range(no):
-        tr_rms.append(procs.RMS_calculator(diff[:,i]))
+    # from spotfunk.res import procs
+    # tr_rms = [] 
+    # for i in range(no):
+    #     tr_rms.append(procs.RMS_calculator(diff[:,i]))
     
-    plt.figure()
-    plt.plot(tr_rms)
-    np.argmax(tr_rms)
+    # plt.figure()
+    # plt.plot(tr_rms)
+    # np.argmax(tr_rms)
 
     
-    plot_shot_gathers(hmin, hmax, inp1_wsrc, flout_gather)
-    plot_shot_gathers(hmin, hmax, inp2_wsrc, flout_gather)
-    diff = inp1_wsrc - inp2_wsrc
+    # plot_shot_gathers(hmin, hmax, inp1_wsrc, flout_gather)
+    # plot_shot_gathers(hmin, hmax, inp2_wsrc, flout_gather)
+    # diff = inp1_wsrc - inp2_wsrc
     
-    flout_gather = '../png/obs_'+str(title)+'.png'
-    plot_shot_gathers(hmin, hmax, diff, flout_gather)
-    # flnam = '../output/77_flat_fw_focus/res/t1_obs_000361.dat'
+    # flout_gather = '../png/obs_'+str(title)+'.png'
+    # plot_shot_gathers(hmin, hmax, diff, flout_gather)
+    # # flnam = '../output/77_flat_fw_focus/res/t1_obs_000361.dat'
         
-    # gt.writebin(diff, flnam)
+    # # gt.writebin(diff, flnam)
     
     
-    tr1_res ='../output/t1_obs_000361.dat'
-    inp_res = gt.readbin(tr1_res, nt, no)
-    plot_shot_gathers(hmin, hmax, inp_res, flout_gather)   
+    # tr1_res ='../output/t1_obs_000361.dat'
+    # inp_res = gt.readbin(tr1_res, nt, no)
+    # plot_shot_gathers(hmin, hmax, inp_res, flout_gather)   
    
   
 # %%
@@ -379,7 +393,7 @@ if __name__ == "__main__":
             fig = plt.figure(figsize=(14, 7), facecolor="white")
             av = plt.subplot(1, 1, 1)
             hfig1 = av.imshow(inp, extent=[ax[0], ax[-1], az[-1], az[0]],
-                              vmin=hmin, vmax=hmax, aspect='auto', cmap='seismic')
+                              vmin=hmin, vmax=hmax, aspect='auto', cmap='viridis')
             plt.xlabel('Distance (km)')
             plt.ylabel('Depth (km)')
         else:
@@ -408,8 +422,8 @@ if __name__ == "__main__":
         # hmax = 5.0
         # hmin = 1.5
         hmax = np.max(inp)
-        # hmin = -hmax
-        hmin = np.min(inp)
+        hmin = -hmax
+        # hmin = np.min(inp)
         # hmin = 0
         if np.shape(inp)[1] > 60:
             fig = plt.figure(figsize=(14, 7), facecolor="white")
@@ -435,35 +449,38 @@ if __name__ == "__main__":
         fig.savefig(flout, bbox_inches='tight')
         return inp, fig
     
+   
+    
+    nx = 601
+    nz=151
+
+    # fl1 = '../output/avp_exact.dat' 
+    # inp1 = gt.readbin(fl1,nz,nx)
+    # flout = '../png/adbetap.png'
+    # plot_model(inp1,flout)
+    
+    # fl2= '../output/inv_betap_x_s.dat' 
+    # inp2 = gt.readbin(fl2,nz,nx)
+    # flout = '../png/adbetap.png'
+    # plot_model(inp2,flout)
+    
+    # year = 'f_y25_p2_v1'
+    
+    # fl3 = '../input/vel_full.dat'
+    # # fl3 = '../output/92_kimberlina_corr_amp/full_sum/f_10_p2_v2/avp_exact.dat'
+    # # fl3 = '../output/avp_exact.dat'
+    # inp3 = gt.readbin(fl3,nz,nx)
+    # flout = '../png/inv_betap_x_s.png'
+    # plot_model(inp3,flout)
+   
     
     
-    
-    fl1 = "/home/vcabiativapico/Téléchargements/velocities_trends_surfaces/data/Extracted_Interval_Velocity_Maps/Ref6-Ref5"
-    inp1 = gt.readbin(fl1,nz,nx)
-    flout = '../png/adbetap.png'
-    plot_model(inp1,flout)
-    
-    fl1 = '../output/avp_exact.dat' 
-    inp1 = gt.readbin(fl1,nz,nx)
-    flout = '../png/adbetap.png'
-    plot_model(inp1,flout)
-    
-    fl2= '../output/inv_betap_x_s.dat' 
-    inp2 = gt.readbin(fl2,nz,nx)
-    flout = '../png/adbetap.png'
-    plot_model(inp2,flout)
-    
-    year = 'f_y25_p2_v1'
-    
-    fl3 = '../input/vel_full.dat'
-    fl3 = '../output/90_kimberlina_mod_v3_high/full_sum/'+year+'/avp_exact.dat'
-    # fl3 = '../output/avp_exact.dat'
+    fl3 = '../output/94_kimberlina_v4/y0/inv_betap_x_s.dat'
     inp3 = gt.readbin(fl3,nz,nx)
     flout = '../png/inv_betap_x_s.png'
     plot_mig(inp3,flout)
     
-    year = 'f_y30_p2_v1'
-    fl4 = '../output/90_kimberlina_mod_v3_high/full_sum/'+year+'/avp_exact.dat'
+    fl4 = '../output/94_kimberlina_v4/y30/inv_betap_x_s.dat'
     inp4 = gt.readbin(fl4,nz,nx)
     flout = '../png/inv_betap_x_s.png'
     plot_mig(inp4,flout)
@@ -475,7 +492,7 @@ if __name__ == "__main__":
     # plot_mig(inp4,flout)
   
     inp_diff = inp3-inp4
-    plot_model(inp_diff)
+    plot_model(inp_diff,flout)
    
    
     

@@ -1248,6 +1248,7 @@ Param_Input1 = [start_x,start_y,start_z,
 
 
 file = '../input/68_thick_marm_ano/marm_thick_org_sm8.dat'
+file = '../input/94_kimberlina_v4/mix_model_rs_sm0.dat'
 
 
 Vit_model1 = readbin(file,151,601).T * 1000
@@ -1305,9 +1306,9 @@ Param_Exit = [start_x,start_y,start_z,
               INL_step,XL_step,azimuth,
               I,J,K,X_or,Y_or]
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/074_thick_ano_pert_sm8/074_Param_marm_thick_org_sm8.csv', Param_Exit, fmt='%f',delimiter=",")   
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/94_kimberlina_v4/094_Param_kimover_sm.csv', Param_Exit, fmt='%f',delimiter=",")   
 
-np.savetxt('../../../../Demigration_SpotLight_Septembre2023/074_thick_ano_pert_sm8/074_Weights_marm_thick_org_sm8.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
+np.savetxt('../../../../Demigration_SpotLight_Septembre2023/94_kimberlina_v4/094_Weights_kimover_sm.csv',Weight_3D_inline,fmt='%f',delimiter=',') 
 
 # np.savetxt('Parametres_vel_full_kevtest.csv', Param_Exit, fmt='%f',delimiter=",")   
 

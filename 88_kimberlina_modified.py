@@ -121,7 +121,7 @@ for i in range(0,31,5):
     plot_test_model(inp_mix_rs)
         
     
-    gt.writebin(inp_mix_rs,'../input/85_mix_kim_overthrust/mix_model_rs_y'+str(i)+'.dat')
+    # gt.writebin(inp_mix_rs,'../input/85_mix_kim_overthrust/mix_model_rs_y'+str(i)+'.dat')
 
     if i==0:
         sm_0 = gaussian_filter(inp_mix_rs, 8)
@@ -129,7 +129,7 @@ for i in range(0,31,5):
         plot_test_model(sm_0)
      
         
-        gt.writebin(sm_0,'../input/85_mix_kim_overthrust/mix_model_rs_sm0.dat')
+        # gt.writebin(sm_0,'../input/85_mix_kim_overthrust/mix_model_rs_sm0.dat')
 
 
 plot_model(sm_0)

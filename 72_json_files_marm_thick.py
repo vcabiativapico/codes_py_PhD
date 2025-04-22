@@ -43,7 +43,7 @@ def read_results(path,srow):
 def calculate_slope(degrees, spot_x, spot_z, plot=False):
     m = np.tan(degrees * np.pi/180) 
     b = spot_z - m * spot_x
-    point_x = np.array([spot_x - 150, spot_x + 150])
+    point_x = np.array([spot_x - 250, spot_x + 250])
     point_z = point_x * m + b
     plt.figure(figsize=(10,8))
     plt.plot(point_x,point_z,'k')
@@ -172,15 +172,15 @@ ny = 21
 dy = 50
 ay = fy + np.arange(ny)*dy
 
-base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/'
+base_path = '/home/vcabiativapico/local/Demigration_SpotLight_Septembre2023/095_kimberlina_angle/'
 
 ref_json_file = base_path+'068_input'
-in_table_name =  '068_table_marm_thick_ano_sm5.csv'
+in_table_name =  '094_table.csv'
 
 
-ray_x_in_poly,ray_z_in_poly = 3396,-1149
+ray_x_in_poly,ray_z_in_poly = 2550,-1490
 
-degree = 37
+degree = 1
 z_init_val = -12
 pt_inv1, pt_inv2, pt_inv3 = calculate_slope(degree,ray_x_in_poly,ray_z_in_poly, plot=True)
 d_val = plot_plane_from_points(pt_inv1,pt_inv2,pt_inv3)[1]
@@ -198,11 +198,11 @@ print(ray_z_in_poly,spot_z)
 df = pd.DataFrame(table_input).T
 df.to_csv(base_path+in_table_name,header=False,index=False)
  
-# write_json_file(ref_json_file, base_path+'069_marm_fine_org_badj',dict_input,z_init_val,in_table_name)
+write_json_file(ref_json_file, base_path+'095_kimberlina_angle',dict_input,z_init_val,in_table_name)
 
 
 
-fl1='../input/68_thick_marm_ano/marm_thick_org.dat'
+fl1='../input/95_kimberlina_fault/full_sum/sum_kim_model_angle_30_y30.dat'
 
 inp_org = gt.readbin(fl1,nz,nx)
 

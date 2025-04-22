@@ -192,11 +192,11 @@ def plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,name):
     ax1.plot(inp1[:,j], at[:], label='org',linewidth=2)
     ax1.plot(inp2[:,j], at[:], label='ano',linewidth=2)
     ax1.set_title('Trace \n src = '+str(title*12) + ' m \noff = '+str(int(off*1000))+' m\nTS = '+str(truncate_float(CC_TS,2))+' ms')
-    ax1.legend(loc='upper left')
+    ax1.legend(loc='lower left')
     ax1.set_xlim(-0.03, 0.03)
     ax1.axhline(fb,c='r')
     ax1.axhline(fb2,c='r')
-    ax1.set_ylim(1.3,fb+0.8)
+    ax1.set_ylim(1.3,2.4)
     ax1.set_ylabel('Time (s)')
     ax1.set_xlabel('Amplitude')
     ax1.grid()
@@ -206,9 +206,36 @@ def plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,name):
     print("Export to file:", flout)
     fig.savefig(flout, bbox_inches='tight')
 
+
+def pick_first_break(no,data,dt,perc = 0.05, shift =0):
+    fb_idx = []
+    fb_t = []
+    for i in range(no):
+        
+        fb_idx.append(find_first_index_greater_than(diff[:,i], np.max(diff[:,i])*perc))
+        fb_t = np.array(fb_idx)*dt -shift
+    return fb_t
+
+def cross_corr_ts_calculation(win1_array,win2_array,at,no,idx_tr_amp_max,inp1,inp2,dt):
+    max_cross_corr = []
+    
+    for i in range(no):
+        if at[idx_tr_amp_max][i] > 1: # Time where amplitude is maximal must be below 1 second
+            win1 = win1_array[i]
+            win2 = win2_array[i]
+            if win1 > at[-1]*1000-100:  # Border traces must have a window inside the trace length
+                win1 = at[-1]*1000-100
+                
+            if win2 > at[-1]*1000: # Border traces must have a window inside the trace length
+                win2 = at[-1]*1000
+            
+            max_cross_corr.append(procs.max_cross_corr(inp1[:,i],inp2[:,i],win1=win1,win2=win2,thresh=None,si=dt,taper=25))
+        else: 
+            max_cross_corr.append(0)
+    return max_cross_corr
 #%%
 
-year = 10
+year = 30
 part = '_p2_v1'
 name = str(year)+part
 
@@ -221,7 +248,7 @@ nt = 1801
 # shot_nb = np.arange(152,321)
 # shot_nb = np.arange(291,450)
 shot_nb = np.arange(152,350)
-shot_nb = [166,208,250,291]
+
 # shot_nb = [302]
 # shot_nb  = [402,519]
 
@@ -258,9 +285,6 @@ for title in tqdm(shot_nb):
    
     tr1 = '../output/90_kimberlina_mod_v3_high/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
     tr2 = '../output/92_kimberlina_corr_amp/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
- 
-    tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
  
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
@@ -306,54 +330,33 @@ for title in tqdm(shot_nb):
     flout = '/home/vcabiativapico/local/src/victor/out2dcourse/png/78_marm_sm8_thick_sum_pert/shots/full/'+str(title*12)+'.png'
     
 
+    # Pick first break
     
-    fb_idx = []
-    fb_t = []
-    for i in range(no):
-        perc = 0.05
-        fb_idx.append(find_first_index_greater_than(diff[:,i], np.max(diff[:,i])*perc))
-        fb_t = np.array(fb_idx)*dt -0.1
+    fb_t = pick_first_break(no,diff,dt,perc = 0.05,shift = 0.1)
     
     
-       
+    
+    # Apply window to gather to avoid border effect
     window = signal.windows.tukey(no,alpha=0.4)
-    
     inp1 = inp1 * window
     inp2 = inp2 * window  
     
-    SLD_TS = []
-    max_sld = []
-    max_cross_corr = []
-    
-    
-    win1_add = 0.25
+    # Define window
+    win1_add = 0.3 
     win2_add = win1_add+0.14
-    # win1_array = ao_s*1000
-    win1_array = (fb_t+win1_add)*1000
     
-    # win2_array = np.array([at[-1]]*no)*1000
+    win1_array = (fb_t + win1_add) * 1000
     win2_array = (fb_t + win2_add) * 1000
     
-    for i in range(no):
-        if at[idx_tr_amp_max][i] > 1:
-            win1 = win1_array[i]
-            win2 = win2_array[i]
-            if win1 > at[-1]*1000-100: 
-                win1 = at[-1]*1000-100
-                
-            if win2 > at[-1]*1000: 
-                win2 = at[-1]*1000
-            
-            max_cross_corr.append(procs.max_cross_corr(inp1[:,i],inp2[:,i],win1=win1,win2=win2,thresh=None,si=dt,taper=25))
-        else: 
-            max_cross_corr.append(0)
+    max_cross_corr = cross_corr_ts_calculation(win1_array,win2_array,at,no,idx_tr_amp_max,inp1,inp2,dt) 
+
     max_total_cc.append(max_cross_corr)
-    max_total.append(max_sld)    
-    
+
     fb_all.append(fb_t)      
-    if title == 166 or title == 208 or title == 250 or title == 291:
-        hmin= np.min(diff)/100
-        hmax= -hmin
+    # if title == 166 or title == 208 or title == 250 or title == 291:
+    if 1==0:
+        hmin= np.min(diff)
+        hmax= -np.min(diff)
         plt.rcParams['font.size'] = 27
         fig = plt.figure(figsize=(10, 12), facecolor="white")
         av1 = plt.subplot2grid((6, 1), (0, 0),rowspan=4)
@@ -410,7 +413,6 @@ for x in list(dict_shot_nb.keys()):
 
 total_off = list(ao)*len(shot_nb)
 total_off = np.reshape(total_off,(len(shot_nb),no))
-      
 
 total_src_x_fw =  np.reshape(total_src_x_fw,(len(src_x_fw),no))*12
 total_rms = np.reshape(total_rms,(len(src_x_fw),no))
@@ -438,10 +440,9 @@ points_x = []
 points_y = []
 
 off = 570 /1000
-off = 0
 delta = 0
 
-for j in range(2000,4001,250):
+for j in range(2000,4001,500):
     nb_src  = 2.6
     nb_src = j/1000
 # off = 0.36
@@ -459,8 +460,8 @@ for j in range(2000,4001,250):
     fb2 = np.array(fb_all[title-shot_nb[0]][j]) + win2_add
     
      
-    tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr1 = '../output/90_kimberlina_mod_v3_high/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr2 = '../output/92_kimberlina_corr_amp/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
 
     
        
@@ -486,7 +487,7 @@ for j in range(2000,4001,250):
     
     word = str([1,2,3])
     
-if 1==1:
+if 1==0:
     plt.rcParams['font.size'] = 26
     fig, (ax0) = plt.subplots(figsize=(10,14),nrows=1)
     # levels = MaxNLocator(nbins=15).tick_values(np.min(max_total_cc), np.max(max_total_cc))
@@ -494,8 +495,8 @@ if 1==1:
     #                   total_off, max_total_cc, levels=levels,
     #                   cmap=palette)
     im = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
-                            vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
-                          # vmin=-3.8,vmax=3.8,
+                           # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
+                          vmin=-3.8,vmax=3.8,
                           cmap=palette3,alpha=1)
     # ax0.plot(source,off, 'ko')
     # ax0.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
@@ -517,8 +518,8 @@ if 1==1:
     
     fig, (ax0) = plt.subplots(figsize=(10,14),nrows=1) 
     im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                    vmin=np.min(total_rms),vmax=np.max(total_rms), 
-                    # vmin=0,vmax=0.0021,
+                    # vmin=np.min(total_rms),vmax=np.max(total_rms), 
+                    vmin=0,vmax=0.0021,
                     cmap=palette)
       
     ax0.scatter(points_x,points_y,c='white',marker='o',s=180,edgecolors='black',label='PP')
@@ -538,8 +539,8 @@ if 1==1:
     
     fig, (ax0) = plt.subplots(figsize=(8,14),nrows=1)
     im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                    vmin= np.min(total_rms),vmax=np.max(total_rms), 
-                    # vmin=0,vmax=0.0021,
+                    # vmin= np.min(total_rms),vmax=np.max(total_rms), 
+                    vmin=0,vmax=0.0021,
                     cmap=palette2)
     im2 = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
                            # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
@@ -563,72 +564,73 @@ if 1==1:
 
 
 #%%
-
-plt.rcParams['font.size'] = 23
-fig, (ax1,ax2,ax0) = plt.subplots(figsize=(
-    30,10),nrows=1,ncols=3)
-
-plt.suptitle('Attribute maps compared to ray-tracing values')
-
-im1 = ax1.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                vmin= np.min(total_rms),vmax=np.max(total_rms), 
-                # vmin=0,vmax=0.0021,
-                cmap='viridis')
-# ax1.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
-# ax1.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
-ax1.set_title('RMS amplitude')
-ax1.set_xlabel('Source x')
-ax1.set_ylabel('Offset x')  
-ax1.legend()
-fig.colorbar(im1, ax=ax1, format='%1.e',label='Amplitude')
-plt.gca().set_aspect('equal')
-fig.tight_layout()
-
-
-
-im2 = ax2.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
-                        vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
-                       # vmin=-3.8,vmax=3.8,
-                      cmap=palette3,alpha=1) 
-# ax2.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
-# ax2.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
-ax2.set_title('CC Time-shift')
-ax2.set_xlabel('Source x')
-# ax2.set_ylabel('offset x') 
-ax2.legend()
-fig.colorbar(im2, ax=ax2,format='%1.2f',label='TS (ms)')
-plt.gca().set_aspect('equal')
-fig.tight_layout()
-
-
-
-im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
-                # vmin= np.min(total_rms),vmax=np.max(total_rms), 
-                vmin=0,vmax=0.0021,
-                cmap=palette2)
-im2 = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
-                       vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc),
-                      # vmin=-3.8,vmax=3.8,
-                      cmap=palette3,alpha=0.5) 
-# ax0.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
-# ax0.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
-ax0.set_title('Overlay amplitude and TS')
-ax0.set_xlabel('Source x')
-# ax0.set_ylabel('offset x')  
-cbar= fig.colorbar(im, ax=ax0, format='%1.e',label='Amplitude')
-cbar= fig.colorbar(im2, ax=ax0, format='%1.f',label='TS (ms)')
-ax0.legend()
-plt.gca().set_aspect('equal')
-fig.tight_layout()
-
-# flout = '../png/92_kimberlina_corr_amp/maps/'+name+'_TS_all_maps_off.png' 
-# print("Export to file:", flout)
-# fig.savefig(flout, bbox_inches='tight')
+    
+if 1==0:
+    plt.rcParams['font.size'] = 23
+    fig, (ax1,ax2,ax0) = plt.subplots(figsize=(
+        30,10),nrows=1,ncols=3)
+    
+    plt.suptitle('Attribute maps compared to ray-tracing values')
+    
+    im1 = ax1.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
+                    # vmin= np.min(total_rms),vmax=np.max(total_rms), 
+                    vmin=0,vmax=0.0021,
+                    cmap='viridis')
+    # ax1.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
+    # ax1.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
+    ax1.set_title('RMS amplitude')
+    ax1.set_xlabel('Source x')
+    ax1.set_ylabel('Offset x')  
+    ax1.legend()
+    fig.colorbar(im1, ax=ax1, format='%1.e',label='Amplitude')
+    plt.gca().set_aspect('equal')
+    fig.tight_layout()
+    
+    
+    
+    im2 = ax2.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
+                           # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc), 
+                           vmin=-3.8,vmax=3.8,
+                          cmap=palette3,alpha=1) 
+    # ax2.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
+    # ax2.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
+    ax2.set_title('CC Time-shift')
+    ax2.set_xlabel('Source x')
+    # ax2.set_ylabel('offset x') 
+    ax2.legend()
+    fig.colorbar(im2, ax=ax2,format='%1.2f',label='TS (ms)')
+    plt.gca().set_aspect('equal')
+    fig.tight_layout()
+    
+    
+    
+    im = ax0.pcolor(total_src_x_fw.T/1000, total_off.T, total_rms.T,\
+                    # vmin= np.min(total_rms),vmax=np.max(total_rms), 
+                    vmin=0,vmax=0.0021,
+                    cmap=palette2)
+    im2 = ax0.pcolormesh(total_src_x_fw/1000, total_off, max_total_cc,
+                          # vmin= -np.min(max_total_cc),vmax=np.min(max_total_cc),
+                          vmin=-3.8,vmax=3.8,
+                          cmap=palette3,alpha=0.5) 
+    # ax0.scatter(src_x[::4]/1000,off_x[::4]/1000,marker='o', c='r',label='RT')
+    # ax0.scatter(rec_x[::4]/1000,-off_x[::4]/1000,marker='o', c='r')
+    ax0.set_title('Overlay amplitude and TS')
+    ax0.set_xlabel('Source x')
+    # ax0.set_ylabel('offset x')  
+    cbar= fig.colorbar(im, ax=ax0, format='%1.e',label='Amplitude')
+    cbar= fig.colorbar(im2, ax=ax0, format='%1.f',label='TS (ms)')
+    ax0.legend()
+    plt.gca().set_aspect('equal')
+    fig.tight_layout()
+    
+    # flout = '../png/92_kimberlina_corr_amp/maps/'+name+'_TS_all_maps_off.png' 
+    # print("Export to file:", flout)
+    # fig.savefig(flout, bbox_inches='tight')
 
 
 #%%
 
-file = '../output/92_kimberlina_corr_amp/'+part+'_attr_max.csv'
+file = '../output/92_kimberlina_corr_amp/'+part+'new_attr_max.csv'
 
 if os.path.isfile(file)==True: 
     data = pd.read_csv(file)
@@ -652,6 +654,6 @@ else:
     
 
     
-df = pd.DataFrame({'year_number':year_number,'max_rms':max_rms,'max_cc':max_cc})
-df.to_csv(file,index=None)
+# df = pd.DataFrame({'year_number':year_number,'max_rms':max_rms,'max_cc':max_cc})
+# df.to_csv(file,index=None)
     
