@@ -16,6 +16,8 @@ from scipy import signal
 from spotfunk.res import procs
 import pandas as pd
 from matplotlib.gridspec import GridSpec
+import functions_ts_inversion as ts
+
 
 labelsize = 16
 nt = 1801
@@ -27,7 +29,7 @@ dz = 12.0/1000.
 nx = 601
 fx = 0.0
 dx = 12.0/1000.
-no =251
+no = 251
 do = dx
 fo = -(no-1)/2*do
 ao = fo + np.arange(no)*do
@@ -125,7 +127,7 @@ def truncate_float(float_number, decimal_places):
 name = 'p2_v1'
 
 # for i in range(30,5,-5):
-for i in range(30,5,-25):
+for i in range(20,5,-25):
     test = gt.readbin('../input/94_kimberlina_v4/full_sum/medium/sum_kim_model_y0.dat', 151, 601)
     test10 = gt.readbin('../input/94_kimberlina_v4/full_sum/medium/sum_kim_model_y'+str(i)+'_'+name+'.dat', 151, 601)
     # test15 = gt.readbin('../input/90_kimberlina_mod_v3_high/full_sum/sum_kim_model_y15_p2_v1.dat', 151, 601)
@@ -135,7 +137,7 @@ for i in range(30,5,-25):
     diff_test10 = test - test10
     
     # diff_test20 = test - test20
-    if i == 30:
+    if i == 20:
         hmin = np.min(diff_test10)
         hmax = np.max(diff_test10)
     
@@ -168,15 +170,15 @@ for i in range(30,5,-25):
         thickness = dz
         
         
-        ts = 2 * thickness / velocity_org - 2 * thickness / velocity_ano
+        ts1 = 2 * thickness / velocity_org - 2 * thickness / velocity_ano
         
         
-        sum_ts.append(np.sum(ts))
+        sum_ts.append(np.sum(ts1))
         
     print(np.min(idx_diff[1]),np.max(idx_diff[1]))
 
 
-year = 30
+year = 20
 part = '_p2_v1'
 name = str(year)+part
 
@@ -184,9 +186,11 @@ name = str(year)+part
 
 
 shot = np.arange(np.min(idx_diff[1]),np.max(idx_diff[1]))
+
+shot= [157]
 # title = 190
 
-
+picked_ts = []
 cc_ts = []
 for title in shot: 
     
@@ -200,11 +204,12 @@ for title in shot:
     off = 0
     idx_off =  int(off * 1000 // 12 + 125)
     
-    inp1 = -gt.readbin(tr1, no, nt).transpose()
-    inp2 = -gt.readbin(tr2, no, nt).transpose()
+    inp1 = gt.readbin(tr1, no, nt).transpose()
+    inp2 = gt.readbin(tr2, no, nt).transpose()
     
+    diff = inp1-inp2
     
-    idx_fb = np.argmin(inp1[1100:,idx_off])+1100 
+    idx_fb = np.argmax(inp1[1100:,idx_off])+1100 
     fb_t = idx_fb *dt+ft
     
     win1_add = -0.03
@@ -215,29 +220,56 @@ for title in shot:
     current_cc_TS = procs.max_cross_corr(inp1[:,idx_off],inp2[:,idx_off],win1=win1,win2=win2,thresh=None,si=dt,taper=25)
     cc_ts.append(current_cc_TS)
     
-    plt.rcParams['font.size'] = 22
-    fig = plt.figure(figsize=(5, 10))
-    gs = GridSpec(1, 1, figure=fig)
-    ax1 = fig.add_subplot(gs[:, 0])
-    ax1.set_title('Trace \n src = '+str(title*12) + ' m \noff = '+str(int(off*1000))+' m\nTS = '+str(truncate_float(current_cc_TS,2))+' ms')
-    ax1.axhline(win1/1000)
-    ax1.axhline(win2/1000)
-    ax1.plot(inp1[:,idx_off], at[:], label='org',linewidth=2)
-    ax1.plot(inp2[:,idx_off], at[:], label='ano',linewidth=2)
-    ax1.legend()
-    ax1.set_xlim(-0.03, 0.03)
-    ax1.set_ylim(1,2.5)
-    ax1.set_ylabel('Time (s)')
-    ax1.set_xlabel('Amplitude')
-    ax1.grid()
-    plt.gca().invert_yaxis()
-    fig.tight_layout()
+    pk_base = procs.extremum_func(inp1[:,idx_off],win1=win1,win2=win2,maxi=True,si=dt)
+    pk_monitor = procs.extremum_func(inp2[:,idx_off],win1=win1,win2=win2,maxi=True,si=dt)
 
+    picked_ts.append( pk_base[0] - pk_monitor[0])
+    
+        
+    aj = []
+    
+    nb_points1 = 4
+    nb_points2 = 11
+    
+    perc = 0.01
+    
+    inv_type=0
+    first_idx1 = ts.find_first_index_greater_than(diff[:,idx_off], np.max(diff[:,idx_off])*perc)-150
+    
+    at_cut_final = ts.node_points(first_idx1,regular = False,nb_points1= nb_points1, nb_points2=nb_points2)
+    
+    param_init, a_init, tau_init = ts.initial_values(at_cut_final, inv_type = inv_type)
+    
+    a_opt, tau_opt, at_cut_final =  ts.ts_inversion(param_init,at_cut_final,at,method = 'Nelder-Mead')
+    
+    
+    
+    # plt.rcParams['font.size'] = 22
+    # fig = plt.figure(figsize=(5, 10))
+    # gs = GridSpec(1, 1, figure=fig)
+    # ax1 = fig.add_subplot(gs[:, 0])
+    # ax1.set_title('Trace \n src = '+str(title*12) + ' m \noff = '+str(int(off*1000))+' m\nTS = '+str(truncate_float(current_cc_TS,2))+' ms')
+    # ax1.axhline(win1/1000)
+    # ax1.axhline(win2/1000)
+    # ax1.plot(inp1[:,idx_off], at[:], label='org',linewidth=2)
+    # ax1.plot(inp2[:,idx_off], at[:], label='ano',linewidth=2)
+    # ax1.legend()
+    # ax1.set_xlim(-0.03, 0.03)
+    # ax1.set_ylim(1,2.5)
+    # ax1.set_ylabel('Time (s)')
+    # ax1.set_xlabel('Amplitude')
+    # ax1.grid()
+    # plt.gca().invert_yaxis()
+    # fig.tight_layout()
 
+plt.figure()
+plt.plot(tau_opt,at_cut_final,'.')
     
 plt.figure(figsize=(8,6))
+plt.plot(shot*dx,picked_ts,'.',label='picked ts')
 plt.plot(shot*dx,cc_ts,'.',label='cross-corr ts')
 plt.plot(shot*dx,np.array(sum_ts)*1000,'.',label='theo ts')
+
 plt.legend()
 plt.xlabel('Position (x)')
 plt.ylabel('time-shift')
