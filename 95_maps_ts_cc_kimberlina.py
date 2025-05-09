@@ -211,6 +211,8 @@ def plot_traces_TS(inp1, inp2, at, off, CC_TS, fb, fb2,title,name):
 
 #%%
 
+path = 'c:/users/victorcabiativapico/SpotLight/SpotLighters - SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Data_synthetics'
+
 year = 30
 part = '_p2_v1'
 name = str(year)+part
@@ -270,8 +272,8 @@ for title in tqdm(shot_nb):
     # tr1 = '../output/90_kimberlina_mod_v3_high/full_sum/f_y0/t1_obs_000'+str(title).zfill(3)+'.dat'
     # tr2 = '../output/92_kimberlina_corr_amp/full_sum/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
  
-    tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr1 = path +'/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr2 =path + '/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
  
     
     inp1 = -gt.readbin(tr1, no, nt).transpose()
@@ -371,12 +373,16 @@ for title in tqdm(shot_nb):
                 win2 = at[-1]*1000
             
             max_cross_corr.append(procs.max_cross_corr(inp1[:,i],inp2[:,i],win1=win1,win2=win2,thresh=None,si=dt,taper=25))
+            pk_base = procs.extremum_func(inp1[:,i],win1=win1,win2=win2,maxi=False,si=dt)
+            pk_monitor = procs.extremum_func(inp2[:,i],win1=win1,win2=win2,maxi=False,si=dt)
+            
         else: 
             max_cross_corr.append(0)
+            pk_base = [0,0]
+            pk_monitor = [0,0]
+            
         
-        pk_base = procs.extremum_func(inp1[:,i],win1=win1,win2=win2,maxi=False,si=dt)
-        pk_monitor = procs.extremum_func(inp2[:,i],win1=win1,win2=win2,maxi=False,si=dt)
-        
+       
         t_pick_base.append(pk_base[0])
         a_pick_base.append(pk_base[1])
         t_pick_monitor.append(pk_monitor[0])
@@ -525,8 +531,8 @@ for j in range(2000,4000,500):
     fb2 = np.array(fb_all[title-shot_nb[0]][j]) + win2_add
     
      
-    tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-    tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr1 = path +'/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
+    tr2 =path + '/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
 
     
        

@@ -14,7 +14,7 @@ from scipy.interpolate import CubicSpline, interp1d,PchipInterpolator
 from scipy.ndimage import gaussian_filter
 from scipy.optimize import minimize, differential_evolution,curve_fit
 from stochopy.optimize import cpso, pso, cmaes, cpso
-
+from scipy import linalg
 from spotfunk.res import procs
 import pandas as pd
 
@@ -56,9 +56,9 @@ def truncate_float(float_number, decimal_places):
 # %%
 path = 'c:/users/victorcabiativapico/SpotLight/SpotLighters - SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Data_synthetics'
 
-# inv_type = 0 # multiply a
+inv_type = 0 # multiply a
 # inv_type = 1 # sum a
-inv_type = 2 # sum a shifted
+# inv_type = 2 # sum a shifted
 # inv_type = 3
 
 # 
@@ -125,6 +125,140 @@ diff = org - ano
 
 ''' Create interpolation function to call new time-shift index'''
 
+nb_points = 16
+
+
+
+int_idx = len(at)//nb_points +1
+at_cut_final = at[::int_idx]
+
+a_init = np.zeros_like(at_cut_final) + 1
+
+
+
+a_test = np.copy(a_init)
+a_init[12] = 3
+
+
+
+tau_init = np.zeros_like(at_cut_final)
+
+
+def time_shift_correction( a_init,tau_init):
+       
+    f_a = PchipInterpolator(at_cut_final, a_init)
+    f_tau = PchipInterpolator(at_cut_final, tau_init)
+    f_org = CubicSpline(at, org, extrapolate=True)
+
+    dm = []
+    for i, t in enumerate(at):
+        t2 = t - f_tau(t)
+        if t2 < t:
+            dmod = f_org(t2) * f_a(t)
+            
+        else:
+            dmod = org[i] * f_a(t)
+        dm.append(dmod)
+    dm = np.array(dm)    
+    return dm
+
+dm = time_shift_correction(a_init,tau_init)
+
+dm = np.copy(ano)
+
+
+f_dm = CubicSpline(at,dm, extrapolate=True)
+dm_samp = f_dm(at_cut_final)
+
+
+
+tau_ones = np.ones(len(tau_init))
+
+Bi_ones = np.diag(a_test)
+Bk_ones = np.diag(tau_init)
+
+
+functions_Bi = []
+arrays_Bi = []
+
+for i in range(len(Bi_ones)): 
+    functions_Bi.append(PchipInterpolator(at_cut_final, Bi_ones[i],extrapolate=True))
+    arrays_calc = functions_Bi[-1](at)
+    arrays_Bi.append(arrays_calc[~np.isnan(arrays_calc)])
+    
+    
+plt.figure()
+for array in arrays_Bi:  plt.plot(array)
+
+# functions_Bk = []
+# arrays_Bk = []
+# for array in Bk_ones: 
+#     functions_Bk.append(PchipInterpolator(at_cut_final, array,extrapolate=False))
+#     arrays_Bk.append(functions_Bk[-1](at))
+
+
+lam = 0.001
+
+A_ik_mat = np.zeros((nb_points,nb_points))
+
+
+
+for i in range(nb_points):
+    for j in range(nb_points):
+        A_ik_mat[i,j] = np.sum(arrays_Bi[i]* org**2  * arrays_Bi[j])
+
+    A_ik_mat[i,i] = A_ik_mat[i,i] + lam
+
+
+B_k =  []
+for i in range(nb_points): 
+    B_k.append(np.sum(org * dm * arrays_Bi[i]))
+B_k = np.array(B_k) + lam
+
+x = linalg.solve(A_ik_mat, B_k)
+
+d_inv = time_shift_correction(x, tau_init)
+
+plt.figure()
+plt.title('A_ik matrix')
+plt.imshow(A_ik_mat)
+plt.colorbar()
+
+
+
+plt.figure(figsize=(4,8))
+plt.plot(B_k,at_cut_final)
+plt.gca().invert_yaxis()
+plt.xlabel('B_k')
+plt.ylabel('Time (s)')
+
+
+
+
+plt.figure(figsize=(4,8))
+plt.plot(x,at_cut_final,'.')
+plt.gca().invert_yaxis()
+plt.xlabel('Amplitude')
+plt.ylabel('Time (s)')
+
+fig = plt.figure(figsize=(4, 8))
+plt.title('Traces')
+plt.plot(org, at, '-',label='Baseline')
+plt.plot(dm, at, '-',label='Monitor')
+plt.plot(d_inv,at,'--',label='d_inv')
+# plt.ylim(0.6,1.7)
+plt.xlabel('Amplitude')
+plt.ylabel('Time (s)')
+plt.ylim(1.4,2.3)
+plt.xlim(-1, 1)
+plt.legend(loc='upper right')
+fig.tight_layout()
+plt.xlim(-np.max(dm), np.max(dm))
+plt.gca().invert_yaxis()
+
+
+
+#%%
 
 def forward_sample(param):
     "Forward modelling"

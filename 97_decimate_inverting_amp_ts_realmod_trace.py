@@ -14,7 +14,6 @@ from scipy.interpolate import CubicSpline, interp1d,PchipInterpolator
 from scipy.ndimage import gaussian_filter
 from scipy.optimize import minimize, differential_evolution,curve_fit
 from stochopy.optimize import cpso, pso, cmaes, cpso
-import pyswarms as ps
 from spotfunk.res import procs
 import pandas as pd
 
@@ -54,10 +53,13 @@ def truncate_float(float_number, decimal_places):
     return int(float_number * multiplier) / multiplier
 
 # %%
+path = 'c:/users/victorcabiativapico/SpotLight/SpotLighters - SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Data_synthetics'
 
 inv_type = 0 # multiply a
 # inv_type = 1 # sum a
 inv_type = 2 # sum a shifted
+
+inv_type = 3
 
 title = 166
 # title = 208
@@ -90,9 +92,9 @@ noise_g = np.random.normal(0,0.002,nt)
 noise = procs.freq_filtering(noise_g,10,15,80,100,butter=False,slope1=12,slope2=18,bandstop=False,si=dt)
 noise = 0
 
-tr1 = '../output/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
-tr2 = '../output/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
- 
+tr1 = path +'/94_kimberlina_v4/full_sum/medium/f_0/t1_obs_000'+str(title).zfill(3)+'.dat'
+tr2 = path + '/94_kimberlina_v4/full_sum/medium/f_'+name+'/t1_obs_000'+str(title).zfill(3)+'.dat'
+
 
 off = 0.57
 idx_off = int(off * 1000 // 12 + 125)
@@ -125,13 +127,20 @@ diff = org - ano
 def forward_sample(param):
     "Forward modelling"
     dm = []
-    a_vals = param[:len(at_cut)]
-    tau_vals = param[len(at_cut):]
     
-    f_a = PchipInterpolator(at_cut, a_vals)
-    f_tau = PchipInterpolator(at_cut, tau_vals)
-    f_new = CubicSpline(at, org, extrapolate=True)
-
+    if inv_type==3:
+        tau_vals = np.copy(param)
+        f_tau = PchipInterpolator(at_cut, tau_vals)
+        f_new = CubicSpline(at, org, extrapolate=True)
+        f_a = 0
+    else:   
+        a_vals = param[:len(at_cut)]
+        tau_vals = param[len(at_cut):]
+    
+        f_a = PchipInterpolator(at_cut, a_vals)
+        f_new = CubicSpline(at, org, extrapolate=True)
+        f_tau = PchipInterpolator(at_cut, tau_vals)
+        
     for i, t in enumerate(at):
         t2 = t - f_tau(t)
         if t2 < t:
@@ -142,6 +151,8 @@ def forward_sample(param):
             elif inv_type == 2 :
                 t_mov = f_new(t2)
                 dmod = t_mov + f_a(t_mov)
+            elif inv_type ==3:
+                dmod = f_new(t2)
         else:
             dmod = org[i]
         dm.append(dmod)
@@ -195,24 +206,32 @@ elif inv_type == 1  or inv_type == 2:
     a_init = np.zeros_like(at_cut) 
 
 
-
 tau_init = np.zeros_like(at_cut)
-param_init = np.concatenate([a_init, tau_init])
+
+if inv_type ==3:
+    param_init = tau_init
+ 
+else: 
+    param_init = np.concatenate([a_init, tau_init])
+    
+
+
 
 ''' Define constraints and bounds'''
 
 if inv_type==0:
     a_lower, a_upper = 0.75, 1.25  # range for a(t)
-    tau_lower, tau_upper = 0, 0.01  # range for tau(t)
 elif inv_type == 1  or inv_type == 2:
     a_lower, a_upper = -1, 1  # range for a(t)
-    tau_lower, tau_upper = 0, 0.15  # range for tau(t)
+ 
+tau_lower, tau_upper = 0, 0.15 # range for tau(t)
 
 
-
-
-bounds = [(a_lower, a_upper)] * len(at_cut) + \
-    [(tau_lower, tau_upper)] * len(at_cut)
+if inv_type==3:
+    bounds = [(tau_lower, tau_upper)] * len(at_cut)
+else:
+    bounds = [(a_lower, a_upper)] * len(at_cut) + \
+        [(tau_lower, tau_upper)] * len(at_cut)
 
 
 method = 'Nelder-Mead'
@@ -231,6 +250,9 @@ print(result)
 
 a_opt = result.x[:len(at_cut)]
 tau_opt = result.x[len(at_cut):]
+
+if inv_type == 3:
+    tau_opt = result.x
 
 
 #%%
@@ -254,7 +276,7 @@ tau_opt = result.x[len(at_cut):]
 # plt.plot(a_init, at_cut, '--', color= 'tab:orange',label='Init')
 # plt.legend()
 # plt.gca().invert_yaxis()
-# # flout = '../png/94_amp_ts_inversion/amp_points.png'
+# # flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/amp_points.png'
 # fig.tight_layout()
 # # print("Export to file:", flout)
 # # fig.savefig(flout, bbox_inches='tight')
@@ -270,7 +292,7 @@ tau_opt = result.x[len(at_cut):]
 # # plt.ylim(0.5,2.0)
 # # plt.xlim(-0.1,0.1)
 # plt.gca().invert_yaxis()
-# # flout = '../png/94_amp_ts_inversion/ts_points.png'
+# # flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/ts_points.png'
 # fig.tight_layout()
 # # print("Export to file:", flout)
 # # fig.savefig(flout, bbox_inches='tight')
@@ -282,7 +304,8 @@ tau_opt = result.x[len(at_cut):]
 
 plt.rcParams['font.size'] = 17
 
-f_a_opt = PchipInterpolator(at_cut, a_opt, extrapolate=True)
+if inv_type != 3:
+    f_a_opt = PchipInterpolator(at_cut, a_opt, extrapolate=True)
 f_tau_opt = PchipInterpolator(at_cut, tau_opt, extrapolate=True)
 
 fig = plt.figure(figsize=(4, 8))
@@ -299,37 +322,57 @@ plt.ylabel('Time (s)')
 # plt.ylim(0.5,2.0)
 # plt.xlim(-0.1,0.1)
 plt.gca().invert_yaxis()
-flout = '../png/94_amp_ts_inversion/ts_interpolate.png'
+flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/ts_interpolate.png'
 fig.tight_layout()
 print("Export to file:", flout)
 fig.savefig(flout, bbox_inches='tight')
+
+if inv_type!=3:
+    fig = plt.figure(figsize=(4, 8))
+    plt.title('amplitude')
+    plt.plot(f_a_opt(at), at, '-', color= 'tab:blue',label='Inv')
+    # plt.plot(f_a(at), at, '-', color= 'tab:green',label='True')
+    plt.plot(a_init, at_cut, '--', color= 'tab:orange',label='Init')
+    # plt.plot(a_cut, at_cut,'o', color= 'tab:green')
+    plt.plot(a_opt, at_cut,'o', color= 'tab:blue')
+    plt.legend()
+    plt.xlabel('Amplitude')
+    plt.ylabel('Time (s)')
+    # plt.ylim(0.9,2.0)
+    # plt.ylim(0.5,2.0)
+    # plt.xlim(-0.1,0.1)
+    plt.gca().invert_yaxis()
+    flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/amp_interpolate.png'
+    fig.tight_layout()
+    print("Export to file:", flout)
+    fig.savefig(flout, bbox_inches='tight')
+
+dm_samp_init,f_a_init,f_tau_init = forward_sample(param_init)
+param_final =  np.concatenate([a_opt, tau_opt])
+
+if inv_type==3:
+    param_final = np.copy(tau_opt)
+    
+dm_samp_final,f_a_final,f_tau_final = forward_sample(param_final)
 
 
 fig = plt.figure(figsize=(4, 8))
-plt.title('amplitude')
-plt.plot(f_a_opt(at), at, '-', color= 'tab:blue',label='Inv')
-# plt.plot(f_a(at), at, '-', color= 'tab:green',label='True')
-plt.plot(a_init, at_cut, '--', color= 'tab:orange',label='Init')
-# plt.plot(a_cut, at_cut,'o', color= 'tab:green')
-plt.plot(a_opt, at_cut,'o', color= 'tab:blue')
+plt.title('Traces')
+plt.plot(org, at, label='Baseline')
+plt.plot(dm_samp, at, label='Monitor')
+plt.plot(dm_samp_final, at,'--', label='inversion')
 plt.legend()
-plt.xlabel('Amplitude')
-plt.ylabel('Time (s)')
+plt.legend(loc='upper right')
 # plt.ylim(0.9,2.0)
-# plt.ylim(0.5,2.0)
-# plt.xlim(-0.1,0.1)
+plt.ylim(1.5, 2.3)
+plt.xlim(-1, 1)
+plt.xlabel('amplitude')
+plt.ylabel('Time (s)')
 plt.gca().invert_yaxis()
-flout = '../png/94_amp_ts_inversion/amp_interpolate.png'
+flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/inverted_trace.png'
 fig.tight_layout()
 print("Export to file:", flout)
 fig.savefig(flout, bbox_inches='tight')
-
-dm_samp_init,f_a_init,f_tau_init = forward_sample(param_init)
-
-param_final =  np.concatenate([a_opt, tau_opt])
-
-dm_samp_final,f_a_final,f_tau_final = forward_sample(param_final)
-
 
 fig = plt.figure(figsize=(4, 8))
 plt.title('Traces')
@@ -344,7 +387,7 @@ plt.xlim(-1, 1)
 plt.xlabel('amplitude')
 plt.ylabel('Time (s)')
 plt.gca().invert_yaxis()
-flout = '../png/94_amp_ts_inversion/inverted_trace.png'
+flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/inverted_trace.png'
 fig.tight_layout()
 print("Export to file:", flout)
 fig.savefig(flout, bbox_inches='tight')
@@ -373,7 +416,7 @@ plt.plot(aj)
 plt.ylim(0,aj[0])
 plt.ylabel('error')
 plt.xlabel('iter')
-flout = '../png/94_amp_ts_inversion/cost_function.png'
+flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/cost_function.png'
 fig.tight_layout()
 print("Export to file:", flout)
 fig.savefig(flout, bbox_inches='tight')
@@ -502,7 +545,7 @@ plt.xlabel('time-shift')
 plt.ylabel('Time (s)')
 plt.legend()
 plt.gca().invert_yaxis()
-flout = '../png/94_amp_ts_inversion/ts_all.png'
+flout = '../../fortran/out2dcourse/png/94_amp_ts_inversion/ts_all.png'
 fig.tight_layout()
 print("Export to file:", flout)
 fig.savefig(flout, bbox_inches='tight')

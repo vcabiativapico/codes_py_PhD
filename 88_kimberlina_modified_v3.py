@@ -115,11 +115,14 @@ def crop_fill(inp1,inp2,z_limit):
     return inp_mix
 #%%
 
+path = 'c:/users/victorcabiativapico/SpotLight/SpotLighters - SpotLight/R&D/DOSSIER_PERSO_SpotLighters_RD/SpotVictor/Data_synthetics'
+
+
 nx = 801
 nz = 187
 
+flnam = path+ '/84_overthrust/overthrust2D'
 
-flnam = '../input/84_overthrust/overthrust2D'
 # inp_overthrust = gt.readbin(flnam, nz, nx)/2300 +0.52
 inp_overthrust = gt.readbin(flnam, nz, nx) /1900 +0.3
 
@@ -141,8 +144,8 @@ plot_test_model(inp_merge3)
 
 vp_value = []
 year_vp= []
-for i in range(0,51,5):
-    fl_kim_y0 = '../input/83_kimberlina2d/original/vp_year'+str(i)+'/vp_year'+str(i)+'_slide10.bin'
+for i in range(0,35,5):
+    fl_kim_y0 =  path+ '/83_kimberlina2d/vp_year'+str(i)+'/vp_year'+str(i)+'_slide10.bin'
     
     # inp_kim2d_y0 = gt.readbin(fl_kim_y0,350,600)/1000+0.28
     
@@ -160,20 +163,20 @@ for i in range(0,51,5):
     year_vp.append(str(i))
     
     
-    # gt.writebin(inp_mix_rs,'../input/94_kimberlina_v4/mix_model_rs_y'+str(i)+'.dat')
+    gt.writebin(inp_mix_rs,  path+ '/94_kimberlina_v4/mix_model_rs_y'+str(i)+'.dat')
  
     if i==0:
         sm_0 = gaussian_filter(inp_mix_rs, 8)
         
         plot_test_model(sm_0)
              
-        # gt.writebin(sm_0,'../input/94_kimberlina_v4/mix_model_rs_sm0.dat')
+        gt.writebin(sm_0, path+ '/94_kimberlina_v4/mix_model_rs_sm0.dat')
 
 
-# file = '../output/90_kimberlina_mod_v3_high/res_vp_value_new.csv'
+file = path+ '/90_kimberlina_mod_v3_high/res_vp_value_new.csv'
 
-# df = pd.DataFrame({'year':year_vp,'res_vp_value':vp_value})
-# df.to_csv(file,index=None)
+df = pd.DataFrame({'year':year_vp,'res_vp_value':vp_value})
+df.to_csv(file,index=None)
 
 plot_test_model(sm_0)
 
@@ -208,22 +211,22 @@ label = []
 # year = 'y20'
 
 
-for year in range(50,5,-5):
+for year in range(30,5,-5):
     kim_over_sm0_slowness_rs = 1/sm_0**2
     # plot_model(kim_over_sm0_slowness_rs)
     
     nx = 601
     nz = 151
     
-    fl3 = '../output/94_kimberlina_v4/y0/inv_betap_x_s.dat'
+    fl3 =  path+ '/94_kimberlina_v4/y0/inv_betap_x_s.dat'
     org = gt.readbin(fl3,nz,nx)
     flout = '../png/inv_betap_x_s.png'
     # plot_model(org)
     
-    fl2 = '../input/94_kimberlina_v4/mix_model_rs_y0.dat'
+    fl2 =  path+ '/94_kimberlina_v4/mix_model_rs_y0.dat'
     org_full = gt.readbin(fl2,nz,nx)
     
-    fl21 = '../input/94_kimberlina_v4/mix_model_rs_y'+str(year)+'.dat'
+    fl21 =  path+ '/94_kimberlina_v4/mix_model_rs_y'+str(year)+'.dat'
     ano_full = gt.readbin(fl21,nz,nx)
     
     
@@ -270,7 +273,7 @@ for year in range(50,5,-5):
  
     # plot_test_model(kim_org_sum)
     
-    if year == 50:
+    if year == 30:
         hmin = np.min(anomaly_full)
         hmax = np.max(anomaly_full)
     
@@ -279,7 +282,7 @@ for year in range(50,5,-5):
     # plt.figure()
         
     # plot_test_model(kim_diff_sum)
-    if year == 50:
+    if year == 30:
         hmin2 = np.min(kim_diff_part2_v1)
         hmax2 = np.max(kim_diff_part2_v1)
         
@@ -299,18 +302,18 @@ for year in range(50,5,-5):
     # plt.title('year = '+str(year))
     
     
-    # gt.writebin(kim_org_sum,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y0.dat')
-    # gt.writebin(kim_ano_sum,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'.dat')
+    gt.writebin(kim_org_sum, path+ '/94_kimberlina_v4/full_sum/sum_kim_model_y0.dat')
+    gt.writebin(kim_ano_sum, path+ '/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'.dat')
     
-    # gt.writebin(kim_y20_part1,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p1.dat')
-    # gt.writebin(kim_y20_part2,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p2.dat')
-    # gt.writebin(kim_y20_part3,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p3.dat')
+    # gt.writebin(kim_y20_part1, path+ '/input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p1.dat')
+    # gt.writebin(kim_y20_part2, path+ '/input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p2.dat')
+    # gt.writebin(kim_y20_part3, path+ '/input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p3.dat')
     
-    # gt.writebin(kim_y10_part2_v1,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p2_v1.dat')
-    # gt.writebin(kim_y10_part2_v2,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p2_v2.dat')
+    gt.writebin(kim_y10_part2_v1, path+ '/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p2_v1.dat')
+    # gt.writebin(kim_y10_part2_v2, path+ '/input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p2_v2.dat')
     
-    # gt.writebin(kim_y20_part3_v1,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p3_v1.dat')
-    # gt.writebin(kim_y20_part3_v2,'../input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p3_v2.dat')
+    # gt.writebin(kim_y20_part3_v1, path+ '/input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p3_v1.dat')
+    # gt.writebin(kim_y20_part3_v2, path+ '/input/94_kimberlina_v4/full_sum/sum_kim_model_y'+str(year)+'_p3_v2.dat')
     
     vp_max_diff.append(np.max(kim_diff_part2_v1))
     vp_mean_diff.append(np.mean(kim_diff_part2_v1))
